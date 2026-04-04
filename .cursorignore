@@ -1,0 +1,60 @@
+# Cursor: riduce contesto e evita segreti su frontend (storefront), backend e pannelli.
+
+# ----- Dipendenze -----
+**/node_modules/
+
+# ----- Build / output -----
+**/.next/
+**/out/
+**/dist/
+**/dist-ssr/
+**/build/
+**/.cache/
+**/coverage/
+**/.turbo/
+**/.vercel/
+dati_venditori/*.json
+!/root/marketplace/dati_ecommerce/output/alpemagna-catalog-enriched.json
+
+# Medusa / Mercur
+**/.medusa/
+
+# ----- Segreti e env locali (restano leggibili solo template / example) -----
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.production
+**/.env.development
+**/.env.test
+!**/.env.example
+!**/.env.template
+!**/.env.local.example
+
+backend/.algolia-admin-key
+
+# ----- Backend: upload e dump DB -----
+backend/uploads/
+**/medusa-db.sql
+
+# ----- Log e artefatti -----
+**/*.log
+**/yarn-error.log*
+**/npm-debug.log*
+**/.pnpm-debug.log*
+
+# ----- Yarn Berry (cache voluminosa) -----
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/sdks
+!**/.yarn/versions
+
+**/.pnp.*
+**/.pnp.js
+
+# ----- Misc -----
+**/.DS_Store
+**/*.pem
+**/next-env.d.ts
+**/*.tsbuildinfo

@@ -1,0 +1,131 @@
+{
+  "source": {
+    "productUrl": "https://alpemagna.com/prodotti/ragu-ai-funghi-del-bosco/",
+    "listingUrl": null
+  },
+  "scrapedAt": "2026-04-04T01:48:46.124Z",
+  "listing": {
+    "title": null,
+    "price": null,
+    "currency": "EUR",
+    "images": [
+      {
+        "role": "card_primary",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185322/Funghi-1200x1500.webp"
+      },
+      {
+        "role": "card_secondary",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185248/Ragu-di-funghi-del-bosco-800x1064.webp"
+      }
+    ]
+  },
+  "product": {
+    "url": "https://alpemagna.com/prodotti/ragu-ai-funghi-del-bosco/",
+    "title": "RAGU di FUNGHI del BOSCO",
+    "line": "Memorie Alpine",
+    "description": "Ragù di funghi del bosco a lenta cottura realizzato con un’armonioso mix di 5 varietà di funghi, con eccellenze biologiche dell’Alto Adige lavorate a mano per preservarne la naturale croccantezza.",
+    "price": {
+      "amount": 7.9,
+      "formatted": "7,90 €"
+    },
+    "formatLabel": "vasetto 180g",
+    "images": [
+      {
+        "role": "hero",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185248/Ragu-di-funghi-del-bosco-800x1064.webp"
+      },
+      {
+        "role": "srcset_1",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185248/Ragu-di-funghi-del-bosco-400x532.webp"
+      },
+      {
+        "role": "srcset_2",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185248/Ragu-di-funghi-del-bosco-600x798.webp"
+      },
+      {
+        "role": "srcset_3",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185248/Ragu-di-funghi-del-bosco.webp"
+      }
+    ],
+    "infoGrid": {
+      "sections": [
+        {
+          "heading": "Ingredienti",
+          "type": "text",
+          "body": "Funghi misti in proporzione variabile (cardoncello bio, champignon, porcino, pioppino, shitake bio), verdure fresche in proporzione variabile (cipolla, carota, sedano), olio EVO italiano, concentrato di pomodoro, vino rosso trentino (solfiti), farina di riso, sale marino, salsa di soia, spezie, aromi naturali, rosmarino."
+        },
+        {
+          "heading": "Abbinamenti",
+          "type": "text",
+          "body": "Perfetto per condire pappardelle e pasta corta, con polenta morbida, carni bianche o rosse, su crostoni di pane tostato, come base per torte salate o per arricchire ripieni e preparazioni vegane. Se riscaldato aggiungere un filo di olio EVO.",
+          "tags": [
+            "Pappardelle",
+            "Pinot Nero"
+          ]
+        },
+        {
+          "heading": "Valori nutrizionali",
+          "type": "list",
+          "items": [
+            "Valore energetico 526 kJ / 127 kcal",
+            "Grassi 10 g di cui acidi grassi saturi 1,6 g",
+            "Carboidrati 7,8 g di cui zuccheri 1,8 g",
+            "Proteine 1,4 g",
+            "Sale 1,1 g"
+          ]
+        },
+        {
+          "heading": "Caratteristiche",
+          "type": "keyValue",
+          "pairs": [
+            {
+              "label": "NOTE AROMATICHE",
+              "value": "Umami, sentore delicato di sottobosco"
+            },
+            {
+              "label": "COLORE",
+              "value": "Marroe ocra"
+            },
+            {
+              "label": "NOTE GUSTATIVE",
+              "value": "Avvolgente, equilibrato e croccante"
+            }
+          ]
+        },
+        {
+          "heading": "Formati disponibili",
+          "type": "text",
+          "body": "180g"
+        },
+        {
+          "heading": "Shelf",
+          "type": "text",
+          "body": "24 mesi"
+        }
+      ],
+      "galleryCaptions": [
+        {
+          "imageUrl": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/21105620/Cardoncello-1.png",
+          "caption": "Cardoncello e Shiitake biologici dall’Alto Adige donano croccantezza e nota umami alla ricetta"
+        },
+        {
+          "imageUrl": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152254/Porcini.png",
+          "caption": "I porcini donano al sugo in un aroma intenso di sottobosco."
+        },
+        {
+          "imageUrl": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152245/Concentrato-pomodoro-1.png",
+          "caption": "Il concentrato di pomodoro dona al ragù un colore intenso e una naturale profondità di gusto"
+        },
+        {
+          "imageUrl": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152235/Macerazione-vino.png",
+          "caption": "Un tocco di vino rosso dona alla ricetta corposità e gusto"
+        }
+      ]
+    },
+    "trustRow": [
+      "Spedizione veloce",
+      "Consegna protetta",
+      "Pagamenti sicuri"
+    ]
+  }
+}

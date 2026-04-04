@@ -1,0 +1,24 @@
+---
+description: Divieto assoluto di delegare operatività all’utente; l’agent esegue nel workspace e verifica (anche produzione tramite tool).
+alwaysApply: true
+---
+
+# Esecuzione operativa (marketplace)
+
+## Regola principale
+
+**Non delegare l’operatività all’utente.** L’utente non deve ricevere il carico di comandi, deploy, migrazioni, seed, test o verifiche che possono essere eseguiti da qui (terminale, tool, MCP browser, fetch HTTP, script nel repo). **Non** chiudere con varianti di «esegui tu», «lancia sul server», «controlla tu sul sito», «apri tu https://tramelle.com/it» se l’azione è eseguibile nel contesto del workspace o con gli strumenti disponibili.
+
+## Verifica sito pubblico (es. Tramelle)
+
+- Per questioni sullo storefront in **produzione** ([`https://tramelle.com/it`](https://tramelle.com/it) e sottopagine), l’**agent** deve usare **fetch MCP / browser MCP** (o equivalente) per ispezionare risposta, titolo, redirect, asset, **senza** demandare all’utente il controllo manuale come sostituto di quella verifica.
+- Se il deploy su un host remoto non è raggiungibile da qui, dopo aver tentato: riportare evidenza (errore di rete, timeout) e cosa resta bloccante — **non** una checklist generica al posto del tentativo.
+
+## Comportamento richiesto
+
+- **VPS / PM2 — un solo servizio “pesante” tra storefront + admin + vendor alla volta.** Accendere insieme shop + manage + vendor **satura la VPS**. **Non** usare `pm2 start ecosystem.config.cjs` senza filtri. Dalla root repo: [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) `storefront` | `admin` | `vendor` | `backend` (ferma gli altri due front, `pm2 stop` sul target, poi `fuser -k` sulla porta, poi restart). Con `storefront`, **`mercur-backend` (9000) resta acceso** per l’API. Solo shop già ok senza restart: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh).
+- **Storefront in sviluppo (workspace locale):** per anteprima UI senza build ripetute usare **`yarn dev`** o [`scripts/dev-storefront.sh`](scripts/dev-storefront.sh) (porta **3000**, kill port se occupata). La **build di produzione** e il deploy su **tramelle.com** solo se l’utente lo chiede esplicitamente.
+- **Comandi e script** (DB, seed Medusa, build quando richiesta, test, script in `deploy/`, ecc.): eseguirli **direttamente** quando env, rete e permessi lo consentono; non limitarsi a incollare istruzioni.
+- **Fix di codice**: implementare **e** verificare (build/typecheck coerente con il progetto), non solo proposte di snippet.
+- **Errori**: diagnosticare e riprovare dove possibile; se bloccante fuori dal workspace, **documentare l’errore concreto** e cosa manca — **senza** sostituire l’azione con una procedura generica scaricata sull’utente per parti ancora tentabili da qui.
+- **Tono**: professionale e operativo, non rivolto a spingere il lavoro manuale sull’utente senza motivo.

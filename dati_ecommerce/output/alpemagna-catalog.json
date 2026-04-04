@@ -1,0 +1,4154 @@
+{
+  "source": {
+    "storeApi": "https://alpemagna.com/wp-json/wc/store/v1/products",
+    "filtersHtml": "/root/marketplace/La nostra dispensa - Alpe Magna.html"
+  },
+  "scrapedAt": "2026-04-04T02:27:14.456Z",
+  "summary": {
+    "productCount": 36,
+    "attributeDimensions": 5
+  },
+  "filtersUi": {
+    "source": "/root/marketplace/La nostra dispensa - Alpe Magna.html",
+    "productsFormMeta": {
+      "perPage": "12",
+      "offset": "12",
+      "total": "36"
+    },
+    "filters": [
+      {
+        "key": "categoria",
+        "label": "Categoria",
+        "options": [
+          {
+            "slug": "armonie",
+            "label": "Armonie"
+          },
+          {
+            "slug": "box-regalo",
+            "label": "Box Regalo"
+          },
+          {
+            "slug": "memorie-alpine",
+            "label": "Memorie Alpine"
+          },
+          {
+            "slug": "memorie-italiane",
+            "label": "Memorie Italiane"
+          },
+          {
+            "slug": "purezze",
+            "label": "Purezze"
+          }
+        ]
+      },
+      {
+        "key": "esigenze",
+        "label": "Esigenze alimentari",
+        "options": [
+          {
+            "slug": "vegano",
+            "label": "Vegano"
+          },
+          {
+            "slug": "vegetariano",
+            "label": "Vegetariano"
+          },
+          {
+            "slug": "senza-conservanti",
+            "label": "Senza conservanti"
+          },
+          {
+            "slug": "senza-glutine",
+            "label": "Senza glutine"
+          },
+          {
+            "slug": "senza-lattosio",
+            "label": "Senza lattosio"
+          },
+          {
+            "slug": "molte-proteine",
+            "label": "Con molte proteine"
+          }
+        ]
+      },
+      {
+        "key": "utilizzo",
+        "label": "Tipo di utilizzo",
+        "options": [
+          {
+            "slug": "per-pasta-e-risotti",
+            "label": "Per pasta e risotti"
+          },
+          {
+            "slug": "come-piatto-principale",
+            "label": "Come piatto principale"
+          },
+          {
+            "slug": "anche-per-aperitivo",
+            "label": "Anche per l'aperitivo"
+          },
+          {
+            "slug": "anche-freddo",
+            "label": "Anche freddo"
+          }
+        ]
+      },
+      {
+        "key": "ingrediente",
+        "label": "Ingrediente principale",
+        "options": [
+          {
+            "slug": "carne",
+            "label": "Con carne"
+          },
+          {
+            "slug": "salumi",
+            "label": "Con salumi"
+          },
+          {
+            "slug": "selvaggina",
+            "label": "Con selvaggina"
+          },
+          {
+            "slug": "verdure",
+            "label": "Con verdure"
+          },
+          {
+            "slug": "formaggio",
+            "label": "Con formaggio"
+          },
+          {
+            "slug": "pesce",
+            "label": "Con pesce"
+          },
+          {
+            "slug": "funghi",
+            "label": "Con funghi"
+          }
+        ]
+      },
+      {
+        "key": "gusto",
+        "label": "Intensità di gusto",
+        "options": [
+          {
+            "slug": "delicato",
+            "label": "Delicato"
+          },
+          {
+            "slug": "equilibrato",
+            "label": "Equilibrato"
+          },
+          {
+            "slug": "intenso",
+            "label": "Intenso"
+          },
+          {
+            "slug": "affumicato",
+            "label": "Affumicato"
+          },
+          {
+            "slug": "speziato",
+            "label": "Speziato"
+          },
+          {
+            "slug": "fresco",
+            "label": "Fresco"
+          }
+        ]
+      }
+    ]
+  },
+  "attributeIndex": [
+    {
+      "taxonomy": "pa_formato",
+      "name": "Formato",
+      "terms": [
+        {
+          "id": 53,
+          "slug": "2-vasetti-360g",
+          "name": "2 vasetti 360g"
+        },
+        {
+          "id": 52,
+          "slug": "3-vasetti-180g-190g",
+          "name": "3 vasetti 180g / 190g"
+        },
+        {
+          "id": 49,
+          "slug": "vasetto-180g",
+          "name": "vasetto 180g"
+        },
+        {
+          "id": 48,
+          "slug": "vasetto-190g",
+          "name": "vasetto 190g"
+        },
+        {
+          "id": 50,
+          "slug": "vasetto-360g",
+          "name": "vasetto 360g"
+        }
+      ]
+    },
+    {
+      "taxonomy": "pa_ingrediente",
+      "name": "Ingredienti principali",
+      "terms": [
+        {
+          "id": 40,
+          "slug": "carne",
+          "name": "Con carne"
+        },
+        {
+          "id": 38,
+          "slug": "formaggio",
+          "name": "Con formaggio"
+        },
+        {
+          "id": 37,
+          "slug": "funghi",
+          "name": "Con funghi"
+        },
+        {
+          "id": 51,
+          "slug": "pesce",
+          "name": "Con pesce"
+        },
+        {
+          "id": 42,
+          "slug": "salumi",
+          "name": "Con salumi"
+        },
+        {
+          "id": 41,
+          "slug": "selvaggina",
+          "name": "Con selvaggina"
+        },
+        {
+          "id": 39,
+          "slug": "verdure",
+          "name": "Con verdure"
+        }
+      ]
+    },
+    {
+      "taxonomy": "pa_gusto",
+      "name": "Intensità del gusto",
+      "terms": [
+        {
+          "id": 47,
+          "slug": "affumicato",
+          "name": "Affumicato"
+        },
+        {
+          "id": 43,
+          "slug": "delicato",
+          "name": "Delicato"
+        },
+        {
+          "id": 45,
+          "slug": "equilibrato",
+          "name": "Equilibrato"
+        },
+        {
+          "id": 55,
+          "slug": "fresco",
+          "name": "Fresco"
+        },
+        {
+          "id": 44,
+          "slug": "intenso",
+          "name": "Intenso"
+        },
+        {
+          "id": 46,
+          "slug": "speziato",
+          "name": "Speziato"
+        }
+      ]
+    },
+    {
+      "taxonomy": "pa_esigenze",
+      "name": "Preferenze alimentari",
+      "terms": [
+        {
+          "id": 28,
+          "slug": "molte-proteine",
+          "name": "Con molte proteine"
+        },
+        {
+          "id": 27,
+          "slug": "senza-conservanti",
+          "name": "Senza conservanti"
+        },
+        {
+          "id": 24,
+          "slug": "senza-glutine",
+          "name": "Senza glutine"
+        },
+        {
+          "id": 25,
+          "slug": "senza-lattosio",
+          "name": "Senza lattosio"
+        },
+        {
+          "id": 26,
+          "slug": "vegano",
+          "name": "Vegano"
+        },
+        {
+          "id": 23,
+          "slug": "vegetariano",
+          "name": "Vegetariano"
+        }
+      ]
+    },
+    {
+      "taxonomy": "pa_utilizzo",
+      "name": "Tipo di utilizzo",
+      "terms": [
+        {
+          "id": 35,
+          "slug": "anche-freddo",
+          "name": "Anche freddo"
+        },
+        {
+          "id": 36,
+          "slug": "anche-per-aperitivo",
+          "name": "Anche per l'aperitivo"
+        },
+        {
+          "id": 32,
+          "slug": "come-piatto-principale",
+          "name": "Come piatto principale"
+        },
+        {
+          "id": 31,
+          "slug": "per-pasta-e-risotti",
+          "name": "Per pasta e risotti"
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "id": 1465,
+      "sku": "58029",
+      "slug": "ragu-ai-funghi-del-bosco",
+      "name": "Ragù di funghi del bosco",
+      "permalink": "https://alpemagna.com/prodotti/ragu-ai-funghi-del-bosco/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 19,
+          "slug": "memorie-alpine",
+          "name": "Memorie Alpine"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185322/Funghi-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17185248/Ragu-di-funghi-del-bosco-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            },
+            {
+              "id": 26,
+              "slug": "vegano",
+              "name": "Vegano"
+            },
+            {
+              "id": 23,
+              "slug": "vegetariano",
+              "name": "Vegetariano"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 37,
+              "slug": "funghi",
+              "name": "Con funghi"
+            },
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 1462,
+      "sku": "58028",
+      "slug": "sugo-finto-toscano",
+      "name": "Sugo finto toscano",
+      "permalink": "https://alpemagna.com/prodotti/sugo-finto-toscano/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17184926/Finto_Toscano-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2026/02/17184949/Sugo-finto-toscano-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            },
+            {
+              "id": 26,
+              "slug": "vegano",
+              "name": "Vegano"
+            },
+            {
+              "id": 23,
+              "slug": "vegetariano",
+              "name": "Vegetariano"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 35,
+              "slug": "anche-freddo",
+              "name": "Anche freddo"
+            },
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 1182,
+      "sku": "58027",
+      "slug": "pesto-di-basilico-e-limone",
+      "name": "Pesto di basilico e limone del Garda",
+      "permalink": "https://alpemagna.com/prodotti/pesto-di-basilico-e-limone/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 8.7,
+        "regularAmount": 8.7,
+        "currency": "EUR",
+        "formatted": "8,70&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152300/pesto-basilico-limone-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152300/basilico-limone-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 23,
+              "slug": "vegetariano",
+              "name": "Vegetariano"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 35,
+              "slug": "anche-freddo",
+              "name": "Anche freddo"
+            },
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            },
+            {
+              "id": 55,
+              "slug": "fresco",
+              "name": "Fresco"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 1180,
+      "sku": "58026",
+      "slug": "ragu-di-asino",
+      "name": "Ragù di asino",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-asino/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22130444/asinello2-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152300/ragu-di-asino-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 859,
+      "sku": "61025",
+      "slug": "tubo-regalo-nero",
+      "name": "Tubo regalo nero",
+      "permalink": "https://alpemagna.com/prodotti/tubo-regalo-nero/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 4.9,
+        "regularAmount": 4.9,
+        "currency": "EUR",
+        "formatted": "4,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 22,
+          "slug": "box-regalo",
+          "name": "Box Regalo"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22132059/tubo2-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152315/Tubo_nero.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 53,
+              "slug": "2-vasetti-360g",
+              "name": "2 vasetti 360g"
+            },
+            {
+              "id": 52,
+              "slug": "3-vasetti-180g-190g",
+              "name": "3 vasetti 180g / 190g"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 857,
+      "sku": "61172",
+      "slug": "tubo-regalo-inverno",
+      "name": "Tubo regalo inverno",
+      "permalink": "https://alpemagna.com/prodotti/tubo-regalo-inverno/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 4.9,
+        "regularAmount": 4.9,
+        "currency": "EUR",
+        "formatted": "4,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 22,
+          "slug": "box-regalo",
+          "name": "Box Regalo"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152258/DSC07584-Low-600x750.jpg"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152315/Tubo_inverno.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 53,
+              "slug": "2-vasetti-360g",
+              "name": "2 vasetti 360g"
+            },
+            {
+              "id": 52,
+              "slug": "3-vasetti-180g-190g",
+              "name": "3 vasetti 180g / 190g"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 855,
+      "sku": "61171",
+      "slug": "tubo-regalo-estate",
+      "name": "Tubo regalo estate",
+      "permalink": "https://alpemagna.com/prodotti/tubo-regalo-estate/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 4.9,
+        "regularAmount": 4.9,
+        "currency": "EUR",
+        "formatted": "4,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 22,
+          "slug": "box-regalo",
+          "name": "Box Regalo"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22132201/tubo1-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152315/Tubo_estate-600x1820.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 53,
+              "slug": "2-vasetti-360g",
+              "name": "2 vasetti 360g"
+            },
+            {
+              "id": 52,
+              "slug": "3-vasetti-180g-190g",
+              "name": "3 vasetti 180g / 190g"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 847,
+      "sku": "58011",
+      "slug": "ragu-del-garda",
+      "name": "Ragù di sarde del Garda",
+      "permalink": "https://alpemagna.com/prodotti/ragu-del-garda/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152310/hover-ragu-di-sarde-garda-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152306/ragu-del-garda-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 51,
+              "slug": "pesce",
+              "name": "Con pesce"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 845,
+      "sku": "58008",
+      "slug": "ragu-camoscio",
+      "name": "Ragù di camoscio",
+      "permalink": "https://alpemagna.com/prodotti/ragu-camoscio/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 8.7,
+        "regularAmount": 8.7,
+        "currency": "EUR",
+        "formatted": "8,70&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22130813/camoscio2-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152317/ragu-di-camoscio-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 843,
+      "sku": "58203",
+      "slug": "ragu-di-capriolo",
+      "name": "Ragù di capriolo",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-capriolo/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131029/capriolo-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152318/ragu-di-capriolo-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 43,
+              "slug": "delicato",
+              "name": "Delicato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 841,
+      "sku": "58202",
+      "slug": "ragu-di-anatra",
+      "name": "Ragù di anatra",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-anatra/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22130238/anatroccolo2-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152318/ragu-di-anatra-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 839,
+      "sku": "58024",
+      "slug": "ragu-bianchi-di-chianina-igp",
+      "name": "Ragù di chianina IGP",
+      "permalink": "https://alpemagna.com/prodotti/ragu-bianchi-di-chianina-igp/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 8.7,
+        "regularAmount": 8.7,
+        "currency": "EUR",
+        "formatted": "8,70&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152309/hover-ragu-di-chianina-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152318/ragu-bianco-di-chianina-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 43,
+              "slug": "delicato",
+              "name": "Delicato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 837,
+      "sku": "58201",
+      "slug": "ragu-cervo",
+      "name": "Ragù di cervo",
+      "permalink": "https://alpemagna.com/prodotti/ragu-cervo/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131209/cerbiatto-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152319/ragu-di-cervo-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 835,
+      "sku": "58204",
+      "slug": "ragu-di-cinghiale",
+      "name": "Ragù di cinghiale",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-cinghiale/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22145702/DSC08204-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152319/ragu-di-cinghiale-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 833,
+      "sku": "58005",
+      "slug": "ragu-di-speck",
+      "name": "Ragù di speck",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-speck/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152308/hover-ragu-di-speck-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152319/ragu-di-speck-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 47,
+              "slug": "affumicato",
+              "name": "Affumicato"
+            },
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 831,
+      "sku": "58014",
+      "slug": "sugo-radicchio-speck",
+      "name": "Sugo radicchio e speck",
+      "permalink": "https://alpemagna.com/prodotti/sugo-radicchio-speck/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152314/hover-radicchio-speck-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152319/sugo-radicchio-e-speck-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            },
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 829,
+      "sku": "58010",
+      "slug": "sugo-giallo-salmerino-e-capperi",
+      "name": "Sugo giallo salmerino e capperi",
+      "permalink": "https://alpemagna.com/prodotti/sugo-giallo-salmerino-e-capperi/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 8.5,
+        "regularAmount": 8.5,
+        "currency": "EUR",
+        "formatted": "8,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152313/hover-salmerino-capperi-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152320/sugo-giallo-salmerino-e-capperi-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 51,
+              "slug": "pesce",
+              "name": "Con pesce"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 43,
+              "slug": "delicato",
+              "name": "Delicato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 827,
+      "sku": "58407",
+      "slug": "sugo-speck-finferli",
+      "name": "Sugo speck e finferli",
+      "permalink": "https://alpemagna.com/prodotti/sugo-speck-finferli/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152313/hover-speck-finferli-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152320/sugo-speck-e-finferli-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 37,
+              "slug": "funghi",
+              "name": "Con funghi"
+            },
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 47,
+              "slug": "affumicato",
+              "name": "Affumicato"
+            },
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 825,
+      "sku": "58023",
+      "slug": "pesto-del-garda",
+      "name": "Pesto del Garda",
+      "permalink": "https://alpemagna.com/prodotti/pesto-del-garda/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/17184609/pesto_del_garda-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152320/pesto-del-garda.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 35,
+              "slug": "anche-freddo",
+              "name": "Anche freddo"
+            },
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            },
+            {
+              "id": 55,
+              "slug": "fresco",
+              "name": "Fresco"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 823,
+      "sku": "58009",
+      "slug": "tarassaco-guanciale-balsamico",
+      "name": "Tarassaco guanciale e balsamico",
+      "permalink": "https://alpemagna.com/prodotti/tarassaco-guanciale-balsamico/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131946/tarassaco-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152320/tarassaco-guanciale-e-balsamico-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            },
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 821,
+      "sku": "58007",
+      "slug": "sugo-ortiche-e-pancetta",
+      "name": "Sugo ortica e pancetta",
+      "permalink": "https://alpemagna.com/prodotti/sugo-ortiche-e-pancetta/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152314/hover-ortica-pancetta-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152321/sugo-ortica-e-pancetta-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            },
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 47,
+              "slug": "affumicato",
+              "name": "Affumicato"
+            },
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 819,
+      "sku": "58403",
+      "slug": "sugo-porcini-salsiccia",
+      "name": "Sugo porcini e salsiccia",
+      "permalink": "https://alpemagna.com/prodotti/sugo-porcini-salsiccia/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152314/hover-porcini-salsiccia-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152321/sugo-porcini-e-salsiccia-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 37,
+              "slug": "funghi",
+              "name": "Con funghi"
+            },
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 817,
+      "sku": "58006",
+      "slug": "orto-delle-dolomiti",
+      "name": "Orto delle Dolomiti",
+      "permalink": "https://alpemagna.com/prodotti/orto-delle-dolomiti/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 19,
+          "slug": "memorie-alpine",
+          "name": "Memorie Alpine"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152312/hover-orto-dolomiti-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152321/orto-delle-dolomiti-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            },
+            {
+              "id": 26,
+              "slug": "vegano",
+              "name": "Vegano"
+            },
+            {
+              "id": 23,
+              "slug": "vegetariano",
+              "name": "Vegetariano"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 35,
+              "slug": "anche-freddo",
+              "name": "Anche freddo"
+            },
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 43,
+              "slug": "delicato",
+              "name": "Delicato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 815,
+      "sku": "58602",
+      "slug": "gulaschsuppe",
+      "name": "Gulaschsuppe",
+      "permalink": "https://alpemagna.com/prodotti/gulaschsuppe/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 10.9,
+        "regularAmount": 10.9,
+        "currency": "EUR",
+        "formatted": "10,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 19,
+          "slug": "memorie-alpine",
+          "name": "Memorie Alpine"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131453/gulashzuppe2-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152322/gulaschsuppe-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 50,
+              "slug": "vasetto-360g",
+              "name": "vasetto 360g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 32,
+              "slug": "come-piatto-principale",
+              "name": "Come piatto principale"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 813,
+      "sku": "58013",
+      "slug": "malga-e-pepe",
+      "name": "Malga e pepe",
+      "permalink": "https://alpemagna.com/prodotti/malga-e-pepe/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 19,
+          "slug": "memorie-alpine",
+          "name": "Memorie Alpine"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152312/hover-malga-pepe-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152322/malga-e-pepe-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 23,
+              "slug": "vegetariano",
+              "name": "Vegetariano"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 35,
+              "slug": "anche-freddo",
+              "name": "Anche freddo"
+            },
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 38,
+              "slug": "formaggio",
+              "name": "Con formaggio"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 811,
+      "sku": "58207",
+      "slug": "gulasch-di-cervo",
+      "name": "Spezzatino di cervo",
+      "permalink": "https://alpemagna.com/prodotti/gulasch-di-cervo/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 12.9,
+        "regularAmount": 12.9,
+        "currency": "EUR",
+        "formatted": "12,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 19,
+          "slug": "memorie-alpine",
+          "name": "Memorie Alpine"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131751/spezzatinocervo-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/29133217/Spezzatino-di-cervo-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 50,
+              "slug": "vasetto-360g",
+              "name": "vasetto 360g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 32,
+              "slug": "come-piatto-principale",
+              "name": "Come piatto principale"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 809,
+      "sku": "58004",
+      "slug": "gulasch-trentino",
+      "name": "Spezzatino di manzo",
+      "permalink": "https://alpemagna.com/prodotti/gulasch-trentino/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 12.5,
+        "regularAmount": 12.5,
+        "currency": "EUR",
+        "formatted": "12,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 19,
+          "slug": "memorie-alpine",
+          "name": "Memorie Alpine"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131714/spezzatino-di-manzo--600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/29133303/Spezzatino-di-manzo-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 50,
+              "slug": "vasetto-360g",
+              "name": "vasetto 360g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 32,
+              "slug": "come-piatto-principale",
+              "name": "Come piatto principale"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 807,
+      "sku": "58021",
+      "slug": "sugo-alla-carbonara",
+      "name": "Sugo alla carbonara",
+      "permalink": "https://alpemagna.com/prodotti/sugo-alla-carbonara/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152311/hover-carbonara-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152323/sugo-alla-carbonara.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 38,
+              "slug": "formaggio",
+              "name": "Con formaggio"
+            },
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 805,
+      "sku": "58016",
+      "slug": "ragu-di-cortile",
+      "name": "Ragù di cortile",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-cortile/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131253/cortile3-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152323/ragu-di-cortile-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 803,
+      "sku": "58401",
+      "slug": "sugo-amatriciana",
+      "name": "Sugo all&#8217;amatriciana",
+      "permalink": "https://alpemagna.com/prodotti/sugo-amatriciana/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152311/hover-amatriciana-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152323/sugo-amatriciana-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 42,
+              "slug": "salumi",
+              "name": "Con salumi"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 801,
+      "sku": "58001",
+      "slug": "ragu-storico-bolognese",
+      "name": "Ragù storico bolognese",
+      "permalink": "https://alpemagna.com/prodotti/ragu-storico-bolognese/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152310/hover-ragu-storico-bolognese-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152324/ragu-storico-bolognese-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 799,
+      "sku": "58022",
+      "slug": "cacio-e-pepe",
+      "name": "Cacio e pepe",
+      "permalink": "https://alpemagna.com/prodotti/cacio-e-pepe/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 7.9,
+        "regularAmount": 7.9,
+        "currency": "EUR",
+        "formatted": "7,90&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152310/hover-cacio-e-pepe-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152324/cacio-e-pepe.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 23,
+              "slug": "vegetariano",
+              "name": "Vegetariano"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 38,
+              "slug": "formaggio",
+              "name": "Con formaggio"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 797,
+      "sku": "58406",
+      "slug": "salsa-verde",
+      "name": "Salsa verde",
+      "permalink": "https://alpemagna.com/prodotti/salsa-verde/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131557/salsaverdev3-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152324/salsa-verde-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 35,
+              "slug": "anche-freddo",
+              "name": "Anche freddo"
+            },
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 39,
+              "slug": "verdure",
+              "name": "Con verdure"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 55,
+              "slug": "fresco",
+              "name": "Fresco"
+            },
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 795,
+      "sku": "58405",
+      "slug": "crostino-toscano",
+      "name": "Crostino toscano",
+      "permalink": "https://alpemagna.com/prodotti/crostino-toscano/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 6.5,
+        "regularAmount": 6.5,
+        "currency": "EUR",
+        "formatted": "6,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 21,
+          "slug": "memorie-italiane",
+          "name": "Memorie Italiane"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22131354/crostinotoscano-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152324/crostino-toscano-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 36,
+              "slug": "anche-per-aperitivo",
+              "name": "Anche per l'aperitivo"
+            },
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 44,
+              "slug": "intenso",
+              "name": "Intenso"
+            },
+            {
+              "id": 46,
+              "slug": "speziato",
+              "name": "Speziato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 793,
+      "sku": "58025",
+      "slug": "coniglio-e-olive-taggiasche",
+      "name": "Coniglio e olive taggiasche",
+      "permalink": "https://alpemagna.com/prodotti/coniglio-e-olive-taggiasche/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 8.5,
+        "regularAmount": 8.5,
+        "currency": "EUR",
+        "formatted": "8,50&nbsp; &euro;"
+      },
+      "categories": [
+        {
+          "id": 20,
+          "slug": "armonie",
+          "name": "Armonie"
+        }
+      ],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152314/hover-coniglio-olive-taggiasche-600x963.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152325/coniglio-e-olive-taggiasche.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 49,
+              "slug": "vasetto-180g",
+              "name": "vasetto 180g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            },
+            {
+              "id": 25,
+              "slug": "senza-lattosio",
+              "name": "Senza lattosio"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 40,
+              "slug": "carne",
+              "name": "Con carne"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 45,
+              "slug": "equilibrato",
+              "name": "Equilibrato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    },
+    {
+      "id": 781,
+      "sku": "58205",
+      "slug": "ragu-di-lepre",
+      "name": "Ragù di lepre",
+      "permalink": "https://alpemagna.com/prodotti/ragu-di-lepre/",
+      "type": "simple",
+      "onSale": false,
+      "prices": {
+        "amount": 8.5,
+        "regularAmount": 8.5,
+        "currency": "EUR",
+        "formatted": "8,50&nbsp; &euro;"
+      },
+      "categories": [],
+      "images": [
+        {
+          "role": "hover",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/22145745/DSC08228-600x750.webp"
+        },
+        {
+          "role": "product",
+          "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152325/ragu-di-lepre-600x798.webp"
+        }
+      ],
+      "attributes": [
+        {
+          "id": 5,
+          "name": "Formato",
+          "taxonomy": "pa_formato",
+          "terms": [
+            {
+              "id": 48,
+              "slug": "vasetto-190g",
+              "name": "vasetto 190g"
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Preferenze alimentari",
+          "taxonomy": "pa_esigenze",
+          "terms": [
+            {
+              "id": 28,
+              "slug": "molte-proteine",
+              "name": "Con molte proteine"
+            },
+            {
+              "id": 27,
+              "slug": "senza-conservanti",
+              "name": "Senza conservanti"
+            },
+            {
+              "id": 24,
+              "slug": "senza-glutine",
+              "name": "Senza glutine"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Tipo di utilizzo",
+          "taxonomy": "pa_utilizzo",
+          "terms": [
+            {
+              "id": 31,
+              "slug": "per-pasta-e-risotti",
+              "name": "Per pasta e risotti"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Ingredienti principali",
+          "taxonomy": "pa_ingrediente",
+          "terms": [
+            {
+              "id": 41,
+              "slug": "selvaggina",
+              "name": "Con selvaggina"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Intensità del gusto",
+          "taxonomy": "pa_gusto",
+          "terms": [
+            {
+              "id": 43,
+              "slug": "delicato",
+              "name": "Delicato"
+            }
+          ]
+        }
+      ],
+      "tags": [],
+      "brands": []
+    }
+  ]
+}

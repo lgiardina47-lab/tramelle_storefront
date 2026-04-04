@@ -1,0 +1,93 @@
+{
+  "source": {
+    "productUrl": "https://alpemagna.com/prodotti/ragu-bianchi-di-chianina-igp/",
+    "listingUrl": null
+  },
+  "scrapedAt": "2026-04-04T02:11:32.297Z",
+  "listing": {
+    "title": null,
+    "price": null,
+    "currency": "EUR",
+    "images": []
+  },
+  "product": {
+    "url": "https://alpemagna.com/prodotti/ragu-bianchi-di-chianina-igp/",
+    "title": "RAGÙ di CHIANINA IGP",
+    "line": "Purezze",
+    "description": "Ragù bianco a lunga cottura con carne bovina di razza chianina “vitellone bianco dell’appennino centrale IGP”.",
+    "price": {
+      "amount": 8.7,
+      "formatted": "8,70 €"
+    },
+    "formatLabel": "vasetto 190g",
+    "images": [
+      {
+        "role": "hero",
+        "url": "https://dgxea1iio7h1w.cloudfront.net/app/uploads/2025/11/03152318/ragu-bianco-di-chianina-600x798.webp"
+      }
+    ],
+    "infoGrid": {
+      "sections": [
+        {
+          "heading": "Ingredienti",
+          "type": "text",
+          "body": "Carne chianina “vitellone bianco dell’appennino centrale IGP” 58%, vino bianco trentino (solfiti), verdure fresche in proporzione variabile (cipolle, carote, sedano), pancetta suino 9%, olio EVO italiano, sale marino, alloro, pepe, rosmarino."
+        },
+        {
+          "heading": "Abbinamenti",
+          "type": "text",
+          "body": "Realizzato a mano esaltando le caratteristiche delle carni magre delicate e ricche di proteine tipiche, in abbinamento a verdura fresca e una nota di alloro e rosmarino. La ricetta risulta delicata e piacevole anche ai più piccoli, si esalta con ogni tipo di pasta e abbinamento.",
+          "tags": [
+            "Spaghetti alla chitarra",
+            "Chianti Classico, Rosso di Montalcino"
+          ]
+        },
+        {
+          "heading": "Valori nutrizionali",
+          "type": "list",
+          "intro": "Per 100 grammi:",
+          "items": [
+            "Valore energetico 993 kJ / 239 kcal",
+            "Grassi 18,6 g di cui acidi grassi saturi 6,2 g",
+            "Carboidrati 1,4 g di cui zuccheri 1,4 g",
+            "Proteine 16,5 g",
+            "Sale 1,9 g"
+          ]
+        },
+        {
+          "heading": "Caratteristiche",
+          "type": "keyValue",
+          "pairs": [
+            {
+              "label": "NOTE AROMATICHE",
+              "value": "Profumi di soffritto e carne rosolata"
+            },
+            {
+              "label": "COLORE",
+              "value": "Terra d’ombra cruda"
+            },
+            {
+              "label": "NOTE GUSTATIVE",
+              "value": "Raffinato e gentile, ma di carattere"
+            }
+          ]
+        },
+        {
+          "heading": "Formati disponibili",
+          "type": "text",
+          "body": "190g"
+        },
+        {
+          "heading": "Shelf",
+          "type": "text",
+          "body": "24 mesi"
+        }
+      ]
+    },
+    "trustRow": [
+      "Spedizione veloce",
+      "Consegna protetta",
+      "Pagamenti sicuri"
+    ]
+  }
+}

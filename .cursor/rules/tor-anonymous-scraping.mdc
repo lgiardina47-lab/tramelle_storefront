@@ -1,0 +1,43 @@
+---
+description: dati_venditori: scraping, test e download solo via Tor
+globs: dati_venditori/**/*.py
+alwaysApply: false
+---
+
+# Rete anonima (Tor) per dati_venditori
+
+Ogni **connessione esterna** verso host reali usati per test, scraping o **download** (HTML, JSON, immagini, logo, hero/cover, qualsiasi file) in questa cartella deve passare da **Tor (SOCKS5)**. Non introdurre `requests`, `httpx`, `urllib`, `urllib.request`, `aiohttp`, `curl` subprocess o Playwright che fetchino risorse remote senza proxy Tor.
+
+## Obblighi
+
+1. **HTTP(S) con `requests`**: usare sempre una sessione creata con `require_anonymous_tor_session()` o `require_anonymous_tor_session_with_browser_cookies()` da `tor_session.py`. Vietato `requests.get` / `Session().get` verso Taste/Pitti senza quella sessione (eccezione: solo il confronto IP “diretto” dentro `require_anonymous_tor_session`, già implementato).
+2. **Playwright / browser headless**: stesso **SOCKS Tor** degli altri script — vedi `taste_playwright_detail.py` (`proxy` verso `127.0.0.1` e porta risolta come nel modulo, tipicamente 9050 o 9150). Nessun `browser.new_context()` senza `proxy` se la pagina è un target di scraping.
+3. **Prima di crawl o test end-to-end**: eseguire o replicare la stessa garanzia di `verifica_tor_taste.py` — SOCKS attivo e **IP via Tor ≠ IP sessione senza Tor** (con VPN di sistema, l’“IP diretto” del check è quello della VPN, non l’ISP).
+4. **Download di media**: qualunque `get` / stream verso URL esterni (es. scaricare logo o banner per caricarli altrove) usa la **stessa** sessione Tor (`require_anonymous_tor_session*`); mai scaricare da CDN o siti target con client “diretto”.
+5. **Solo locale**: parsing di file/HTML già su disco, senza fetch, non richiede Tor.
+
+**Nota:** upload verso il proprio CDN (es. `cdn.tramelle.com`) dopo il download può essere una politica separata; i **download dalla rete pubblica** verso i target di lavoro restano obbligatoriamente via Tor.
+
+## Export espositori Taste (`taste_seller_export_all.py`)
+
+- **Sempre via Tor**: lo script usa già `require_anonymous_tor_session_with_browser_cookies()` — non sostituire con HTTP diretto.
+- **Catalogo completo (default)**: eseguire **senza** `--limit` per scaricare tutti gli espositori dell’archivio (`ARCHIVE_SEGMENT`, es. `taste19`). Il flag `--limit N` è solo per prove rapide, non per export destinati a import produzione.
+- **Ripresa**: checkpoint in `dati_venditori/output/marketplace_sellers_all_checkpoint.json`; `--resume` per continuare senza rifare le schede già OK.
+- **Output**: file timestampato in `dati_venditori/output/marketplace_sellers_all_*.json`. Per Medusa con media su CDN, dopo l’export usare `sync_partner_media_cdn.py` sul JSON completo, poi l’`*_import.json` generato.
+
+## Pattern da seguire (riferimento codice)
+
+- Sessione + verifica: `dati_venditori/tor_session.py` (`require_anonymous_tor_session`, `session_must_use_tor`).
+- Contesto e reminder operativi: `dati_venditori/taste_config.py`.
+- Playwright + Tor: `dati_venditori/taste_playwright_detail.py`.
+
+## Anti-pattern
+
+- `requests` diretto verso `taste.pittimmagine.com` / `www.pittimmagine.com` (o URL listing/archivio) senza sessione Tor.
+- Playwright senza `proxy` SOCKS5 verso gli stessi host.
+- Script di “test” che chiamano API o pagine degli stessi target senza passare da `tor_session` / proxy equivalente.
+- **`requests.get(url_immagine)`** o download batch di asset senza sessione SOCKS (anche se l’URL è di un altro dominio ottenuto dallo scraping): stesso obbligo Tor.
+
+## Riservatezza cartella
+
+- `dati_venditori/` è in `.gitignore` del repo e non va esposta tramite `public/`, reverse proxy o COPY Docker. Non aggiungere route API/static che la servano.

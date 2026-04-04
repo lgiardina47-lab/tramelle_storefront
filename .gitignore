@@ -1,0 +1,16 @@
+# Chiavi SSH per il client: mai in git
+ssh-client-download/
+
+backend/.env
+storefront/.env.local
+admin-panel/.env
+vendor-panel/.env
+**/node_modules
+**/.medusa
+
+# Dati scraping venditori: solo macchina locale, mai in remoto
+dati_venditori/
+
+# Token GitHub / secret locali (mai in remoto)
+storefront/token.txt
+**/token.txt

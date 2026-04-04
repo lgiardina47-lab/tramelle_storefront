@@ -1,0 +1,9 @@
+{
+    "remote.SSH.configFile": "C:\\Users\\Master\\.ssh\\config",
+    "remote.SSH.useLocalServer": false,
+    "remote.SSH.path": "ssh",
+    "remote.SSH.localServerDownload": "always",
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore",
+    "less.lint.unknownAtRules": "ignore"
+}

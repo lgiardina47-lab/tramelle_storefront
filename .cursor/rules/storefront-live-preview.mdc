@@ -1,0 +1,28 @@
+---
+description: Dev storefront sulla 3000 senza build; tramelle.com solo dopo build/PM2 su richiesta
+---
+
+# Storefront: sviluppo vs produzione
+
+## Sviluppo (iterazione veloce)
+
+- **Non** eseguire `yarn build` / `yarn build:production` a ogni modifica per “vedere il risultato”: usare **`yarn dev`** (hot reload).
+- **Porta:** sempre quella di progetto (**3000**, vedi [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs)).
+- **Avvio comodo dalla root repo:** `bash scripts/dev-storefront.sh` — libera la 3000 con `fuser -k` se occupata, poi avvia `yarn dev` in [`storefront`](storefront).
+- **Nel browser in dev:** `http://localhost:3000` (o `http://<IP-VPS>:3000`) è **corretto** per anteprima locale.
+- **Build / deploy su tramelle.com** solo quando l’utente lo chiede esplicitamente (`yarn build:production`, script deploy, PM2).
+
+## Produzione (tramelle.com)
+
+- Verifica sul **dominio pubblico:** **https://tramelle.com** (es. `/it`). `localhost` sulla VPS è solo dove nginx fa proxy verso Node.
+- **Build storefront:** [`yarn build:production`](storefront/package.json) (include sync standalone), poi [`bash scripts/pm2-work-one.sh storefront`](scripts/pm2-work-one.sh) (o `pm2 restart mercur-storefront` se già in modalità “solo shop”).
+- **VPS: obbligatorio tenere acceso un solo front tra shop / admin / vendor** (altrimenti la VPS va in saturazione). [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) ferma gli altri due e libera le porte; **non** avviare tutto l’ecosystem PM2 insieme.
+
+## Solo storefront già attivo (VPS)
+
+- Dalla root repo sulla VPS: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh) — se `mercur-storefront` è già **online** e admin/vendor **fermi**, non fa restart; altrimenti esegue `pm2-work-one.sh storefront`. Porte: [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs).
+
+## Agent
+
+- In contesto **sviluppo UI storefront**: avviare/riavviare **`yarn dev`** o `scripts/dev-storefront.sh`, **non** `next build` per anteprima.
+- Per bug **solo in produzione** su tramelle: verificare con fetch/browser MCP sul dominio pubblico.
