@@ -507,7 +507,37 @@
         "header": "Edit stock levels & prices",
         "description": "Edit the stock levels and prices for the product variants.",
         "successToast": "Stock levels and prices were successfully updated."
-      }
+      },
+      "useFormatsTable": "Use the \"Formats & prices\" section above to add pack sizes. Variants are created automatically."
+    },
+    "formats": {
+      "title": "Formats & prices",
+      "subtitle": "One product, multiple pack sizes. Each row is a variant with its own price, stock and SKU. The storefront shows a single selector (no manual product options).",
+      "addRow": "+ Add format",
+      "measureFamily": "Measure type",
+      "familyMass": "Weight (g / kg)",
+      "familyVolume": "Volume (ml / L)",
+      "measureHint": "Suggested from product type \"{{type}}\". You can override.",
+      "colAmount": "Amount",
+      "colUnit": "Unit",
+      "colPrice": "Retail price",
+      "colStock": "Stock",
+      "colEan": "EAN",
+      "eanPlaceholder": "e.g. 8001234567890",
+      "colSku": "SKU (auto)",
+      "stockNoLocation": "No stock location",
+      "save": "Save formats",
+      "saveSuccess": "Formats and variants updated.",
+      "saveError": "Could not save formats.",
+      "multiOptionBlocked": "This product has multiple manual options. Use only one dimension (Format) or contact support.",
+      "colHs": "HS code",
+      "hsPlaceholder": "e.g. 2005.10",
+      "colPieces": "Units / carton",
+      "tiersSection": "Wholesale price tiers",
+      "addTier": "+ Add price tier",
+      "colTierMin": "Min qty",
+      "colTierPrice": "Unit price (€)",
+      "tierHint": "Extra tiers from 2 units up. Retail column = price from 1 unit."
     },
     "attributes": "Attributes",
     "editAttributes": "Edit Attributes",
@@ -2653,7 +2683,10 @@
         "placeholder": "wrong_size",
         "tooltip": "The value should be a unique identifier for the return reason."
       },
-      "label": { "label": "Label", "placeholder": "Wrong size" },
+      "label": {
+        "label": "Label",
+        "placeholder": "Wrong size"
+      },
       "description": {
         "label": "Description",
         "placeholder": "Customer received the wrong size"
@@ -2961,6 +2994,8 @@
     "width": "Width",
     "length": "Length",
     "weight": "Weight",
+    "dimensionUnitCm": "cm",
+    "weightUnitG": "g",
     "midCode": "MID code",
     "hsCode": "HS code",
     "ean": "EAN",

@@ -128,7 +128,7 @@ export default async function seedProductTagsCatalog({
             : {}),
           [METADATA_KEY]: d.category,
         },
-      })
+      } as never)
       metadataUpdated += 1
     }
   }

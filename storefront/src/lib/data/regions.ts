@@ -2,12 +2,14 @@
 
 import { HttpTypes } from '@medusajs/types';
 
-import medusaError from '@/lib/helpers/medusa-error';
-
 import { sdk } from '../config';
 import { getCacheOptions } from './cookies';
 
-export const listRegions = async () => {
+/**
+ * Non lancia: se l'API non risponde (backend spento, URL errato) resta [] così
+ * layout/header non vanno in 500.
+ */
+export const listRegions = async (): Promise<HttpTypes.StoreRegion[]> => {
   const next = {
     ...(await getCacheOptions('regions')),
     revalidate: 3600
@@ -19,11 +21,13 @@ export const listRegions = async () => {
       next,
       cache: 'force-cache'
     })
-    .then(({ regions }) => regions)
-    .catch(medusaError);
+    .then(({ regions }) => regions ?? [])
+    .catch(() => [] as HttpTypes.StoreRegion[]);
 };
 
-export const retrieveRegion = async (id: string) => {
+export const retrieveRegion = async (
+  id: string
+): Promise<HttpTypes.StoreRegion | null> => {
   const next = {
     ...(await getCacheOptions(['regions', id].join('-'))),
     revalidate: 3600
@@ -35,8 +39,8 @@ export const retrieveRegion = async (id: string) => {
       next,
       cache: 'force-cache'
     })
-    .then(({ region }) => region)
-    .catch(medusaError);
+    .then(({ region }) => region ?? null)
+    .catch(() => null);
 };
 
 const regionMap = new Map<string, HttpTypes.StoreRegion>();
@@ -49,7 +53,7 @@ export const getRegion = async (countryCode: string) => {
 
     const regions = await listRegions();
 
-    if (!regions) {
+    if (!regions?.length) {
       return null;
     }
 
@@ -62,7 +66,7 @@ export const getRegion = async (countryCode: string) => {
     const region = countryCode ? regionMap.get(countryCode) : regionMap.get('us');
 
     return region;
-  } catch (e: any) {
+  } catch {
     return null;
   }
 };

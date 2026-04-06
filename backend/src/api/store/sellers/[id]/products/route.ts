@@ -64,7 +64,13 @@ export async function GET(req: MedusaRequest, res: MedusaResponse): Promise<void
   const base = (
     process.env.MEDUSA_BACKEND_URL || `http://127.0.0.1:${port}`
   ).replace(/\/$/, "")
-  const headers = { "x-publishable-api-key": publishableToken }
+  const headers: Record<string, string> = {
+    "x-publishable-api-key": publishableToken,
+  }
+  const auth = req.headers.authorization
+  if (typeof auth === "string" && auth.trim()) {
+    headers.authorization = auth.trim()
+  }
 
   const products: unknown[] = []
   const chunkSize = 6
@@ -76,7 +82,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse): Promise<void
         u.searchParams.set("id", id)
         u.searchParams.set("country_code", countryCode)
         u.searchParams.set("fields", STORE_PRODUCT_FIELDS)
-        const r = await fetch(u.toString(), { headers })
+        const r = await fetch(u.toString(), { headers, cache: "no-store" })
         if (!r.ok) {
           return null
         }

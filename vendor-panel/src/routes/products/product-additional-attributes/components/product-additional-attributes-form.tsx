@@ -2,6 +2,7 @@
 
 import { InformationCircleSolid } from '@medusajs/icons';
 import { Button, toast, Tooltip } from '@medusajs/ui';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -21,15 +22,26 @@ interface Props {
 export const ProductAdditionalAttributesForm = ({ product, attributes, id }: Props) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const filteredAttributes = product?.attribute_values?.filter(a => !!a?.attribute_id);
-  const defaultValues = filteredAttributes?.reduce((acc: any, curr: any) => {
-    acc[curr.attribute_id] = curr.value;
-    return acc;
-  }, {});
 
-  const form = useForm({
-    defaultValues
+  const form = useForm<Record<string, string>>({
+    defaultValues: {},
   });
+
+  useEffect(() => {
+    const filtered = product?.attribute_values?.filter((a) => a?.attribute_id);
+    if (!filtered?.length) {
+      form.reset({});
+      return;
+    }
+    const next = filtered.reduce(
+      (acc: Record<string, string>, curr: { attribute_id: string; value?: string | null }) => {
+        acc[curr.attribute_id] = curr.value ?? "";
+        return acc;
+      },
+      {},
+    );
+    form.reset(next);
+  }, [product?.attribute_values]);
 
   const { mutate: updateProduct, isPending: isMutating } = useUpdateProduct(id);
 

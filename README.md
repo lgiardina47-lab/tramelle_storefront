@@ -52,7 +52,7 @@ Senza Resend/TalkJS le relative funzioni restano disattivate o in fallback.
 1. Redis: `redis-server` (o il servizio già attivo su `127.0.0.1:6379`)
 2. Backend: `cd backend && yarn dev` → **http://localhost:9000**
 3. Storefront: `cd storefront` — copiate `.env.local.example` → `.env.local`, inserite `pk_` → `npm run dev` → **http://localhost:3000**
-4. Admin: `cd admin-panel` — copiate `.env.example` → `.env` → `npm run dev` → **http://localhost:7001** (porta fissata in `vite.config.mts`)
+4. Admin: `cd admin-panel` — copiate `.env.example` → `.env` → `npm run dev` → **http://localhost:7000** (porta da `deploy/monorepo-default-ports.cjs` / `vite.config.mts`)
 5. Vendor: `cd vendor-panel` — copiate `.env.example` → `.env`, aggiungete `VITE_PUBLISHABLE_API_KEY` se richiesto → `npm run dev` → **http://localhost:5173**
 
 Credenziali seed tipiche (se create come sopra): admin `admin@mercurjs.com` / `admin`; vendor `seller@mercurjs.com` / `secret` (verificate nel seed Mercur se cambiano).

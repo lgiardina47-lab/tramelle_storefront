@@ -1,4 +1,4 @@
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { ExtendedAdminProduct } from "../../../../../types/products"
 import { PencilSquare } from "@medusajs/icons"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -13,7 +13,7 @@ type ProductAttributeSectionProps = {
 export const ProductAdditionalAttributesSection = ({
   product,
 }: ProductAttributeSectionProps) => {
-  const { attributes, isLoading } = useProductAttributes(product.id)
+  const { attributes, isLoading, isError, error } = useProductAttributes(product.id)
 
   const attributeList = useMemo(() => {
     return attributes?.map((attribute) => {
@@ -27,7 +27,28 @@ export const ProductAdditionalAttributesSection = ({
     })
   }, [attributes, product.attribute_values])
 
-  if (isLoading) return
+  if (isLoading) {
+    return (
+      <Container className="p-6">
+        <Text size="small" className="text-ui-fg-muted">
+          Loading attributes…
+        </Text>
+      </Container>
+    )
+  }
+
+  if (isError) {
+    return (
+      <Container className="divide-y p-0">
+        <div className="px-6 py-4">
+          <Heading level="h2">Attributes</Heading>
+          <Text size="small" className="mt-2 text-ui-fg-error">
+            {error?.message ?? "Could not load applicable attributes. Check the product belongs to this seller and the API is reachable."}
+          </Text>
+        </div>
+      </Container>
+    )
+  }
 
   return (
     <Container className="divide-y p-0">

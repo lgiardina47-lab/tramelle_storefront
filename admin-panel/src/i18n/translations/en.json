@@ -3130,6 +3130,8 @@
     "width": "Width",
     "length": "Length",
     "weight": "Weight",
+    "dimensionUnitCm": "cm",
+    "weightUnitG": "g",
     "midCode": "MID code",
     "hsCode": "HS code",
     "ean": "EAN",

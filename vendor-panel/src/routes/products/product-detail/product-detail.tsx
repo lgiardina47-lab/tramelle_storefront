@@ -4,19 +4,21 @@ import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useProduct } from '../../../hooks/api'
 import { ProductGeneralSection } from "./components/product-general-section"
+import { TechnicalSheetForm } from "./components/technical-sheet-form"
+import { ProductFormatsPricesSection } from "./components/product-formats-prices-section"
 import { ProductMediaSection } from "./components/product-media-section"
-import { ProductOptionSection } from "./components/product-option-section"
 import { ProductOrganizationSection } from "./components/product-organization-section"
 import { ProductVariantSection } from "./components/product-variant-section"
 
 import { useDashboardExtension } from "../../../extensions"
 import { ProductAdditionalAttributesSection } from "./components/product-additional-attribute-section/ProductAdditionalAttributesSection"
+import { ProductAttributeSection } from "./components/product-attribute-section/product-attribute-section"
+import { VENDOR_PRODUCT_DETAIL_FIELDS } from "./product-detail-fields"
 
 export const ProductDetail = () => {
   const { id } = useParams()
   const { product, isLoading, isError, error } = useProduct(id!, {
-    fields:
-      "*categories,attribute_values.*,attribute_values.attribute.*,*options",
+    fields: VENDOR_PRODUCT_DETAIL_FIELDS,
   })
 
   const { getWidgets } = useDashboardExtension()
@@ -46,14 +48,14 @@ export const ProductDetail = () => {
     >
       <TwoColumnPage.Main>
         <ProductGeneralSection product={product} />
+        <ProductFormatsPricesSection product={product} />
+        <TechnicalSheetForm product={product} />
         <ProductMediaSection product={product} />
-        <ProductOptionSection product={product} />
         <ProductVariantSection product={product} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        {/* <ProductShippingProfileSection product={product} /> */}
         <ProductOrganizationSection product={product} />
-        {/* <ProductAttributeSection product={product} /> */}
+        <ProductAttributeSection product={product} />
         <ProductAdditionalAttributesSection product={product} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>

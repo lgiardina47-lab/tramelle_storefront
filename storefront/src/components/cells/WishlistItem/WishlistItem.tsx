@@ -24,8 +24,8 @@ export const WishlistItem = ({
 }) => {
   const { cheapestPrice } = getProductPrice({ product });
   const price = convertToLocale({
-    amount: cheapestPrice?.calculated_price_number,
-    currency_code: cheapestPrice?.currency_code
+    amount: cheapestPrice?.calculated_price_number ?? 0,
+    currency_code: cheapestPrice?.currency_code ?? "eur",
   });
 
   return (

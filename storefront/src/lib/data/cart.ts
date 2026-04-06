@@ -106,11 +106,13 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
 export async function addToCart({
   variantId,
   quantity,
-  countryCode
+  countryCode,
+  lineMetadata
 }: {
   variantId: string;
   quantity: number;
   countryCode: string;
+  lineMetadata?: Record<string, string | number | boolean | null>;
 }) {
   if (!variantId) {
     throw new Error('Missing variant ID when adding to cart');
@@ -148,7 +150,10 @@ export async function addToCart({
         cart.id,
         {
           variant_id: variantId,
-          quantity
+          quantity,
+          ...(lineMetadata && Object.keys(lineMetadata).length
+            ? { metadata: lineMetadata as Record<string, unknown> }
+            : {})
         },
         {},
         headers

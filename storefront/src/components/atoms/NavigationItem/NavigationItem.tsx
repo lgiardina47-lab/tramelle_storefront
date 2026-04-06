@@ -4,6 +4,7 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 interface NavigationItemProps extends React.ComponentPropsWithoutRef<"a"> {
   active?: boolean
   "data-testid"?: string
+  locale?: string
 }
 
 export const NavigationItem: React.FC<NavigationItemProps> = ({
@@ -11,11 +12,13 @@ export const NavigationItem: React.FC<NavigationItemProps> = ({
   href = "/",
   className,
   active,
+  locale,
   "data-testid": dataTestId,
   ...props
 }) => (
   <LocalizedClientLink
     href={href}
+    locale={locale}
     className={cn(
       "label-md uppercase px-4 py-3 my-3 md:my-0 flex items-center justify-between",
       active && "underline  underline-offset-8",

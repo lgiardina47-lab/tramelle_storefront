@@ -1,7 +1,9 @@
 import { Input, Switch, Textarea } from "@medusajs/ui"
+import type { ControllerRenderProps } from "react-hook-form"
+
+import type { ProductAttribute } from "../../../../types/products"
+import { AttributeMultivalue } from "./AttributeMultivalue"
 import { AttributeSelect } from "./AttributeSelect"
-import { ProductAttribute } from "../../../../types/products"
-import { ControllerRenderProps } from "react-hook-form"
 
 export const Components = ({
   attribute,
@@ -14,6 +16,11 @@ export const Components = ({
 
   if (ui_component === "select")
     return <AttributeSelect values={possible_values} field={field} />
+
+  if (ui_component === "multivalue")
+    return (
+      <AttributeMultivalue values={possible_values ?? []} field={field} />
+    )
 
   if (ui_component === "toggle")
     return (

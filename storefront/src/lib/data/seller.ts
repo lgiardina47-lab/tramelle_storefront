@@ -1,4 +1,4 @@
-import { SellerProps } from '@/types/seller';
+import { SellerProps, type StoreSellerListItem } from "@/types/seller"
 
 import { sdk } from '../config';
 
@@ -42,3 +42,27 @@ export const getSellerByHandle = async (
     return null;
   }
 };
+
+export type StoreSellersListResponse = {
+  sellers: StoreSellerListItem[]
+  count: number
+  limit: number
+  offset: number
+}
+
+/** Elenco produttori per directory storefront (`GET /store/sellers`). */
+export async function listStoreSellers(params?: {
+  limit?: number
+  offset?: number
+}): Promise<StoreSellersListResponse | null> {
+  const limit = params?.limit ?? 48
+  const offset = params?.offset ?? 0
+  try {
+    return await sdk.client.fetch<StoreSellersListResponse>(`/store/sellers`, {
+      query: { limit, offset },
+      cache: "no-store",
+    })
+  } catch {
+    return null
+  }
+}

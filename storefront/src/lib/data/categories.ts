@@ -50,21 +50,27 @@ function buildCategoryTreeFromFlat(
 export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
   const limit = query?.limit || 100;
 
-  const allCategories = await sdk.client
-    .fetch<{
-      product_categories: HttpTypes.StoreProductCategory[];
-    }>('/store/product-categories', {
-      query: {
-        fields: 'id,handle,name,rank,metadata,parent_category_id,description,*category_children',
-        include_descendants_tree: true,
-        include_ancestors_tree: true,
-        limit,
-        ...query
-      },
-      cache: 'force-cache',
-      next: { revalidate: 3600 }
-    })
-    .then(({ product_categories }) => product_categories);
+  let allCategories: HttpTypes.StoreProductCategory[] = [];
+  try {
+    allCategories = await sdk.client
+      .fetch<{
+        product_categories: HttpTypes.StoreProductCategory[];
+      }>('/store/product-categories', {
+        query: {
+          fields:
+            'id,handle,name,rank,metadata,parent_category_id,description,*category_children',
+          include_descendants_tree: true,
+          include_ancestors_tree: true,
+          limit,
+          ...query
+        },
+        cache: 'force-cache',
+        next: { revalidate: 3600 }
+      })
+      .then(({ product_categories }) => product_categories ?? []);
+  } catch {
+    allCategories = [];
+  }
 
   const parentCategories = buildCategoryTreeFromFlat(allCategories);
 
@@ -88,5 +94,6 @@ export const getCategoryByHandle = async (categoryHandle: string) => {
       cache: 'force-cache',
       next: { revalidate: 300 }
     })
-    .then(({ product_categories }) => product_categories[0]);
+    .then(({ product_categories }) => product_categories[0])
+    .catch(() => undefined);
 };

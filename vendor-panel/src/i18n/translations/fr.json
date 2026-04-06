@@ -490,7 +490,29 @@
       "filtered": {
         "heading": "Aucun résultat",
         "description": "Aucune variantes ne correspond aux critères de filtre actuel."
-      }
+      },
+      "useFormatsTable": "Utilisez la section « Formats et prix » ci-dessus pour ajouter les formats. Les variantes sont créées automatiquement."
+    },
+    "formats": {
+      "title": "Formats et prix",
+      "subtitle": "Un produit, plusieurs conditionnements. Chaque ligne est une variante avec prix, stock et SKU.",
+      "addRow": "+ Ajouter un format",
+      "measureFamily": "Type de mesure",
+      "familyMass": "Poids (g / kg)",
+      "familyVolume": "Volume (ml / L)",
+      "measureHint": "Suggéré selon le type « {{type}} ». Modifiable.",
+      "colAmount": "Quantité",
+      "colUnit": "Unité",
+      "colPrice": "Prix retail",
+      "colStock": "Stock",
+      "colEan": "EAN",
+      "eanPlaceholder": "ex. 8001234567890",
+      "colSku": "SKU (auto)",
+      "stockNoLocation": "Aucun entrepôt",
+      "save": "Enregistrer les formats",
+      "saveSuccess": "Formats et variantes mis à jour.",
+      "saveError": "Impossible d'enregistrer les formats.",
+      "multiOptionBlocked": "Ce produit a plusieurs options manuelles. Contactez le support."
     },
     "attributes": "Attributs",
     "editAttributes": "Modifier les attributs",

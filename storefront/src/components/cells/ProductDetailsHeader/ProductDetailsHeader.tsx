@@ -3,14 +3,17 @@
 import { Button } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
 import { ProductVariants } from "@/components/molecules"
+import { WholesalePricingPanel } from "@/components/molecules/WholesalePricingPanel/WholesalePricingPanel"
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
+import { resolveSelectedStoreVariantId } from "@/lib/helpers/resolve-selected-variant-id"
 import { Chat } from "@/components/organisms/Chat/Chat"
 import { SellerProps } from "@/types/seller"
 import { WishlistButton } from "../WishlistButton/WishlistButton"
 import { Wishlist } from "@/types/wishlist"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
+import { parsePiecesPerCarton } from "@/lib/helpers/tramelle-variant-metadata"
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -39,7 +42,8 @@ export const ProductDetailsHeader = ({
   user: HttpTypes.StoreCustomer | null
   wishlist?: Wishlist
 }) => {
-  const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
+  const { addToCart, onAddToCart, cart, isAddingItem, wholesaleBuyer } =
+    useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
 
   const { cheapestVariant, cheapestPrice } = getProductPrice({
@@ -57,15 +61,10 @@ export const ProductDetailsHeader = ({
       }
     : allSearchParams
 
-  // get selected variant id
   const variantId =
-    product.variants?.find(({ options }: { options: any }) =>
-      options?.every((option: any) =>
-        selectedVariant[option.option?.title.toLowerCase() || ""]?.includes(
-          option.value
-        )
-      )
-    )?.id || ""
+    resolveSelectedStoreVariantId(product, selectedVariant) ||
+    (hasAnyPrice ? cheapestVariant?.id : "") ||
+    ""
 
   // get variant price
   const { variantPrice } = getProductPrice({
@@ -80,13 +79,32 @@ export const ProductDetailsHeader = ({
   const variantHasPrice = !!product.variants?.find(({ id }) => id === variantId)
     ?.calculated_price
 
-  const isVariantStockMaxLimitReached =
-    (cart?.items?.find((item) => item.variant_id === variantId)?.quantity ??
-      0) >= variantStock
+  const lineQtyInCart =
+    cart?.items?.find((item) => item.variant_id === variantId)?.quantity ?? 0
+
+  const isVariantStockMaxLimitReached = lineQtyInCart >= variantStock
+
+  const selectedStoreVariant = product.variants?.find(
+    ({ id }) => id === variantId
+  )
 
   // add the selected variant to the cart
   const handleAddToCart = async () => {
     if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached) return
+
+    const meta = selectedStoreVariant?.metadata as
+      | Record<string, unknown>
+      | undefined
+    const pieces = parsePiecesPerCarton(meta)
+    const nextQty = lineQtyInCart + 1
+
+    if (wholesaleBuyer && pieces > 0 && nextQty % pieces !== 0) {
+      toast.error({
+        title: "Quantità non valida",
+        description: `Per questo prodotto B2B ordina multipli di ${pieces} pezzi (cartone).`,
+      })
+      return
+    }
 
     const subtotal = +(variantPrice?.calculated_price_without_tax_number || 0)
     const total = +(variantPrice?.calculated_price_number || 0)
@@ -100,7 +118,7 @@ export const ProductDetailsHeader = ({
       tax_total: total - subtotal,
       variant_id: variantId,
       product_id: product.id,
-      variant: product.variants?.find(({ id }) => id === variantId),
+      variant: selectedStoreVariant,
     }
 
     // Optimistic update
@@ -111,6 +129,10 @@ export const ProductDetailsHeader = ({
         variantId: variantId,
         quantity: 1,
         countryCode: locale,
+        lineMetadata:
+          pieces > 0
+            ? { tramelle_pieces_per_carton: String(pieces) }
+            : undefined,
       })
     } catch (error) {
       toast.error({
@@ -162,6 +184,14 @@ export const ProductDetailsHeader = ({
       {/* Product Variants */}
       {hasAnyPrice && (
         <ProductVariants product={product} selectedVariant={selectedVariant} />
+      )}
+      {hasAnyPrice && variantPrice && (
+        <WholesalePricingPanel
+          variant={selectedStoreVariant}
+          retailEuros={variantPrice.calculated_price_number}
+          currencyCode={variantPrice.currency_code || "eur"}
+          locale={locale}
+        />
       )}
       {/* Add to Cart */}
       <Button

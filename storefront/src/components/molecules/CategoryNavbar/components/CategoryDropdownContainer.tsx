@@ -33,7 +33,7 @@ export const CategoryDropdownContainer = ({
         onMouseLeave={onMouseLeave}
         aria-hidden={!isVisible}
       >
-        <div className="mx-auto max-h-[28rem] w-full max-w-[1440px] overflow-hidden bg-white">
+        <div className="max-h-[28rem] w-full overflow-hidden bg-white px-4 md:px-6 lg:px-8">
           {children}
         </div>
       </div>

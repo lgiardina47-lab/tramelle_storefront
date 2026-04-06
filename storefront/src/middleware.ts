@@ -41,17 +41,39 @@ async function getRegionMap(_cacheId: string) {
   }
 
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
+    if (!PUBLISHABLE_API_KEY) {
+      throw new Error(
+        'Middleware: set NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY (publishable key from Medusa admin).'
+      );
+    }
+
     // Fetch regions from the commerce backend. Edge middleware cannot use the JS SDK (Node-only).
     // Edge middleware: avoid Next.js fetch cache options here — they can break or behave inconsistently on the Edge runtime.
-    const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
+    const regionsUrl = `${BACKEND_URL.replace(/\/$/, '')}/store/regions`;
+    const { regions } = await fetch(regionsUrl, {
       headers: {
-        'x-publishable-api-key': PUBLISHABLE_API_KEY!
+        'x-publishable-api-key': PUBLISHABLE_API_KEY
       }
     }).then(async response => {
-      const json = await response.json();
+      const text = await response.text();
+      const trimmed = text.trimStart();
+      if (trimmed.startsWith('<')) {
+        throw new Error(
+          `Middleware: ${regionsUrl} returned HTML, not JSON. MEDUSA_BACKEND_URL must be the Medusa API base (e.g. http://127.0.0.1:9000 for local "yarn dev" in backend/), not the storefront or a generic site URL. Current MEDUSA_BACKEND_URL: ${BACKEND_URL}`
+        );
+      }
+
+      let json: { regions?: HttpTypes.StoreRegion[]; message?: string };
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error(
+          `Middleware: invalid JSON from ${regionsUrl} (first 120 chars): ${text.slice(0, 120)}`
+        );
+      }
 
       if (!response.ok) {
-        throw new Error(json.message);
+        throw new Error(json.message ?? response.statusText);
       }
 
       return json;
@@ -153,16 +175,22 @@ export async function middleware(request: NextRequest) {
     });
   }
 
-  const regionMap = await getRegionMap(cacheId);
-  const countryCode = regionMap && (await getCountryCode(request, regionMap));
-  const urlHasCountryCode = countryCode && pathname.split('/')[1].includes(countryCode);
+  try {
+    const regionMap = await getRegionMap(cacheId);
+    const countryCode = regionMap && (await getCountryCode(request, regionMap));
+    const urlHasCountryCode = countryCode && pathname.split('/')[1].includes(countryCode);
 
-  // If no country code in URL but we can resolve one, redirect to locale-prefixed path
-  if (!urlHasCountryCode && countryCode) {
-    const redirectPath = pathname === '/' ? '' : pathname;
-    const queryString = request.nextUrl.search ? request.nextUrl.search : '';
-    const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`;
-    return NextResponse.redirect(redirectUrl, 307);
+    // If no country code in URL but we can resolve one, redirect to locale-prefixed path
+    if (!urlHasCountryCode && countryCode) {
+      const redirectPath = pathname === '/' ? '' : pathname;
+      const queryString = request.nextUrl.search ? request.nextUrl.search : '';
+      const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`;
+      return NextResponse.redirect(redirectUrl, 307);
+    }
+  } catch (err) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[middleware] region map / locale redirect skipped:', err);
+    }
   }
 
   return response;

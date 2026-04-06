@@ -63,7 +63,7 @@ const listEmailsStep = createStep('list-seller-emails', async (_, { container })
   }
 
   const rows = await sellerModule.listSellers({}, { take: 10_000 })
-  const emails: { id: string; email: string; name?: string | null }[] = []
+  const emails: { id: string; email: string; name?: string }[] = []
 
   for (const row of rows) {
     const full = await sellerModule.retrieveSeller(row.id)

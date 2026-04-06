@@ -8,6 +8,8 @@ import Head from 'next/head';
 
 import { HtmlLangSetter } from '@/components/atoms/HtmlLangSetter/HtmlLangSetter';
 import { retrieveCart } from '@/lib/data/cart';
+import { retrieveCustomer } from '@/lib/data/customer';
+import { isWholesaleCustomer } from '@/lib/helpers/wholesale-customer';
 
 import { Providers } from './providers';
 
@@ -58,6 +60,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const cart = await retrieveCart();
+  let wholesaleBuyer = false;
+  try {
+    const customer = await retrieveCustomer();
+    wholesaleBuyer = isWholesaleCustomer(customer);
+  } catch {
+    wholesaleBuyer = false;
+  }
 
   const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID;
   // default lang updated by HtmlLangSetter
@@ -158,7 +167,7 @@ export default async function RootLayout({
       </Head>
       <body className={`${funnelDisplay.className} relative bg-primary text-secondary antialiased`}>
         <HtmlLangSetter />
-        <Providers cart={cart}>{children}</Providers>
+        <Providers cart={cart} wholesaleBuyer={wholesaleBuyer}>{children}</Providers>
         <Toaster position="top-right" />
       </body>
     </html>

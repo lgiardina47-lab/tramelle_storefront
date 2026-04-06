@@ -1,10 +1,11 @@
 import * as cp from "node:child_process"
 
 import type { ExecArgs } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { SELLER_MODULE } from "@mercurjs/b2c-core/modules/seller"
 import { deleteSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 
+import { removeMedusaEmailpassAuthForEmails } from "../lib/remove-medusa-emailpass-auth"
 import { getSellerListingMetadata } from "../lib/seller-listing-metadata"
 import { SELLER_LISTING_PROFILE_MODULE } from "../modules/seller-listing-profile"
 import type SellerListingProfileModuleService from "../modules/seller-listing-profile/service"
@@ -116,61 +117,6 @@ function partnerFoldersForCdn(
     }
   }
   return [...slugs]
-}
-
-type AuthModuleEmailpass = {
-  listProviderIdentities: (
-    filters: { entity_id?: string; provider?: string },
-    config?: { take?: number }
-  ) => Promise<{ id: string; auth_identity_id?: string | null }[]>
-  softDeleteProviderIdentities: (ids: string | string[]) => Promise<unknown>
-  softDeleteAuthIdentities: (ids: string | string[]) => Promise<unknown>
-}
-
-/** Rimuove login email/password Medusa per le email indicate (stesso DB del progetto, es. Supabase Postgres). */
-async function removeMedusaAuthForEmails(
-  container: ExecArgs["container"],
-  logger: { info: (s: string) => void; error: (s: string) => void },
-  emails: string[]
-): Promise<void> {
-  const auth = container.resolve(Modules.AUTH) as AuthModuleEmailpass
-  const seen = new Set<string>()
-  for (const raw of emails) {
-    const entityId = raw.trim().toLowerCase()
-    if (!entityId || !entityId.includes("@") || seen.has(entityId)) {
-      continue
-    }
-    seen.add(entityId)
-    try {
-      const rows = await auth.listProviderIdentities(
-        { entity_id: entityId, provider: "emailpass" },
-        { take: 20 }
-      )
-      if (!rows.length) {
-        logger.info(`[dedupe-domain] auth emailpass già assente per ${entityId}`)
-        continue
-      }
-      const pids = rows.map((r) => r.id)
-      const authIds = [
-        ...new Set(
-          rows
-            .map((r) => r.auth_identity_id)
-            .filter((x): x is string => Boolean(x))
-        ),
-      ]
-      await auth.softDeleteProviderIdentities(pids)
-      if (authIds.length) {
-        await auth.softDeleteAuthIdentities(authIds)
-      }
-      logger.info(
-        `[dedupe-domain] Auth Medusa (Supabase DB) rimosso per emailpass entity_id=${entityId}`
-      )
-    } catch (e) {
-      logger.error(
-        `[dedupe-domain] Auth Medusa rimozione ${entityId}: ${e instanceof Error ? e.message : String(e)}`
-      )
-    }
-  }
 }
 
 function collectEmailsForSeller(
@@ -334,10 +280,7 @@ export default async function dedupeSellersByDomainRemoveNewest({
   const knex = container.resolve(ContainerRegistrationKeys.PG_CONNECTION) as {
     (t: string): {
       where: (w: Record<string, unknown>) => {
-        count: (
-          col: string,
-          alias: string
-        ) => { first: () => Promise<{ c: string | number } | undefined> }
+        count: (expr: string) => { first: () => Promise<{ c: string | number } | undefined> }
       }
     }
   }
@@ -427,7 +370,12 @@ export default async function dedupeSellersByDomainRemoveNewest({
       continue
     }
 
-    await removeMedusaAuthForEmails(container, logger, emailsForAuth)
+    await removeMedusaEmailpassAuthForEmails(
+      container,
+      logger,
+      emailsForAuth,
+      "[dedupe-domain]"
+    )
 
     removeCdnPartnerFolders(logger, cdnFolders)
   }

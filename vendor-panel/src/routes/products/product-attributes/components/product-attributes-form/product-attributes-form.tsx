@@ -1,5 +1,5 @@
 import { ExtendedAdminProduct } from "../../../../../types/products"
-import { Button, Input } from "@medusajs/ui"
+import { Button, Input, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 import { Form } from "../../../../../components/common/form"
@@ -97,23 +97,29 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item>
                       <Form.Label>{t("fields.width")}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(parseFloat(value))
-                            }
-                          }}
-                          {...field}
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(parseFloat(value))
+                              }
+                            }}
+                            {...field}
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-10 shrink-0">
+                          {t("fields.dimensionUnitCm")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )
@@ -126,23 +132,29 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item>
                       <Form.Label>{t("fields.height")}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(Number(value))
-                            }
-                          }}
-                          {...field}
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(Number(value))
+                              }
+                            }}
+                            {...field}
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-10 shrink-0">
+                          {t("fields.dimensionUnitCm")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )
@@ -155,23 +167,29 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item>
                       <Form.Label>{t("fields.length")}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(Number(value))
-                            }
-                          }}
-                          {...field}
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(Number(value))
+                              }
+                            }}
+                            {...field}
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-10 shrink-0">
+                          {t("fields.dimensionUnitCm")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )
@@ -184,23 +202,29 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item>
                       <Form.Label>{t("fields.weight")}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control>
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(Number(value))
-                            }
-                          }}
-                          {...field}
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(Number(value))
+                              }
+                            }}
+                            {...field}
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-8 shrink-0">
+                          {t("fields.weightUnitG")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage />
                     </Form.Item>
                   )

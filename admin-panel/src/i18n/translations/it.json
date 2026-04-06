@@ -2792,6 +2792,8 @@
     "width": "Larghezza",
     "length": "Lunghezza",
     "weight": "Peso",
+    "dimensionUnitCm": "cm",
+    "weightUnitG": "g",
     "midCode": "Codice MID",
     "hsCode": "Codice HS",
     "ean": "EAN",

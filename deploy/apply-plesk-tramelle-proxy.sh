@@ -30,7 +30,7 @@ write_vhost() {
 write_vhost /var/www/vhosts/system/tramelle.com/conf/vhost_nginx.conf 3000
 write_vhost /var/www/vhosts/system/api.tramelle.com/conf/vhost_nginx.conf 9000
 write_vhost /var/www/vhosts/system/vendor.tramelle.com/conf/vhost_nginx.conf 5173
-write_vhost /var/www/vhosts/system/manage.tramelle.com/conf/vhost_nginx.conf 7001
+write_vhost /var/www/vhosts/system/manage.tramelle.com/conf/vhost_nginx.conf 7000
 
 python3 << 'PY'
 import pathlib

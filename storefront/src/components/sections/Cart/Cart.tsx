@@ -6,7 +6,7 @@ import { CartEmpty, CartItems, CartSummary } from '@/components/organisms';
 import { useCartContext } from '@/components/providers';
 
 export const Cart = () => {
-  const { cart } = useCartContext();
+  const { cart, wholesaleBuyer } = useCartContext();
 
   if (!cart || !cart.items?.length) {
     return <CartEmpty />;
@@ -15,7 +15,7 @@ export const Cart = () => {
   return (
     <>
       <div className="col-span-12 lg:col-span-6">
-        <CartItems cart={cart} />
+        <CartItems cart={cart} wholesaleBuyer={wholesaleBuyer} />
       </div>
       <div className="lg:col-span-2"></div>
       <div className="col-span-12 lg:col-span-4">

@@ -1,9 +1,14 @@
-import { defineMiddlewares } from "@medusajs/framework/http"
+import {
+  defineMiddlewares,
+  validateAndTransformQuery,
+} from "@medusajs/framework/http"
 import type {
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
+import { VendorGetAttributesParams } from "@mercurjs/b2c-core/api/vendor/attributes/validators"
+import { retrieveAttributeQueryConfig } from "@mercurjs/b2c-core/api/vendor/attributes/query-config"
 
 const xRobotsNoindex = (
   _req: MedusaRequest,
@@ -16,6 +21,16 @@ const xRobotsNoindex = (
 
 export default defineMiddlewares({
   routes: [
+    {
+      method: ["GET"],
+      matcher: "/vendor/products/:id/applicable-attributes",
+      middlewares: [
+        validateAndTransformQuery(
+          VendorGetAttributesParams,
+          retrieveAttributeQueryConfig
+        ),
+      ],
+    },
     {
       matcher: /.*/,
       middlewares: [xRobotsNoindex],

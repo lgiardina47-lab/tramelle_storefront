@@ -7,7 +7,11 @@ alwaysApply: true
 
 ## Regola principale
 
+**Mai delegare nulla che l’agent può fare al posto dell’utente.** Se un’azione è eseguibile da qui (shell nel workspace, tool, MCP browser/fetch, script nel repo, lettura file), **va fatta dall’agent** — non trasferita all’utente come compito. Vietato trattare “spiegare i passi” come sostituto dell’esecuzione quando l’esecuzione è possibile.
+
 **Non delegare l’operatività all’utente.** L’utente non deve ricevere il carico di comandi, deploy, migrazioni, seed, test o verifiche che possono essere eseguiti da qui (terminale, tool, MCP browser, fetch HTTP, script nel repo). **Non** chiudere con varianti di «esegui tu», «lancia sul server», «controlla tu sul sito», «apri tu https://tramelle.com/it» se l’azione è eseguibile nel contesto del workspace o con gli strumenti disponibili.
+
+**Eccezione solo se oggettivamente impossibile da qui** (nessun accesso, credenziali mancanti nell’ambiente, vincolo di sicurezza): in quel caso riportare **tentativo fatto** + **errore o limite concreto** + cosa resta fuori — non una procedura generica al posto del tentativo.
 
 ## Verifica sito pubblico (es. Tramelle)
 
@@ -16,7 +20,10 @@ alwaysApply: true
 
 ## Comportamento richiesto
 
-- **VPS / PM2 — un solo servizio “pesante” tra storefront + admin + vendor alla volta.** Accendere insieme shop + manage + vendor **satura la VPS**. **Non** usare `pm2 start ecosystem.config.cjs` senza filtri. Dalla root repo: [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) `storefront` | `admin` | `vendor` | `backend` (ferma gli altri due front, `pm2 stop` sul target, poi `fuser -k` sulla porta, poi restart). Con `storefront`, **`mercur-backend` (9000) resta acceso** per l’API. Solo shop già ok senza restart: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh).
+- **VPS / PM2 — default: un solo front “pesante” alla volta** con [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) `storefront` | `admin` | `vendor` | `backend` (evita saturazione VPS piccola).
+- **VPS / PM2 — tutti i pannelli + API insieme:** se l’utente vuole shop + manage + vendor contemporaneamente, usare [`scripts/pm2-work-all-fronts.sh`](scripts/pm2-work-all-fronts.sh) (attende `/health`, poi avvia i quattro processi). Richiede RAM/CPU adeguate; in alternativa upgrade VPS o tenere `pm2-work-one.sh`.
+- Solo shop già ok senza restart: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh).
+- **Codespace / dev locale — tutti i front insieme:** porte separate (3000 / 9000 / 7000 / 5173). Con macchina **Codespace grande** (es. 16 GB RAM, 4 vCPU) è **normale** tenere API + storefront + admin + vendor accesi: **non** liquidare i problemi con «va in crash / poca RAM» senza aver guardato log e porte (`/tmp/tramelle-dev/*.log`, `ss`, `curl`). Usare [`scripts/dev-all-fronts-codespace.sh`](scripts/dev-all-fronts-codespace.sh). Il vincolo «un solo front» vale per la **VPS di produzione piccola**, non come scusa generica sul Codespace attrezzato.
 - **Storefront in sviluppo (workspace locale):** per anteprima UI senza build ripetute usare **`yarn dev`** o [`scripts/dev-storefront.sh`](scripts/dev-storefront.sh) (porta **3000**, kill port se occupata). La **build di produzione** e il deploy su **tramelle.com** solo se l’utente lo chiede esplicitamente.
 - **Comandi e script** (DB, seed Medusa, build quando richiesta, test, script in `deploy/`, ecc.): eseguirli **direttamente** quando env, rete e permessi lo consentono; non limitarsi a incollare istruzioni.
 - **Fix di codice**: implementare **e** verificare (build/typecheck coerente con il progetto), non solo proposte di snippet.

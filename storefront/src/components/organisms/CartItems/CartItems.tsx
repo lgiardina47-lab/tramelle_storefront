@@ -6,7 +6,13 @@ import {
 import { HttpTypes } from "@medusajs/types"
 import { EmptyCart } from "./EmptyCart"
 
-export const CartItems = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
+export const CartItems = ({
+  cart,
+  wholesaleBuyer = false,
+}: {
+  cart: HttpTypes.StoreCart | null
+  wholesaleBuyer?: boolean
+}) => {
   if (!cart) return null
 
   const groupedItems: any = groupItemsBySeller(cart)
@@ -19,6 +25,7 @@ export const CartItems = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
       <CartItemsProducts
         products={groupedItems[key].items || []}
         currency_code={cart.currency_code}
+        wholesaleBuyer={wholesaleBuyer}
       />
       <CartItemsFooter
         currency_code={cart.currency_code}

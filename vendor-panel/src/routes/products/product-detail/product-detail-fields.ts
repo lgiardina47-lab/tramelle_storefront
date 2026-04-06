@@ -1,0 +1,3 @@
+/** Campi GET prodotto vendor (allineati a Mercur + categorie). */
+export const VENDOR_PRODUCT_DETAIL_FIELDS =
+  "id,title,subtitle,status,external_id,description,handle,is_giftcard,discountable,thumbnail,collection_id,type_id,weight,length,height,width,hs_code,origin_country,mid_code,material,metadata,*type,*collection,*options,*options.values,*tags,*images,*variants,*variants.prices,variants.prices.price_rules.value,variants.prices.price_rules.attribute,*variants.options,*variants.inventory_items,variants.ean,variants.hs_code,variants.metadata,*attribute_values,*attribute_values.attribute,*secondary_categories,*categories"

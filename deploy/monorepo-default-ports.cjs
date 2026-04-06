@@ -8,7 +8,7 @@ module.exports = {
   /** api.tramelle.com — Medusa */
   BACKEND: 9000,
   /** manage.tramelle.com — admin Vite */
-  ADMIN: 7001,
+  ADMIN: 7000,
   /** vendor.tramelle.com — vendor Vite */
   VENDOR: 5173,
 }

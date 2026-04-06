@@ -106,7 +106,14 @@ export interface ProductAttribute {
   description: string
   handle: string
   is_filterable: boolean
-  ui_component: "toggle" | "select" | "text" | "text_area" | "unit"
+  ui_component:
+    | "toggle"
+    | "select"
+    | "multivalue"
+    | "text"
+    | "text_area"
+    | "unit"
+    | "color_picker"
   metadata: Record<string, any>
   possible_values: ProductAttributePossibleValue[]
   product_categories: ProductAttributeCategory[]

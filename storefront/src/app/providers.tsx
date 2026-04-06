@@ -8,8 +8,14 @@ import { PropsWithChildren } from "react"
 
 interface ProvidersProps extends PropsWithChildren {
   cart: Cart | null
+  wholesaleBuyer?: boolean
 }
 
-export function Providers({ children, cart }: ProvidersProps) {
-  return <CartProvider cart={cart}>{children}</CartProvider>
+export function Providers({ children, cart, wholesaleBuyer = false }: ProvidersProps) {
+  return (
+    <CartProvider cart={cart} wholesaleBuyer={wholesaleBuyer}>
+      {children}
+    </CartProvider>
+  )
 }
+

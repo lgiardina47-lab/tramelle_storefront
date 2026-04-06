@@ -8,9 +8,28 @@ import { SellerProps } from '@/types/seller';
 
 import { sdk } from '../config';
 import { ALGOLIA_LISTING_FACET_ATTRIBUTES } from '../helpers/algolia-facets';
+import { storefrontListingProductFields } from '../helpers/product-list-fields';
+import { isWholesaleCustomer } from '../helpers/wholesale-customer';
 import { getAuthHeaders } from './cookies';
 import { retrieveCustomer } from './customer';
 import { getRegion, retrieveRegion } from './regions';
+
+function redactVariantInventoryForRetail<
+  T extends HttpTypes.StoreProduct & { seller?: SellerProps }
+>(products: T[], includeInventory: boolean): T[] {
+  if (includeInventory) {
+    return products;
+  }
+  return products.map(p => ({
+    ...p,
+    variants: p.variants?.map(v => {
+      const { inventory_quantity: _iq, ...rest } = v as HttpTypes.StoreProductVariant & {
+        inventory_quantity?: number | null;
+      };
+      return rest as typeof v;
+    })
+  })) as T[];
+}
 
 export const listProducts = async ({
   pageParam = 1,
@@ -66,6 +85,10 @@ export const listProducts = async ({
     ...(await getAuthHeaders())
   };
 
+  const customer = await retrieveCustomer();
+  const includeVariantInventory = isWholesaleCustomer(customer);
+  const listingFields = storefrontListingProductFields(includeVariantInventory);
+
   const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
 
   return sdk.client
@@ -81,10 +104,8 @@ export const listProducts = async ({
         limit,
         offset,
         region_id: region?.id,
-        fields:
-          '*variants.calculated_price,+variants.inventory_quantity,*seller,*variants,*seller.products,' +
-          '*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute',
-        ...queryParams
+        ...queryParams,
+        fields: listingFields
       },
       headers,
       next: useCached ? { revalidate: 60 } : undefined,
@@ -111,9 +132,14 @@ export const listProducts = async ({
         );
       });
 
+      const productsOut = redactVariantInventoryForRetail(
+        response,
+        includeVariantInventory
+      );
+
       return {
         response: {
-          products: response,
+          products: productsOut,
           count
         },
         nextPage: nextPage,
@@ -279,12 +305,14 @@ export const searchProducts = async (params: {
     ...(await getAuthHeaders())
   };
 
+  const loggedCustomer = await retrieveCustomer();
+  const includeVariantInventory = isWholesaleCustomer(loggedCustomer);
+
   let customer_id = params.customer_id;
 
   if (!customer_id) {
-    const customer = await retrieveCustomer();
-    if (customer) {
-      customer_id = customer.id;
+    if (loggedCustomer) {
+      customer_id = loggedCustomer.id;
     }
   }
 
@@ -312,13 +340,19 @@ export const searchProducts = async (params: {
         region_id,
         customer_id,
         facets,
-        maxValuesPerFacet: 100,
+        maxValuesPerFacet: 100
       },
       headers,
       cache: 'no-cache'
     })
-    .then((response) => {
-      return response;
+    .then(response => {
+      return {
+        ...response,
+        products: redactVariantInventoryForRetail(
+          response.products ?? [],
+          includeVariantInventory
+        )
+      };
     })
     .catch(() => {
       return {
@@ -332,3 +366,49 @@ export const searchProducts = async (params: {
       };
     });
 };
+
+/** Fallback catalogo (client listing) con cookie di sessione e campi coerenti con listProducts. */
+export async function fetchMedusaCatalogFallback(params: {
+  countryCode: string;
+  category_id?: string;
+  collection_id?: string;
+  region_id?: string;
+  limit: number;
+  offset: number;
+}): Promise<{
+  products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
+  count: number;
+}> {
+  const headers = {
+    ...(await getAuthHeaders())
+  };
+  const customer = await retrieveCustomer();
+  const includeVariantInventory = isWholesaleCustomer(customer);
+  const fields = storefrontListingProductFields(includeVariantInventory);
+
+  const medusa = await sdk.client.fetch<{
+    products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
+    count: number;
+  }>(`/store/products`, {
+    method: 'GET',
+    query: {
+      country_code: params.countryCode,
+      ...(params.category_id ? { category_id: params.category_id } : {}),
+      ...(params.collection_id ? { collection_id: params.collection_id } : {}),
+      ...(params.region_id ? { region_id: params.region_id } : {}),
+      limit: params.limit,
+      offset: params.offset,
+      fields,
+      order: 'created_at'
+    },
+    headers,
+    cache: 'no-store'
+  });
+
+  const products = redactVariantInventoryForRetail(
+    medusa.products ?? [],
+    includeVariantInventory
+  );
+
+  return { products, count: medusa.count ?? 0 };
+}

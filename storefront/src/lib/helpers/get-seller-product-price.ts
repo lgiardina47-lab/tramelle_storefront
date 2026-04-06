@@ -1,20 +1,23 @@
-import { convertToLocale } from "./money"
+import { convertToLocale, minorUnitsToMajor } from "./money"
 
 export const getPricesForVariant = (variant: any) => {
   if (!variant?.prices[0]?.amount) {
     return null
   }
 
+  const cc = variant.prices[0].currency_code
+  const major = minorUnitsToMajor(variant.prices[0].amount, cc)
+
   return {
-    calculated_price_number: variant.prices[0].amount,
+    calculated_price_number: major,
     calculated_price: convertToLocale({
-      amount: variant.prices[0].amount,
-      currency_code: variant.prices[0].currency_code,
+      amount: major,
+      currency_code: cc,
     }),
-    original_price_number: variant.prices[0].amount,
+    original_price_number: major,
     original_price: convertToLocale({
-      amount: variant.prices[0].amount,
-      currency_code: variant.prices[0].currency_code,
+      amount: major,
+      currency_code: cc,
     }),
   }
 }

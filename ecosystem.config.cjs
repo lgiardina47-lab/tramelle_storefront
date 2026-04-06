@@ -9,7 +9,8 @@
  *   bash scripts/pm2-work-one.sh vendor       # solo vendor
  *   bash scripts/pm2-work-one.sh backend      # solo API (ferma i tre front)
  *
- * Solo se serve avviare tutto: `pm2 start ecosystem.config.cjs` (sconsigliato sulla VPS piccola).
+ * Tutti i front + API insieme (VPS capiente): `bash scripts/pm2-work-all-fronts.sh`
+ * Oppure: `pm2 start ecosystem.config.cjs` (stesso effetto, senza attesa health API).
  */
 const path = require('path')
 

@@ -10,7 +10,9 @@ import { ProductAdditionalAttributesForm } from "./components/product-additional
 
 export const ProductAdditionalAttributes = () => {
   const { id } = useParams()
-  const { product, isLoading: isProductLoading } = useProduct(id!)
+  const { product, isLoading: isProductLoading } = useProduct(id!, {
+    fields: "attribute_values.*,attribute_values.attribute.*",
+  })
 
   const { attributes, isLoading: isAttributesLoading } = useProductAttributes(
     id!,

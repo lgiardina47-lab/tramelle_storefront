@@ -10,10 +10,14 @@ import { toast } from '@/lib/helpers/toast';
 
 export const UpdateCartItemButton = ({
   quantity,
-  lineItemId
+  lineItemId,
+  wholesaleBuyer = false,
+  piecesPerCarton = 0,
 }: {
   quantity: number;
   lineItemId: string;
+  wholesaleBuyer?: boolean;
+  piecesPerCarton?: number;
 }) => {
   const { updateCartItem, isUpdatingItem } = useCartContext();
   const [pendingQuantity, setPendingQuantity] = useState(quantity);
@@ -34,6 +38,18 @@ export const UpdateCartItemButton = ({
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
+
+    const batch =
+      Number.isFinite(piecesPerCarton) && piecesPerCarton > 0
+        ? piecesPerCarton
+        : 0;
+    if (wholesaleBuyer && batch > 0 && newQuantity % batch !== 0) {
+      toast.error({
+        title: "Quantità non valida",
+        description: `Per questo articolo servono multipli di ${batch} pezzi (cartone).`,
+      });
+      return;
+    }
 
     // Update UI immediately (optimistic update)
     setPendingQuantity(newQuantity);

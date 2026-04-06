@@ -20,12 +20,19 @@ dati_venditori/*.json
 **/.medusa/
 
 # ----- Segreti e env locali (restano leggibili solo template / example) -----
-**/.env
+!.env
 **/.env.local
 **/.env.*.local
 **/.env.production
 **/.env.development
 **/.env.test
+# Eccezione: env committati solo URL pubblici (build → domini reali; niente segreti).
+!storefront/.env.production
+!storefront/.env.development
+!admin-panel/.env.production
+!admin-panel/.env.development
+!vendor-panel/.env.production
+!vendor-panel/.env.development
 !**/.env.example
 !**/.env.template
 !**/.env.local.example

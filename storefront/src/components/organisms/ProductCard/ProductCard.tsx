@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { Product } from "@/types/product"
+import { useCartContext } from "@/components/providers"
 
 export const ProductCard = ({
   product,
@@ -15,11 +16,15 @@ export const ProductCard = ({
   product: HttpTypes.StoreProduct | Product,
   className?: string
 }) => {
+  const { wholesaleBuyer } = useCartContext()
+
   if (!product) {
     return null
   }
 
-  const { cheapestPrice } = getProductPrice({ product: product as HttpTypes.StoreProduct })
+  const { cheapestPrice, cheapestVariant } = getProductPrice({
+    product: product as HttpTypes.StoreProduct,
+  })
 
   const productName = String(product.title || "Product")
 
@@ -93,6 +98,18 @@ export const ProductCard = ({
                 </p>
               )}
             </div>
+            {wholesaleBuyer &&
+              cheapestVariant &&
+              typeof (cheapestVariant as { inventory_quantity?: number }).inventory_quantity ===
+                "number" && (
+                <p
+                  className="text-sm text-secondary mt-1"
+                  data-testid="product-card-stock"
+                >
+                  Giacenza:{" "}
+                  {(cheapestVariant as { inventory_quantity: number }).inventory_quantity}
+                </p>
+              )}
           </div>
         </div>
       </LocalizedClientLink>

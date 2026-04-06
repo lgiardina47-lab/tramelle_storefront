@@ -35,31 +35,29 @@ const CountrySelect = ({
   regions,
   variant = "compact",
 }: CountrySelectProps) => {
-  const [current, setCurrent] = useState<
-    | { country: string | undefined; region: string; label: string | undefined }
-    | undefined
-  >(undefined)
+  const [current, setCurrent] = useState<CountryOption | undefined>(undefined)
 
   const { locale: countryCode } = useParams()
   const router = useRouter()
   const currentPath = usePathname().split(`/${countryCode}`)[1]
 
-  const options = useMemo(() => {
-    return regions
-      ?.map((r) => {
-        return r.countries?.map((c) => ({
-          country: c.iso_2,
+  const options = useMemo((): CountryOption[] => {
+    const flat =
+      regions?.flatMap((r) =>
+        (r.countries ?? []).map((c) => ({
+          country: c.iso_2 ?? "",
           region: r.id,
-          label: c.display_name,
+          label: c.display_name ?? c.iso_2 ?? "",
         }))
-      })
-      .flat()
-      .sort((a, b) => (a?.label ?? "").localeCompare(b?.label ?? ""))
+      ) ?? []
+    return flat
+      .filter((o) => o.country.length > 0)
+      .sort((a, b) => a.label.localeCompare(b.label))
   }, [regions])
 
   useEffect(() => {
-    if (countryCode) {
-      const option = options?.find((o) => o?.country === countryCode)
+    if (countryCode && typeof countryCode === "string") {
+      const option = options.find((o) => o.country === countryCode)
       setCurrent(option)
     }
   }, [options, countryCode])
@@ -106,8 +104,8 @@ const CountrySelect = ({
         <Listbox
           onChange={handleChange}
           defaultValue={
-            countryCode
-              ? options?.find((o) => o?.country === countryCode)
+            countryCode && typeof countryCode === "string"
+              ? options.find((o) => o.country === countryCode)
               : undefined
           }
         >
@@ -122,7 +120,6 @@ const CountrySelect = ({
             {isPill ? (
               <span className="flex min-w-0 flex-1 items-center gap-2">
                 {current?.country ? (
-                  // @ts-expect-error react-country-flag types
                   <ReactCountryFlag
                     alt={`${current.country?.toUpperCase()} flag`}
                     svg
@@ -152,7 +149,6 @@ const CountrySelect = ({
               <div className="txt-compact-small mx-auto flex items-start">
                 {current && (
                   <span className="txt-compact-small flex items-center gap-x-2">
-                    {/* @ts-expect-error react-country-flag */}
                     <ReactCountryFlag
                       alt={`${current.country?.toUpperCase()} flag`}
                       svg
@@ -192,7 +188,6 @@ const CountrySelect = ({
                       )}
                     >
                       <span className="flex items-center gap-x-2">
-                        {/* @ts-expect-error react-country-flag */}
                         <ReactCountryFlag
                           svg
                           style={{

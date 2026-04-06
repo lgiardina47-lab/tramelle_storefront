@@ -53,7 +53,7 @@ export const Header = async ({ locale }: { locale: string }) => {
         locale={locale}
       />
 
-      <div className="mx-auto max-w-[1440px] px-4 py-3 md:px-6 lg:px-8">
+      <div className="w-full px-4 py-3 md:px-6 lg:px-8">
         <div className="flex flex-col gap-3 lg:hidden">
           <div
             className="flex items-center justify-between gap-2"

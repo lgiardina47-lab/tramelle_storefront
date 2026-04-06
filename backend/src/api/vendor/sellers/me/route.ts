@@ -5,6 +5,7 @@ import type {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { updateSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 
+import { resolveVendorSellerId } from "../../../../lib/vendor-resolve-seller-id"
 import {
   getSellerListingMetadata,
 } from "../../../../lib/seller-listing-metadata"
@@ -63,12 +64,20 @@ export async function GET(
   res: MedusaResponse
 ): Promise<void> {
   const actorId = getActorId(req)
+  const sellerId = await resolveVendorSellerId(req.scope, actorId)
+  if (!sellerId) {
+    res.status(404).json({
+      message:
+        "Seller not found for this account. Check auth is linked to a seller (auth_identity / member).",
+    })
+    return
+  }
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const fields = resolveVendorMeGraphFields(req)
   const { data: [seller] } = await query.graph(
     {
       entity: "seller",
-      filters: { members: { id: actorId } },
+      filters: { id: sellerId },
       fields,
     },
     { throwIfKeyNotFound: true }
@@ -86,17 +95,12 @@ export const POST = async (
   res: MedusaResponse
 ): Promise<void> => {
   const actorId = getActorId(req)
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: [sellerRef] } = await query.graph({
-    entity: "seller",
-    filters: { members: { id: actorId } },
-    fields: ["id"],
-  })
-  if (!sellerRef?.id) {
+  const id = await resolveVendorSellerId(req.scope, actorId)
+  if (!id) {
     res.status(404).json({ message: "Seller not found" })
     return
   }
-  const id = sellerRef.id
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const body = (
     req as AuthenticatedMedusaRequest & {
       validatedBody?: Record<string, unknown>
@@ -114,7 +118,7 @@ export const POST = async (
   const { data: [seller] } = await query.graph(
     {
       entity: "seller",
-      filters: { members: { id: actorId } },
+      filters: { id },
       fields,
     },
     { throwIfKeyNotFound: true }

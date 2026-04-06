@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Button, Input } from "@medusajs/ui"
+import { Button, Input, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 import { Form } from "../../../../../components/common/form"
@@ -97,24 +97,30 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item data-testid="product-attributes-form-width-item">
                       <Form.Label data-testid="product-attributes-form-width-label">{t("fields.width")}</Form.Label>
-                      <Form.Control data-testid="product-attributes-form-width-control">
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control data-testid="product-attributes-form-width-control">
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(parseFloat(value))
-                            }
-                          }}
-                          {...field}
-                          data-testid="product-attributes-form-width-input"
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(parseFloat(value))
+                              }
+                            }}
+                            {...field}
+                            data-testid="product-attributes-form-width-input"
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-10 shrink-0">
+                          {t("fields.dimensionUnitCm")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage data-testid="product-attributes-form-width-error" />
                     </Form.Item>
                   )
@@ -127,24 +133,30 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item data-testid="product-attributes-form-height-item">
                       <Form.Label data-testid="product-attributes-form-height-label">{t("fields.height")}</Form.Label>
-                      <Form.Control data-testid="product-attributes-form-height-control">
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control data-testid="product-attributes-form-height-control">
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(Number(value))
-                            }
-                          }}
-                          {...field}
-                          data-testid="product-attributes-form-height-input"
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(Number(value))
+                              }
+                            }}
+                            {...field}
+                            data-testid="product-attributes-form-height-input"
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-10 shrink-0">
+                          {t("fields.dimensionUnitCm")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage data-testid="product-attributes-form-height-error" />
                     </Form.Item>
                   )
@@ -157,24 +169,30 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item data-testid="product-attributes-form-length-item">
                       <Form.Label data-testid="product-attributes-form-length-label">{t("fields.length")}</Form.Label>
-                      <Form.Control data-testid="product-attributes-form-length-control">
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control data-testid="product-attributes-form-length-control">
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(Number(value))
-                            }
-                          }}
-                          {...field}
-                          data-testid="product-attributes-form-length-input"
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(Number(value))
+                              }
+                            }}
+                            {...field}
+                            data-testid="product-attributes-form-length-input"
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-10 shrink-0">
+                          {t("fields.dimensionUnitCm")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage data-testid="product-attributes-form-length-error" />
                     </Form.Item>
                   )
@@ -187,24 +205,30 @@ export const ProductAttributesForm = ({
                   return (
                     <Form.Item data-testid="product-attributes-form-weight-item">
                       <Form.Label data-testid="product-attributes-form-weight-label">{t("fields.weight")}</Form.Label>
-                      <Form.Control data-testid="product-attributes-form-weight-control">
-                        <Input
-                          type="number"
-                          min={0}
-                          value={value || ""}
-                          onChange={(e) => {
-                            const value = e.target.value
+                      <div className="flex items-center gap-x-2">
+                        <Form.Control data-testid="product-attributes-form-weight-control">
+                          <Input
+                            type="number"
+                            min={0}
+                            className="flex-1"
+                            value={value || ""}
+                            onChange={(e) => {
+                              const value = e.target.value
 
-                            if (value === "") {
-                              onChange(null)
-                            } else {
-                              onChange(Number(value))
-                            }
-                          }}
-                          {...field}
-                          data-testid="product-attributes-form-weight-input"
-                        />
-                      </Form.Control>
+                              if (value === "") {
+                                onChange(null)
+                              } else {
+                                onChange(Number(value))
+                              }
+                            }}
+                            {...field}
+                            data-testid="product-attributes-form-weight-input"
+                          />
+                        </Form.Control>
+                        <Text size="small" className="text-ui-fg-muted w-8 shrink-0">
+                          {t("fields.weightUnitG")}
+                        </Text>
+                      </div>
                       <Form.ErrorMessage data-testid="product-attributes-form-weight-error" />
                     </Form.Item>
                   )

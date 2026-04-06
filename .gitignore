@@ -3,8 +3,11 @@ ssh-client-download/
 
 backend/.env
 storefront/.env.local
+storefront/.env.production.local
 admin-panel/.env
+admin-panel/.env.production.local
 vendor-panel/.env
+vendor-panel/.env.production.local
 **/node_modules
 **/.medusa
 

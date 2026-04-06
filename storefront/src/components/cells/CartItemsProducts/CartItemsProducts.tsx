@@ -11,12 +11,14 @@ export const CartItemsProducts = ({
   products,
   currency_code,
   delete_item = true,
-  change_quantity = true
+  change_quantity = true,
+  wholesaleBuyer = false,
 }: {
   products: HttpTypes.StoreCartLineItem[];
   currency_code: string;
   delete_item?: boolean;
   change_quantity?: boolean;
+  wholesaleBuyer?: boolean;
 }) => {
   // Filter out items with invalid data (missing prices/variants)
   const validProducts = filterValidCartItems(products);
@@ -86,6 +88,14 @@ export const CartItemsProducts = ({
                     <UpdateCartItemButton
                       quantity={product.quantity}
                       lineItemId={product.id}
+                      wholesaleBuyer={wholesaleBuyer}
+                      piecesPerCarton={parseInt(
+                        String(
+                          (product.variant?.metadata as Record<string, unknown> | undefined)
+                            ?.tramelle_pieces_per_carton ?? ""
+                        ),
+                        10
+                      )}
                     />
                   ) : (
                     <p>

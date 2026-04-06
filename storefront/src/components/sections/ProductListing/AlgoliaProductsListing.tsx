@@ -16,13 +16,8 @@ import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { HIDE_LISTING_FILTERS, PRODUCT_LIMIT } from "@/const"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { useEffect, useState } from "react"
-import { searchProducts } from "@/lib/data/products"
-import { sdk } from "@/lib/config"
+import { fetchMedusaCatalogFallback, searchProducts } from "@/lib/data/products"
 import { ListingFacetBuckets } from "@/components/organisms/ProductSidebar/AlgoliaProductSidebar"
-
-const MEDUSA_LISTING_FIELDS =
-  "*variants.calculated_price,+variants.inventory_quantity,*seller,*variants,*seller.products," +
-  "*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute"
 
 export const AlgoliaProductsListing = ({
   category_id,
@@ -135,21 +130,13 @@ const ProductsListing = ({
         if (canFallbackCatalog) {
           const offset = (page - 1) * PRODUCT_LIMIT
           try {
-            const medusa = await sdk.client.fetch<{
-              products: HttpTypes.StoreProduct[]
-              count: number
-            }>(`/store/products`, {
-              method: "GET",
-              query: {
-                country_code: locale,
-                ...(category_id ? { category_id } : {}),
-                ...(collection_id ? { collection_id } : {}),
-                region_id,
-                limit: PRODUCT_LIMIT,
-                offset,
-                fields: MEDUSA_LISTING_FIELDS,
-                order: "created_at",
-              },
+            const medusa = await fetchMedusaCatalogFallback({
+              countryCode: locale,
+              category_id,
+              collection_id,
+              region_id,
+              limit: PRODUCT_LIMIT,
+              offset,
             })
             const raw = medusa.products ?? []
             const filtered = raw

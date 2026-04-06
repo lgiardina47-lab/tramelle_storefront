@@ -2,9 +2,8 @@ import type {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-
 import { mergeSellerListingFiscalFromRequestBody } from "../../../../../lib/seller-listing-metadata"
+import { resolveVendorSellerId } from "../../../../../lib/vendor-resolve-seller-id"
 
 function getActorId(req: AuthenticatedMedusaRequest): string {
   const ctx = (
@@ -25,13 +24,8 @@ export async function POST(
   res: MedusaResponse
 ): Promise<void> {
   const actorId = getActorId(req)
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: [sellerRef] } = await query.graph({
-    entity: "seller",
-    filters: { members: { id: actorId } },
-    fields: ["id"],
-  })
-  if (!sellerRef?.id) {
+  const sellerId = await resolveVendorSellerId(req.scope, actorId)
+  if (!sellerId) {
     res.status(404).json({ message: "Seller not found" })
     return
   }
@@ -39,6 +33,6 @@ export async function POST(
     req.body && typeof req.body === "object" && !Array.isArray(req.body)
       ? (req.body as Record<string, unknown>)
       : {}
-  await mergeSellerListingFiscalFromRequestBody(req.scope, sellerRef.id, body)
+  await mergeSellerListingFiscalFromRequestBody(req.scope, sellerId, body)
   res.json({ ok: true })
 }

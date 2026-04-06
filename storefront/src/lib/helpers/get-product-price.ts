@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { getPercentageDiff } from "./get-precentage-diff"
-import { convertToLocale } from "./money"
+import { convertToLocale, minorUnitsToMajor } from "./money"
 
 export const getPricesForVariant = (variant: any) => {
   if (
@@ -10,25 +10,35 @@ export const getPricesForVariant = (variant: any) => {
     return null
   }
 
+  const cc = variant.calculated_price.currency_code
+
   if (!variant?.calculated_price?.calculated_amount_with_tax) {
+    const calc = minorUnitsToMajor(
+      variant.calculated_price.calculated_amount,
+      cc
+    )
+    const wot = minorUnitsToMajor(
+      variant.calculated_price.calculated_amount_without_tax,
+      cc
+    )
+    const orig = minorUnitsToMajor(variant.calculated_price.original_amount, cc)
     return {
-      calculated_price_number: variant.calculated_price.calculated_amount,
+      calculated_price_number: calc,
       calculated_price: convertToLocale({
-        amount: variant.calculated_price.calculated_amount,
-        currency_code: variant.calculated_price.currency_code,
+        amount: calc,
+        currency_code: cc,
       }),
       calculated_price_without_tax: convertToLocale({
-        amount: variant.calculated_price.calculated_amount_without_tax,
-        currency_code: variant.calculated_price.currency_code,
+        amount: wot,
+        currency_code: cc,
       }),
-      calculated_price_without_tax_number:
-        variant.calculated_price.calculated_amount_without_tax,
-      original_price_number: variant.calculated_price.original_amount,
+      calculated_price_without_tax_number: wot,
+      original_price_number: orig,
       original_price: convertToLocale({
-        amount: variant.calculated_price.original_amount,
-        currency_code: variant.calculated_price.currency_code,
+        amount: orig,
+        currency_code: cc,
       }),
-      currency_code: variant.calculated_price.currency_code,
+      currency_code: cc,
       price_type: variant.calculated_price.calculated_price.price_list_type,
       percentage_diff: getPercentageDiff(
         variant.calculated_price.original_amount,
@@ -37,25 +47,36 @@ export const getPricesForVariant = (variant: any) => {
     }
   }
 
+  const withTax = minorUnitsToMajor(
+    variant.calculated_price.calculated_amount_with_tax,
+    cc
+  )
+  const withoutTax = minorUnitsToMajor(
+    variant.calculated_price.calculated_amount_without_tax,
+    cc
+  )
+  const origWithTax = minorUnitsToMajor(
+    variant.calculated_price.original_amount_with_tax,
+    cc
+  )
+
   return {
-    calculated_price_number:
-      variant.calculated_price.calculated_amount_with_tax,
+    calculated_price_number: withTax,
     calculated_price: convertToLocale({
-      amount: variant.calculated_price.calculated_amount_with_tax,
-      currency_code: variant.calculated_price.currency_code,
+      amount: withTax,
+      currency_code: cc,
     }),
     calculated_price_without_tax: convertToLocale({
-      amount: variant.calculated_price.calculated_amount_without_tax,
-      currency_code: variant.calculated_price.currency_code,
+      amount: withoutTax,
+      currency_code: cc,
     }),
-    calculated_price_without_tax_number:
-      variant.calculated_price.calculated_amount_without_tax,
-    original_price_number: variant.calculated_price.original_amount_with_tax,
+    calculated_price_without_tax_number: withoutTax,
+    original_price_number: origWithTax,
     original_price: convertToLocale({
-      amount: variant.calculated_price.original_amount_with_tax,
-      currency_code: variant.calculated_price.currency_code,
+      amount: origWithTax,
+      currency_code: cc,
     }),
-    currency_code: variant.calculated_price.currency_code,
+    currency_code: cc,
     price_type: variant.calculated_price.calculated_price.price_list_type,
     percentage_diff: getPercentageDiff(
       variant.calculated_price.original_amount,

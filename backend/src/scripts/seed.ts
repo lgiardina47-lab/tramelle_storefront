@@ -50,10 +50,14 @@ export default async function seedMarketplaceData({ container }: ExecArgs) {
     salesChannel.id
   )
   logger.info('Creating service zone...')
+  const fulfillmentSetId = stockLocation.fulfillment_sets?.[0]?.id
+  if (!fulfillmentSetId) {
+    throw new Error("Seller stock location has no fulfillment set")
+  }
   const serviceZone = await createServiceZoneForFulfillmentSet(
     container,
     seller.id,
-    stockLocation.fulfillment_sets[0].id
+    fulfillmentSetId
   )
   logger.info('Creating seller shipping option...')
   await createSellerShippingOption(

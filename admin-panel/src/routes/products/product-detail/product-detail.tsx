@@ -7,6 +7,7 @@ import { useExtension } from "../../../providers/extension-provider";
 import { ProductAdditionalAttributeSection } from "./components/product-additional-attribute-section";
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
+import { TechnicalSheetForm } from "./components/technical-sheet-form";
 import { ProductMediaSection } from "./components/product-media-section";
 import { ProductOptionSection } from "./components/product-option-section";
 import { ProductOrganizationSection } from "./components/product-organization-section";
@@ -67,6 +68,7 @@ export const ProductDetail = () => {
       >
         <TwoColumnPage.Main data-testid="product-detail-main">
           <ProductGeneralSection product={product} />
+          <TechnicalSheetForm product={product} />
           <ProductMediaSection product={product} />
           <ProductOptionSection product={product} />
           <ProductVariantSection product={product} />

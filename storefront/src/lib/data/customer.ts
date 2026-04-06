@@ -15,6 +15,30 @@ import {
   setAuthToken
 } from './cookies';
 
+async function assignCustomerToB2bProGroupImmediate(customerId: string): Promise<void> {
+  const groupId = process.env.TRAMELLE_B2B_PRO_GROUP_ID?.trim();
+  const adminKey = process.env.MEDUSA_ADMIN_API_KEY?.trim();
+  const base = (process.env.MEDUSA_BACKEND_URL || '').replace(/\/$/, '');
+  if (!groupId || !adminKey || !base) {
+    return;
+  }
+  try {
+    const res = await fetch(`${base}/admin/customers/${customerId}/customer-groups`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${adminKey}`
+      },
+      body: JSON.stringify({ add: [groupId] })
+    });
+    if (!res.ok) {
+      console.warn('[signup b2b] assign group failed', res.status, await res.text());
+    }
+  } catch (e) {
+    console.warn('[signup b2b] assign group error', e);
+  }
+}
+
 export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null> => {
   const authHeaders = await getAuthHeaders();
   if (!authHeaders) return null;
@@ -23,19 +47,14 @@ export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null
     ...authHeaders
   };
 
-  const next = {
-    ...(await getCacheOptions('customers'))
-  };
-
   return await sdk.client
     .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
       method: 'GET',
       query: {
-        fields: '*orders'
+        fields: '*metadata,*orders,*groups'
       },
       headers,
-      next,
-      cache: 'force-cache'
+      cache: 'no-store'
     })
     .then(({ customer }) => customer ?? null)
     .catch(() => null);
@@ -61,16 +80,36 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
 
 export async function signup(formData: FormData) {
   const password = formData.get('password') as string;
-  const customerForm = {
-    email: formData.get('email') as string,
-    first_name: formData.get('first_name') as string,
-    last_name: formData.get('last_name') as string,
-    phone: formData.get('phone') as string
-  };
+  const registrationType = (formData.get('registration_type') as string) || 'b2c';
+
+  const email = formData.get('email') as string;
+
+  const customerForm: HttpTypes.StoreCreateCustomer = { email };
+
+  if (registrationType === 'b2b_pro') {
+    const company = (formData.get('company_name') as string)?.trim() || '';
+    const vat = (formData.get('vat_id') as string)?.trim() || '';
+    const sdiOrPec = (formData.get('sdi_or_pec') as string)?.trim() || '';
+    customerForm.company_name = company;
+    customerForm.first_name = company.slice(0, 100) || email.split('@')[0]?.slice(0, 100) || '—';
+    customerForm.last_name = '—';
+    customerForm.metadata = {
+      tramelle_registration_type: 'b2b_pro',
+      tramelle_vat_id: vat,
+      tramelle_sdi_or_pec: sdiOrPec
+    };
+  } else {
+    customerForm.first_name = formData.get('first_name') as string;
+    customerForm.last_name = formData.get('last_name') as string;
+    const phone = (formData.get('phone') as string)?.trim();
+    if (phone) {
+      customerForm.phone = phone;
+    }
+  }
 
   try {
     const token = await sdk.auth.register('customer', 'emailpass', {
-      email: customerForm.email,
+      email,
       password: password
     });
 
@@ -87,11 +126,15 @@ export async function signup(formData: FormData) {
     );
 
     const loginToken = await sdk.auth.login('customer', 'emailpass', {
-      email: customerForm.email,
+      email,
       password
     });
 
     await setAuthToken(loginToken as string);
+
+    if (registrationType === 'b2b_pro' && createdCustomer?.id) {
+      await assignCustomerToB2bProGroupImmediate(createdCustomer.id);
+    }
 
     const customerCacheTag = await getCacheTag('customers');
     revalidateTag(customerCacheTag);

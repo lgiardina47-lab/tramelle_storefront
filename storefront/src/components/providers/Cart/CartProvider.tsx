@@ -14,9 +14,10 @@ import { CartContext } from './context';
 
 interface CartProviderProps extends PropsWithChildren {
   cart: Cart | null;
+  wholesaleBuyer?: boolean;
 }
 
-export function CartProvider({ cart, children }: CartProviderProps) {
+export function CartProvider({ cart, children, wholesaleBuyer = false }: CartProviderProps) {
   const [cartState, setCartState] = useState(cart);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAddingItem, setIsAddingItem] = useState(false);
@@ -116,11 +117,13 @@ export function CartProvider({ cart, children }: CartProviderProps) {
   const addToCart = async ({
     variantId,
     quantity,
-    countryCode
+    countryCode,
+    lineMetadata
   }: {
     variantId: string;
     quantity: number;
     countryCode: string;
+    lineMetadata?: Record<string, string | number | boolean | null>;
   }) => {
     setIsAddingItem(true);
     setIsUpdating(true);
@@ -129,7 +132,8 @@ export function CartProvider({ cart, children }: CartProviderProps) {
       await apiAddToCart({
         variantId,
         quantity,
-        countryCode
+        countryCode,
+        lineMetadata
       });
       await refreshCart();
     } catch (error) {
@@ -181,6 +185,8 @@ export function CartProvider({ cart, children }: CartProviderProps) {
   return (
     <CartContext.Provider
       value={{
+        wholesaleBuyer,
+        proMode: wholesaleBuyer,
         cart: cartState,
         onAddToCart: handleAddToCart,
         addToCart,

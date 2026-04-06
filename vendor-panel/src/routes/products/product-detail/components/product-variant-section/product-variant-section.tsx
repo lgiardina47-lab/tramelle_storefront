@@ -73,11 +73,7 @@ export const ProductVariantSection = ({
         ]}
         noRecords={{
           title: t("products.variants.empty.heading"),
-          message: t("products.variants.empty.description"),
-          action: {
-            to: "variants/create",
-            label: t("actions.create"),
-          },
+          message: t("products.variants.useFormatsTable"),
         }}
       />
     </Container>

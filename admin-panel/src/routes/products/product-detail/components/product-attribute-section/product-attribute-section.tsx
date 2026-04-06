@@ -11,6 +11,16 @@ type ProductAttributeSectionProps = {
   product: HttpTypes.AdminProduct
 }
 
+function formatDimWithUnit(
+  value: string | number | null | undefined,
+  unit: string
+): string | undefined {
+  if (value === null || value === undefined || value === "") {
+    return undefined
+  }
+  return `${value} ${unit}`
+}
+
 export const ProductAttributeSection = ({
   product,
 }: ProductAttributeSectionProps) => {
@@ -36,10 +46,26 @@ export const ProductAttributeSection = ({
           data-testid="product-attribute-action-menu"
         />
       </div>
-      <SectionRow title={t("fields.height")} value={product.height} data-testid="product-height-row" />
-      <SectionRow title={t("fields.width")} value={product.width} data-testid="product-width-row" />
-      <SectionRow title={t("fields.length")} value={product.length} data-testid="product-length-row" />
-      <SectionRow title={t("fields.weight")} value={product.weight} data-testid="product-weight-row" />
+      <SectionRow
+        title={t("fields.height")}
+        value={formatDimWithUnit(product.height, t("fields.dimensionUnitCm"))}
+        data-testid="product-height-row"
+      />
+      <SectionRow
+        title={t("fields.width")}
+        value={formatDimWithUnit(product.width, t("fields.dimensionUnitCm"))}
+        data-testid="product-width-row"
+      />
+      <SectionRow
+        title={t("fields.length")}
+        value={formatDimWithUnit(product.length, t("fields.dimensionUnitCm"))}
+        data-testid="product-length-row"
+      />
+      <SectionRow
+        title={t("fields.weight")}
+        value={formatDimWithUnit(product.weight, t("fields.weightUnitG"))}
+        data-testid="product-weight-row"
+      />
       <SectionRow title={t("fields.midCode")} value={product.mid_code} data-testid="product-mid-code-row" />
       <SectionRow title={t("fields.hsCode")} value={product.hs_code} data-testid="product-hs-code-row" />
       <SectionRow
