@@ -17,6 +17,11 @@ import { useProductVariants } from '../../../../../hooks/api'
 import { useInventoryItemLevels } from "../../../../../hooks/api"
 import { useProductVariantsTableQuery } from "../../../../../hooks/table/query/use-product-variants-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import {
+  FORMAT_OPTION_TITLE,
+  getFormatOption,
+  variantFormatLabel,
+} from "../../lib/formato-product"
 
 type ProductVariantSectionProps = {
   product: ExtendedAdminProduct
@@ -33,7 +38,7 @@ export const ProductVariantSection = ({
     pageSize: PAGE_SIZE,
   })
 
-  const { variants, count, isLoading } = useProductVariants(
+  const { variants, isLoading } = useProductVariants(
     product.id,
     searchParams,
     {
@@ -41,12 +46,33 @@ export const ProductVariantSection = ({
     }
   )
 
+  const formatOpt = useMemo(() => getFormatOption(product), [product])
+
+  /** Esclude varianti orfane (nessun valore Formato valido rispetto alle option values del prodotto). */
+  const variantsAligned = useMemo(() => {
+    const list = variants || []
+    const values = formatOpt?.values
+    if (!values?.length) {
+      return list
+    }
+    const allowed = new Set(
+      values.map((v) => v.value).filter((x): x is string => Boolean(x))
+    )
+    const title = formatOpt.title || FORMAT_OPTION_TITLE
+    const oid = formatOpt.id ?? null
+    return list.filter((v) => {
+      const lbl = variantFormatLabel(v, title, oid)
+      if (!lbl) return false
+      return allowed.has(lbl)
+    })
+  }, [variants, formatOpt])
+
   const columns = useColumns(product)
 
   const { table } = useDataTable({
-    data: variants || [],
+    data: variantsAligned,
     columns,
-    count,
+    count: variantsAligned.length,
     enablePagination: true,
     pageSize: PAGE_SIZE,
     getRowId: (row) => row?.id || "",
@@ -60,7 +86,7 @@ export const ProductVariantSection = ({
       <_DataTable
         table={table}
         columns={columns}
-        count={count || 0}
+        count={variantsAligned.length}
         pageSize={PAGE_SIZE}
         search
         pagination

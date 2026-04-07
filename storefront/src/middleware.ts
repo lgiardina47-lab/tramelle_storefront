@@ -2,7 +2,14 @@ import { HttpTypes } from '@medusajs/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { PROTECTED_ROUTES } from './lib/constants';
+import { TRAMELLE_PREFERRED_COUNTRY_COOKIE } from './lib/constants/locale-preference';
 import { isTokenExpired } from './lib/helpers/token';
+import {
+  MEDUSA_EN_COUNTRY_FALLBACK_ORDER,
+  STOREFRONT_EN_URL_SEGMENT,
+  isStorefrontPermissiveLocalePath,
+} from './lib/i18n/storefront-path-locale';
+import { shouldUseProductionComingSoonHome } from './lib/constants/site';
 
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
@@ -26,9 +33,14 @@ const makeAuthRedirect = (
   return response;
 };
 
-const regionMapCache = {
+const regionMapCache: {
+  regionMap: Map<string, HttpTypes.StoreRegion>;
+  regionMapUpdated: number;
+  /** ISO paese Medusa che corrisponde al segmento URL `en`. */
+  englishMarketMedusaIso?: string;
+} = {
   regionMap: new Map<string, HttpTypes.StoreRegion>(),
-  regionMapUpdated: Date.now()
+  regionMapUpdated: Date.now(),
 };
 
 async function getRegionMap(_cacheId: string) {
@@ -90,6 +102,16 @@ async function getRegionMap(_cacheId: string) {
       });
     });
 
+    regionMapCache.englishMarketMedusaIso = undefined;
+    for (const iso of MEDUSA_EN_COUNTRY_FALLBACK_ORDER) {
+      const r = regionMapCache.regionMap.get(iso);
+      if (r) {
+        regionMapCache.englishMarketMedusaIso = iso;
+        regionMapCache.regionMap.set(STOREFRONT_EN_URL_SEGMENT, r);
+        break;
+      }
+    }
+
     regionMapCache.regionMapUpdated = Date.now();
   }
 
@@ -107,14 +129,34 @@ async function getCountryCode(
 
     const urlCountryCode = request.nextUrl.pathname.split('/')[1]?.toLowerCase();
 
-    if (urlCountryCode && regionMap.has(urlCountryCode)) {
+    if (
+      urlCountryCode &&
+      (regionMap.has(urlCountryCode) ||
+        isStorefrontPermissiveLocalePath(urlCountryCode))
+    ) {
       countryCode = urlCountryCode;
-    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
+    } else {
+      const prefCookie = request.cookies
+        .get(TRAMELLE_PREFERRED_COUNTRY_COOKIE)
+        ?.value?.toLowerCase();
+      if (
+        prefCookie &&
+        (regionMap.has(prefCookie) ||
+          isStorefrontPermissiveLocalePath(prefCookie))
+      ) {
+        countryCode = prefCookie;
+      }
+    }
+    if (!countryCode && vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode;
-    } else if (regionMap.has(DEFAULT_REGION)) {
+    }
+    if (!countryCode && regionMap.has(DEFAULT_REGION)) {
       countryCode = DEFAULT_REGION;
-    } else if (regionMap.keys().next().value) {
-      countryCode = regionMap.keys().next().value;
+    } else if (!countryCode) {
+      const first = regionMap.keys().next().value;
+      if (first) {
+        countryCode = first as string;
+      }
     }
 
     return countryCode;
@@ -125,6 +167,42 @@ async function getCountryCode(
       );
     }
   }
+}
+
+const MINIMAL_HOME_HEADER = 'x-tramelle-minimal-home';
+
+function isLocaleOnlyHomePath(pathname: string): boolean {
+  const trimmed = pathname.replace(/\/$/, '') || '/';
+  const segments = trimmed.split('/').filter(Boolean);
+  return segments.length === 1 && /^[a-z]{2}$/i.test(segments[0]!);
+}
+
+/**
+ * Home `/[locale]`: header per layout senza Header/Footer solo dove vale la splash (vedi {@link shouldUseProductionComingSoonHome}).
+ */
+function withProdMinimalHomeHeader(
+  request: NextRequest,
+  response: NextResponse
+): NextResponse {
+  if (
+    !isLocaleOnlyHomePath(request.nextUrl.pathname) ||
+    !shouldUseProductionComingSoonHome(request.headers.get('host'))
+  ) {
+    return response;
+  }
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set(MINIMAL_HOME_HEADER, '1');
+
+  const out = NextResponse.next({
+    request: { headers: requestHeaders }
+  });
+
+  response.cookies.getAll().forEach(c => {
+    out.cookies.set(c.name, c.value);
+  });
+
+  return out;
 }
 
 export async function middleware(request: NextRequest) {
@@ -163,7 +241,7 @@ export async function middleware(request: NextRequest) {
 
   // Fast path: URL already has a locale segment and cache cookie exists
   if (looksLikeLocale && cacheIdCookie) {
-    return NextResponse.next();
+    return withProdMinimalHomeHeader(request, NextResponse.next());
   }
 
   let response = NextResponse.next();
@@ -177,14 +255,40 @@ export async function middleware(request: NextRequest) {
 
   try {
     const regionMap = await getRegionMap(cacheId);
+
+    const pathSegUrl = pathname.split('/')[1]?.toLowerCase();
+    if (
+      pathSegUrl === 'gb' &&
+      regionMapCache.englishMarketMedusaIso === 'gb'
+    ) {
+      const suffix = pathname.slice(3);
+      const q = request.nextUrl.search || '';
+      return NextResponse.redirect(
+        new URL(`/${STOREFRONT_EN_URL_SEGMENT}${suffix}${q}`, request.url),
+        307
+      );
+    }
+
     const countryCode = regionMap && (await getCountryCode(request, regionMap));
-    const urlHasCountryCode = countryCode && pathname.split('/')[1].includes(countryCode);
+    const urlFirst = pathname.split('/')[1]?.toLowerCase();
+    const urlHasCountryCode = Boolean(countryCode) && (
+      urlFirst === String(countryCode).toLowerCase() ||
+      (regionMapCache.englishMarketMedusaIso &&
+        String(countryCode).toLowerCase() ===
+          regionMapCache.englishMarketMedusaIso &&
+        urlFirst === STOREFRONT_EN_URL_SEGMENT)
+    );
 
     // If no country code in URL but we can resolve one, redirect to locale-prefixed path
     if (!urlHasCountryCode && countryCode) {
       const redirectPath = pathname === '/' ? '' : pathname;
       const queryString = request.nextUrl.search ? request.nextUrl.search : '';
-      const redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`;
+      const pathSeg =
+        regionMapCache.englishMarketMedusaIso &&
+        String(countryCode).toLowerCase() === regionMapCache.englishMarketMedusaIso
+          ? STOREFRONT_EN_URL_SEGMENT
+          : String(countryCode);
+      const redirectUrl = `${request.nextUrl.origin}/${pathSeg}${redirectPath}${queryString}`;
       return NextResponse.redirect(redirectUrl, 307);
     }
   } catch (err) {
@@ -193,7 +297,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return response;
+  return withProdMinimalHomeHeader(request, response);
 }
 
 export const config = {

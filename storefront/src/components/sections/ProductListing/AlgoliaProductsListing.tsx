@@ -119,13 +119,14 @@ const ProductsListing = ({
         let nbPages = result.nbPages
         let facets = result.facets
 
-        // Algolia index spesso vuoto in dev: fallback al catalogo da backend.
+        // Algolia senza hit / payload prodotti vuoto (disallineamento indice): fallback catalogo Medusa.
+        const algoliaEffectivelyEmpty =
+          (nbHits ?? 0) === 0 || !(products && products.length > 0)
         const canFallbackCatalog =
-          nbHits === 0 &&
+          algoliaEffectivelyEmpty &&
           !query?.trim() &&
           !!locale &&
-          !!region_id &&
-          (!!category_id || !!collection_id)
+          !!region_id
 
         if (canFallbackCatalog) {
           const offset = (page - 1) * PRODUCT_LIMIT

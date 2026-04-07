@@ -1,8 +1,8 @@
 import type { Locale } from "date-fns"
-import enUS from "./translations/en.json"
+import itJson from "./translations/it.json"
 
 const resources = {
-  translation: enUS,
+  translation: itJson,
 } as const
 
 export type Resources = typeof resources

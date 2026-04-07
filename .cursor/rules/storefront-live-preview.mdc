@@ -7,8 +7,9 @@ description: Dev storefront sulla 3000 senza build; tramelle.com solo dopo build
 ## Sviluppo (iterazione veloce)
 
 - **Non** eseguire `yarn build` / `yarn build:production` a ogni modifica per “vedere il risultato”: usare **`yarn dev`** (hot reload).
-- **Porta:** sempre quella di progetto (**3000**, vedi [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs)).
-- **Avvio comodo dalla root repo:** `bash scripts/dev-storefront.sh` — libera la 3000 con `fuser -k` se occupata, poi avvia `yarn dev` in [`storefront`](storefront).
+- **Porta:** sempre quella di progetto (**3000**, vedi [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs)). Se `EADDRINUSE` su 3000: **fermare il processo che occupa la porta e riavviare** (`scripts/dev-storefront.sh` o `fuser -k 3000/tcp` + `yarn dev`), **non** avviare Next su un’altra porta (es. 3001).
+- **Avvio comodo dalla root repo:** `bash scripts/dev-storefront.sh` — sospende chi occupa :3000 (`fuser -k`), poi avvia `yarn dev` in [`storefront`](storefront).
+- **Errore dev Turbopack** `ENOENT … .next/server/.../build-manifest.json`: cache corrotta; dalla cartella [`storefront`](storefront) eseguire `rm -rf .next` e riavviare, oppure `yarn dev:clean`, oppure `TRAMELLE_DEV_CLEAN_NEXT=1 bash scripts/dev-storefront.sh`.
 - **Nel browser in dev:** `http://localhost:3000` (o `http://<IP-VPS>:3000`) è **corretto** per anteprima locale.
 - **Build / deploy su tramelle.com** solo quando l’utente lo chiede esplicitamente (`yarn build:production`, script deploy, PM2).
 

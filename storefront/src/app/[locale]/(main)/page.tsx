@@ -6,15 +6,19 @@ import {
   HomeProductSection,
   ShopByStyleSection,
 } from "@/components/sections"
+import { ProductionComingSoonHome } from "@/components/sections/ProductionComingSoonHome/ProductionComingSoonHome"
 
 import type { Metadata } from "next"
+import { headers } from "next/headers"
 import Script from "next/script"
+import { getTranslations } from "next-intl/server"
 import { listRegions } from "@/lib/data/regions"
 import { toHreflang } from "@/lib/helpers/hreflang"
 import {
   getIndexingRobots,
   publicSiteOrigin,
   resolvedSiteName,
+  shouldUseProductionComingSoonHome,
 } from "@/lib/constants/site"
 
 export async function generateMetadata({
@@ -25,6 +29,40 @@ export async function generateMetadata({
   const { locale } = await params
 
   const baseUrl = publicSiteOrigin()
+
+  const showComingSoon = shouldUseProductionComingSoonHome(
+    (await headers()).get("host")
+  )
+
+  if (showComingSoon) {
+    const title = "Prossimamente"
+    const description =
+      "Tramelle.com: l'eccellenza non ha più confini. La vetrina globale per i maestri del Gourmet — B2C e B2B, 5 lingue, un'unica piattaforma."
+    const canonical = `${baseUrl}/${locale}`
+    return {
+      title,
+      description,
+      robots: getIndexingRobots({ googleBotRich: true }),
+      icons: {
+        icon: [{ url: "/tramelle_icon.svg", type: "image/svg+xml" }],
+        apple: "/tramelle_icon.svg",
+        shortcut: "/tramelle_icon.svg",
+      },
+      alternates: { canonical },
+      openGraph: {
+        title: `${title} | ${resolvedSiteName()}`,
+        description,
+        url: canonical,
+        siteName: resolvedSiteName(),
+        type: "website",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
+    }
+  }
 
   // Build alternates based on available regions (locales)
   let languages: Record<string, string> = {}
@@ -101,6 +139,47 @@ export default async function Home({
 
   const siteName = resolvedSiteName()
 
+  const showComingSoon = shouldUseProductionComingSoonHome(
+    (await headers()).get("host")
+  )
+
+  if (showComingSoon) {
+    return (
+      <>
+        <Script
+          id="ld-org"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: siteName,
+              url: `${baseUrl}/${locale}`,
+              logo: `${baseUrl}/tramelle.svg`,
+            }),
+          }}
+        />
+        <Script
+          id="ld-website"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: siteName,
+              url: `${baseUrl}/${locale}`,
+              inLanguage: toHreflang(locale),
+            }),
+          }}
+        />
+        <ProductionComingSoonHome />
+      </>
+    )
+  }
+
+  const tHero = await getTranslations("Hero")
+  const tHome = await getTranslations("Home")
+
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start text-primary">
       <link
@@ -141,12 +220,12 @@ export default async function Home({
 
       <Hero
         image="/images/hero/Image.jpg"
-        heading="Gourmet finds, delivered with care"
-        paragraph="Discover curated specialties, small-batch producers, and pantry gems on Tramelle — your gourmet marketplace."
+        heading={tHero("heading")}
+        paragraph={tHero("paragraph")}
         buttons={[
-          { label: "Buy now", path: "/categories" },
+          { label: tHero("buyNow"), path: "/categories" },
           {
-            label: "Sell now",
+            label: tHero("sellNow"),
             path:
               process.env.NEXT_PUBLIC_VENDOR_URL ||
               "https://vendor.mercurjs.com",
@@ -154,10 +233,10 @@ export default async function Home({
         ]}
       />
       <div className="px-4 lg:px-8 w-full">
-        <HomeProductSection heading="trending listings" locale={locale} home />
+        <HomeProductSection heading={tHome("trending")} locale={locale} home />
       </div>
       <div className="px-4 lg:px-8 w-full">
-        <HomeCategories heading="SHOP BY CATEGORY" />
+        <HomeCategories heading={tHome("shopByCategory")} />
       </div>
       <BannerSection />
       <ShopByStyleSection />

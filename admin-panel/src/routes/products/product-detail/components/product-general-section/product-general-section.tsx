@@ -8,6 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 import { useDeleteProduct } from "../../../../../hooks/api/products";
+import {
+  DEFAULT_PRODUCT_CONTENT_LOCALE,
+  getProductI18nMap,
+  normalizeContentLang,
+} from "../../../../../lib/tramelle-product-i18n";
 import { useExtension } from "../../../../../providers/extension-provider";
 
 const productStatusColor = (status: string) => {
@@ -32,7 +37,34 @@ type ProductGeneralSectionProps = {
 export const ProductGeneralSection = ({
   product,
 }: ProductGeneralSectionProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const contentLang = normalizeContentLang(i18n.language);
+  const i18nMap = getProductI18nMap(product.metadata);
+  const bundle = i18nMap[contentLang];
+
+  const displayTitle =
+    contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE
+      ? product.title
+      : bundle?.title?.trim() || product.title;
+
+  const showSubtitle =
+    contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE
+      ? Boolean(product.subtitle?.trim())
+      : Boolean(bundle?.subtitle?.trim());
+
+  const showDescription =
+    contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE
+      ? Boolean(product.description?.trim())
+      : Boolean(bundle?.description?.trim());
+
+  const subtitleValue =
+    contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE
+      ? product.subtitle
+      : bundle?.subtitle;
+  const descriptionValue =
+    contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE
+      ? product.description
+      : bundle?.description;
   const prompt = usePrompt();
   const navigate = useNavigate();
   const { getDisplays } = useExtension();
@@ -68,7 +100,7 @@ export const ProductGeneralSection = ({
         className="flex items-center justify-between px-6 py-4"
         data-testid="product-general-header"
       >
-        <Heading data-testid="product-general-title">{product.title}</Heading>
+        <Heading data-testid="product-general-title">{displayTitle}</Heading>
         <div
           className="flex items-center gap-x-4"
           data-testid="product-general-actions"
@@ -105,16 +137,20 @@ export const ProductGeneralSection = ({
         </div>
       </div>
 
-      <SectionRow
-        title={t("fields.description")}
-        value={product.description}
-        data-testid="product-description-row"
-      />
-      <SectionRow
-        title={t("fields.subtitle")}
-        value={product.subtitle}
-        data-testid="product-subtitle-row"
-      />
+      {showDescription && (
+        <SectionRow
+          title={t("fields.description")}
+          value={descriptionValue}
+          data-testid="product-description-row"
+        />
+      )}
+      {showSubtitle && (
+        <SectionRow
+          title={t("fields.subtitle")}
+          value={subtitleValue}
+          data-testid="product-subtitle-row"
+        />
+      )}
       <SectionRow
         title={t("fields.handle")}
         value={`/${product.handle}`}

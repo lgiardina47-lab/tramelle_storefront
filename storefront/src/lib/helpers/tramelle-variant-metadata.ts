@@ -1,5 +1,16 @@
 export const TRAMELLE_PIECES_PER_CARTON = "tramelle_pieces_per_carton"
 export const TRAMELLE_WHOLESALE_TIERS = "tramelle_wholesale_tiers"
+export const TRAMELLE_B2C_VISIBLE = "tramelle_b2c_visible"
+
+/** Variante nascosta in vetrina B2C (i buyer wholesale continuano a vederla). */
+export function isVariantVisibleB2c(
+  meta: Record<string, unknown> | null | undefined
+): boolean {
+  if (!meta || typeof meta !== "object") return true
+  const v = meta[TRAMELLE_B2C_VISIBLE]
+  if (v === false || v === "false") return false
+  return true
+}
 
 export type WholesaleTier = { min_qty: number; unit_price_euros: number }
 

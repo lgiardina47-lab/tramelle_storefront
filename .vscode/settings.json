@@ -1,4 +1,13 @@
 {
+    "remote.autoForwardPorts": true,
+    "remote.autoForwardPortsSource": "hybrid",
+    "remote.SSH.defaultForwardedPorts": [3000, 7000, 9000, 5173],
+    "remote.portsAttributes": {
+        "3000": { "label": "Tramelle storefront", "onAutoForward": "notify" },
+        "7000": { "label": "Tramelle admin", "onAutoForward": "notify" },
+        "9000": { "label": "Medusa API", "onAutoForward": "notify" },
+        "5173": { "label": "Tramelle vendor", "onAutoForward": "notify" }
+    },
     "remote.SSH.configFile": "C:\\Users\\Master\\.ssh\\config",
     "remote.SSH.useLocalServer": false,
     "remote.SSH.path": "ssh",

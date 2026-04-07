@@ -3,6 +3,7 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { MessageButton } from "@/components/molecules/MessageButton/MessageButton"
 import { UserDropdown } from "@/components/cells/UserDropdown/UserDropdown"
+import { useTranslations } from "next-intl"
 
 type Props = {
   isLoggedIn: boolean
@@ -18,6 +19,8 @@ export function HeaderUtilityBar({
   userEmail,
   locale,
 }: Props) {
+  const t = useTranslations("Nav")
+
   return (
     <div
       className="border-b border-neutral-100 bg-neutral-50/90"
@@ -26,32 +29,32 @@ export function HeaderUtilityBar({
       <div className="flex w-full flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2 md:px-6 lg:px-8">
         <nav
           className="hidden items-center gap-4 sm:flex"
-          aria-label="Link utili"
+          aria-label={t("utilityAria")}
         >
           <LocalizedClientLink href="/sellers" locale={locale} className={linkClass}>
-            Produttori
+            {t("producers")}
           </LocalizedClientLink>
           <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-            Ricette
+            {t("recipes")}
           </LocalizedClientLink>
           <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-            Buoni regalo
+            {t("giftCards")}
           </LocalizedClientLink>
           <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-            Servizi per le aziende
+            {t("b2bServices")}
           </LocalizedClientLink>
         </nav>
 
         <div className="hidden flex-1 justify-center md:flex">
           <span className="flex items-center gap-1 text-xs text-cortilia">
             <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-              Come funziona
+              {t("howItWorks")}
             </LocalizedClientLink>
             <span className="text-neutral-300" aria-hidden>
               |
             </span>
             <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-              Contattaci
+              {t("contact")}
             </LocalizedClientLink>
           </span>
         </div>

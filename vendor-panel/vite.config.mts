@@ -59,6 +59,18 @@ export default defineConfig(({ mode }) => {
         '.localhost',
       ],
     },
+    preview: {
+      open: false,
+      port: Number(process.env.PORT) || VENDOR_PORT,
+      strictPort: true,
+      host: "0.0.0.0",
+      allowedHosts: [
+        'vendor.tramelle.com',
+        'www.vendor.tramelle.com',
+        'localhost',
+        '.localhost',
+      ],
+    },
     optimizeDeps: {
       entries: [],
       include: ["recharts"],

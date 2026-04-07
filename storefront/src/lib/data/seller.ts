@@ -5,21 +5,16 @@ import { sdk } from '../config';
 const SELLER_FIELDS =
   '+created_at,+email,+metadata,+reviews.seller.name,+reviews.rating,+reviews.customer_note,+reviews.seller_note,+reviews.created_at,+reviews.updated_at,+reviews.customer.first_name,+reviews.customer.last_name';
 
-function isSellerId(ref: string): boolean {
-  return ref.trim().startsWith('sel_') && ref.trim().length > 4;
-}
-
 /**
  * Carica il seller per **handle** (`alpe-magna`) o per **id** (`sel_...`).
- * L'endpoint Mercur `/store/seller/:x` con id restituisce `{}`; usiamo `/store/sellers/by-ref/:ref`.
+ * Usa sempre `/store/sellers/by-ref/:ref`: unisce `seller_listing_profile.metadata`
+ * (hero, `tramelle_description_i18n`, …). L'endpoint Mercur `/store/seller/:handle` non li espone.
  */
 export const getSellerByHandle = async (
   handleOrId: string
 ): Promise<SellerProps | null> => {
-  const ref = encodeURIComponent(handleOrId.trim());
-  const path = isSellerId(handleOrId)
-    ? `/store/sellers/by-ref/${ref}`
-    : `/store/seller/${ref}`;
+  const ref = encodeURIComponent(handleOrId.trim())
+  const path = `/store/sellers/by-ref/${ref}`
 
   try {
     const { seller } = await sdk.client.fetch<{ seller: SellerProps }>(path, {
@@ -54,12 +49,21 @@ export type StoreSellersListResponse = {
 export async function listStoreSellers(params?: {
   limit?: number
   offset?: number
+  /** Filtra seller con descrizione in questa lingua (`it`…`es`). */
+  contentLocale?: string
 }): Promise<StoreSellersListResponse | null> {
   const limit = params?.limit ?? 48
   const offset = params?.offset ?? 0
+  const contentLocale = params?.contentLocale?.trim().toLowerCase()
   try {
     return await sdk.client.fetch<StoreSellersListResponse>(`/store/sellers`, {
-      query: { limit, offset },
+      query: {
+        limit,
+        offset,
+        ...(contentLocale
+          ? { content_locale: contentLocale }
+          : {}),
+      },
       cache: "no-store",
     })
   } catch {

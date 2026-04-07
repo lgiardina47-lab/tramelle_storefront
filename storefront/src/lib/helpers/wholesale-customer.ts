@@ -19,6 +19,9 @@ export function isWholesaleCustomer(
   if (meta?.tramelle_b2b_wholesale === true || meta?.tramelle_b2b_wholesale === "true") {
     return true
   }
+  if (meta?.tramelle_registration_type === "b2b_pro") {
+    return true
+  }
 
   const groups = (customer as StoreCustomerWithGroups).groups
   if (Array.isArray(groups) && groups.length) {

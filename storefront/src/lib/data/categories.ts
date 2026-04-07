@@ -88,7 +88,7 @@ export const getCategoryByHandle = async (categoryHandle: string) => {
   return sdk.client
     .fetch<HttpTypes.StoreProductCategoryListResponse>(`/store/product-categories`, {
       query: {
-        fields: '*category_children',
+        fields: 'id,handle,name,description,metadata,*category_children',
         handle: categoryHandle
       },
       cache: 'force-cache',

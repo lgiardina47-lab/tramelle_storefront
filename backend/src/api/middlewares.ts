@@ -1,4 +1,5 @@
 import {
+  authenticate,
   defineMiddlewares,
   validateAndTransformQuery,
 } from "@medusajs/framework/http"
@@ -21,6 +22,11 @@ const xRobotsNoindex = (
 
 export default defineMiddlewares({
   routes: [
+    {
+      method: ["POST"],
+      matcher: "/store/tramelle/registration",
+      middlewares: [authenticate("customer", ["session", "bearer"])],
+    },
     {
       method: ["GET"],
       matcher: "/vendor/products/:id/applicable-attributes",

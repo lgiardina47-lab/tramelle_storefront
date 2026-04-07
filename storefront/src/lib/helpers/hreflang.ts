@@ -1,5 +1,6 @@
 export const toHreflang = (code: string): string => {
   const map: Record<string, string> = {
+    en: "en",
     us: "en-US",
     gb: "en-GB",
     au: "en-AU",

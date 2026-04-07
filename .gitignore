@@ -11,6 +11,9 @@ vendor-panel/.env.production.local
 **/node_modules
 **/.medusa
 
+# Export categorie (generato da `medusa exec export-product-categories`)
+/catalog-structure.json
+
 # Dati scraping venditori: solo macchina locale, mai in remoto
 dati_venditori/
 

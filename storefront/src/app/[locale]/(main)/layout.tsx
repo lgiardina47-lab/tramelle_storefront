@@ -1,9 +1,12 @@
+import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { Footer, Header } from '@/components/organisms';
 import { TalkJsProvider } from '@/components/providers';
+import { CustomerStorefrontLocaleSync } from '@/components/utilities/CustomerStorefrontLocaleSync/CustomerStorefrontLocaleSync';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { checkRegion } from '@/lib/helpers/check-region';
+import { getCustomerPreferredStorefrontCountry } from '@/lib/helpers/customer-storefront-locale';
 
 export default async function RootLayout({
   children,
@@ -22,9 +25,29 @@ export default async function RootLayout({
     return redirect('/');
   }
 
+  const preferredCountry = getCustomerPreferredStorefrontCountry(user);
+  const localeSync = (
+    <CustomerStorefrontLocaleSync
+      currentLocale={locale}
+      preferredCountry={preferredCountry}
+      isLoggedIn={Boolean(user?.id)}
+    />
+  );
+
+  const minimalHome = (await headers()).get('x-tramelle-minimal-home') === '1';
+  if (minimalHome) {
+    return (
+      <>
+        {localeSync}
+        {children}
+      </>
+    );
+  }
+
   if (!APP_ID || !user || !user.id || !user.email)
     return (
       <>
+        {localeSync}
         <Header locale={locale} />
         {children}
         <Footer />
@@ -40,6 +63,7 @@ export default async function RootLayout({
       userName={userName}
       userEmail={user.email}
     >
+      {localeSync}
       <Header locale={locale} />
       {children}
       <Footer />

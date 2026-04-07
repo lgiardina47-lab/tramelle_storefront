@@ -3,11 +3,12 @@ import {
   Button,
   Container,
   Heading,
+  Text,
   toast,
   usePrompt,
   Checkbox,
 } from "@medusajs/ui"
-import { keepPreviousData } from "@tanstack/react-query"
+import { keepPreviousData, useQueryClient } from "@tanstack/react-query"
 import {
   createColumnHelper,
   OnChangeFn,
@@ -15,7 +16,7 @@ import {
 } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, Outlet } from "react-router-dom"
+import { Link, Outlet, useSearchParams } from "react-router-dom"
 
 import { ExtendedAdminProduct } from "../../../../../types/products"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -24,6 +25,7 @@ import {
   useDeleteProduct,
   useBulkDeleteProducts,
   useProducts,
+  productsQueryKeys,
 } from "../../../../../hooks/api/products"
 import { useProductTableColumns } from "../../../../../hooks/table/columns/use-product-table-columns"
 import { useProductTableFilters } from "../../../../../hooks/table/filters/use-product-table-filters"
@@ -34,6 +36,8 @@ export const PAGE_SIZE = 10
 
 export const ProductListTable = () => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const [urlSearchParams] = useSearchParams()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
@@ -115,9 +119,40 @@ export const ProductListTable = () => {
       },
     })
   }
-  
+
+  const exportSearch = urlSearchParams.toString()
+    ? `?${urlSearchParams.toString()}`
+    : ""
+
   if (isError) {
-    throw error
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String((error as { message: unknown }).message)
+        : t("errorBoundary.defaultMessage")
+    return (
+      <Container className="divide-y p-0">
+        <div className="flex flex-col gap-4 px-6 py-6">
+          <Heading level="h2">{t("products.domain")}</Heading>
+          <Text size="small" className="text-ui-fg-subtle">
+            {message}
+          </Text>
+          <div>
+            <Button
+              size="small"
+              variant="primary"
+              type="button"
+              onClick={() =>
+                queryClient.invalidateQueries({
+                  queryKey: productsQueryKeys.list(searchParams),
+                })
+              }
+            >
+              {t("actions.retry")}
+            </Button>
+          </div>
+        </div>
+      </Container>
+    )
   }
 
   return (
@@ -126,7 +161,7 @@ export const ProductListTable = () => {
         <Heading level="h2">{t("products.domain")}</Heading>
         <div className="flex items-center justify-center gap-x-2">
           <Button size="small" variant="secondary" asChild>
-            <Link to={`export${location.search}`}>{t("actions.export")}</Link>
+            <Link to={`export${exportSearch}`}>{t("actions.export")}</Link>
           </Button>
           <Button size="small" variant="secondary" asChild>
             <Link to="import">{t("actions.import")}</Link>

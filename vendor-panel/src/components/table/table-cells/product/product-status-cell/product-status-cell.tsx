@@ -12,13 +12,24 @@ export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
 
   if (!status) return null
 
-  const [color, text] = {
+  const map: Partial<
+    Record<
+      HttpTypes.AdminProductStatus,
+      ["grey" | "orange" | "green" | "red", string]
+    >
+  > = {
     draft: ["grey", t("products.productStatus.draft")],
     proposed: ["orange", t("products.productStatus.proposed")],
     published: ["green", t("products.productStatus.published")],
     rejected: ["red", t("products.productStatus.rejected")],
-  }[status] as ["grey" | "orange" | "green" | "red", string]
+  }
 
+  const entry = map[status]
+  if (!entry) {
+    return <StatusCell color="grey">{String(status)}</StatusCell>
+  }
+
+  const [color, text] = entry
   return <StatusCell color={color}>{text}</StatusCell>
 }
 

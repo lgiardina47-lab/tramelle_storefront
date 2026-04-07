@@ -2,9 +2,13 @@ import { fetchQuery } from "../../../../lib/client"
 import type { ExtendedAdminProduct } from "../../../../types/products"
 import {
   FORMAT_OPTION_TITLE,
+  TRAMELLE_B2C_DISCOUNT_PERCENT,
+  TRAMELLE_B2C_LIST_PRICE_EUROS,
+  TRAMELLE_B2C_VISIBLE,
   TRAMELLE_PIECES_PER_CARTON,
   TRAMELLE_WHOLESALE_TIERS,
   type MeasureFamily,
+  effectiveRetailEuros,
   eurAmountToCents,
   formatLabel,
   getFormatOption,
@@ -12,12 +16,20 @@ import {
   variantFormatLabel,
 } from "./formato-product"
 
-type TierInput = { minQty: number | ""; priceEuros: number | "" }
+type TierInput = {
+  minQty: number | ""
+  priceEuros: number | ""
+  layerLabel?: string
+  qtyUnitLabel?: string
+  minOrderLabel?: string
+}
 
 type FormatInputRow = {
   amount: number | ""
   unit: string
-  priceEuros: number | ""
+  listPriceEuros: number | ""
+  b2cDiscountPercent: number | ""
+  b2cVisible: boolean
   stock: number | ""
   ean: string
   hsCode: string
@@ -117,8 +129,20 @@ async function refetchVariantInventoryItemId(
   }
 }
 
-function normalizeTiers(row: FormatInputRow): { min_qty: number; unit_price_euros: number }[] {
-  const out: { min_qty: number; unit_price_euros: number }[] = []
+function normalizeTiers(row: FormatInputRow): {
+  min_qty: number
+  unit_price_euros: number
+  layer_label?: string
+  qty_unit_label?: string
+  min_order_label?: string
+}[] {
+  const out: {
+    min_qty: number
+    unit_price_euros: number
+    layer_label?: string
+    qty_unit_label?: string
+    min_order_label?: string
+  }[] = []
   const seen = new Set<number>()
   for (const t of row.wholesaleTiers || []) {
     if (t.minQty === "" || Number.isNaN(Number(t.minQty))) continue
@@ -133,7 +157,16 @@ function normalizeTiers(row: FormatInputRow): { min_qty: number; unit_price_euro
       throw new Error(`Quantità minima duplicata negli scaglioni: ${min}`)
     }
     seen.add(min)
-    out.push({ min_qty: min, unit_price_euros: price })
+    const layer_label = String(t.layerLabel ?? "").trim()
+    const qty_unit_label = String(t.qtyUnitLabel ?? "").trim()
+    const min_order_label = String(t.minOrderLabel ?? "").trim()
+    out.push({
+      min_qty: min,
+      unit_price_euros: price,
+      ...(layer_label ? { layer_label } : {}),
+      ...(qty_unit_label ? { qty_unit_label } : {}),
+      ...(min_order_label ? { min_order_label } : {}),
+    })
   }
   out.sort((a, b) => a.min_qty - b.min_qty)
   return out
@@ -142,7 +175,10 @@ function normalizeTiers(row: FormatInputRow): { min_qty: number; unit_price_euro
 function variantMetaPatch(
   existing: Record<string, unknown> | null | undefined,
   pieces: number | "",
-  tiers: { min_qty: number; unit_price_euros: number }[]
+  tiers: ReturnType<typeof normalizeTiers>,
+  listPrice: number,
+  discountPercent: number | "",
+  b2cVisible: boolean
 ): Record<string, unknown> {
   const base =
     existing && typeof existing === "object" ? { ...existing } : {}
@@ -155,6 +191,18 @@ function variantMetaPatch(
     delete base[TRAMELLE_WHOLESALE_TIERS]
   } else {
     base[TRAMELLE_WHOLESALE_TIERS] = JSON.stringify(tiers)
+  }
+
+  base[TRAMELLE_B2C_LIST_PRICE_EUROS] = listPrice
+  if (discountPercent === "" || Number(discountPercent) <= 0) {
+    delete base[TRAMELLE_B2C_DISCOUNT_PERCENT]
+  } else {
+    base[TRAMELLE_B2C_DISCOUNT_PERCENT] = Math.min(100, Number(discountPercent))
+  }
+  if (b2cVisible) {
+    delete base[TRAMELLE_B2C_VISIBLE]
+  } else {
+    base[TRAMELLE_B2C_VISIBLE] = false
   }
   return base
 }
@@ -190,8 +238,8 @@ export async function persistFormatVariants(params: {
     (r) =>
       r.amount !== "" &&
       !Number.isNaN(Number(r.amount)) &&
-      r.priceEuros !== "" &&
-      !Number.isNaN(Number(r.priceEuros))
+      r.listPriceEuros !== "" &&
+      !Number.isNaN(Number(r.listPriceEuros))
   )
 
   if (!validRows.length) {
@@ -249,13 +297,15 @@ export async function persistFormatVariants(params: {
     }
   }
 
-  const optionTitle =
-    getFormatOption(working)?.title || FORMAT_OPTION_TITLE
+  const formatOpt0 = getFormatOption(working)
+  const optionTitle = formatOpt0?.title || FORMAT_OPTION_TITLE
+  const formatOptionId0 = formatOpt0?.id ?? null
 
   const currentVariants = working.variants || []
   for (const v of currentVariants) {
-    const lbl = variantFormatLabel(v, optionTitle)
-    if (lbl && !desiredLabels.includes(lbl)) {
+    const lbl = variantFormatLabel(v, optionTitle, formatOptionId0)
+    const notInTable = !lbl || !desiredLabels.includes(lbl)
+    if (notInTable) {
       await fetchQuery(`/vendor/products/${pid}/variants/${v.id}`, {
         method: "DELETE",
       })
@@ -290,6 +340,7 @@ export async function persistFormatVariants(params: {
   working = await refetchProduct(pid, fields)
   formatOpt = getFormatOption(working)!
   const resolvedTitle = formatOpt.title || FORMAT_OPTION_TITLE
+  const resolvedOptId = formatOpt.id ?? null
 
   const currency = (defaultCurrency || "eur").toLowerCase()
 
@@ -297,7 +348,12 @@ export async function persistFormatVariants(params: {
     const row = validRows[i]
     const label = desiredLabels[i]
     const tiers = normalizeTiers(row)
-    const retailCents = eurAmountToCents(row.priceEuros as number)
+    const list = Number(row.listPriceEuros)
+    const effective = effectiveRetailEuros(
+      row.listPriceEuros,
+      row.b2cDiscountPercent
+    )
+    const retailCents = eurAmountToCents(effective)
     const eanTrim = row.ean != null ? String(row.ean).trim() : ""
     /** Medusa/vendor: `ean` deve essere stringa; `null` → "Expected type: 'string' … got: 'null'". */
     const eanPayload = eanTrim
@@ -318,14 +374,17 @@ export async function persistFormatVariants(params: {
     ]
 
     let variant = (working.variants || []).find(
-      (v) => variantFormatLabel(v, resolvedTitle) === label
+      (v) => variantFormatLabel(v, resolvedTitle, resolvedOptId) === label
     )
 
     const existingMeta = (variant?.metadata as Record<string, unknown>) || {}
     const metadata = variantMetaPatch(
       existingMeta,
       row.piecesPerCarton,
-      tiers
+      tiers,
+      list,
+      row.b2cDiscountPercent,
+      row.b2cVisible
     )
 
     const baseBody: Record<string, unknown> = {
@@ -360,10 +419,24 @@ export async function persistFormatVariants(params: {
 
     working = await refetchProduct(pid, fields)
     variant = (working.variants || []).find(
-      (v) => variantFormatLabel(v, resolvedTitle) === label
+      (v) => variantFormatLabel(v, resolvedTitle, resolvedOptId) === label
     )
   }
 
+  working = await refetchProduct(pid, fields)
+
+  // Seconda passata: elimina residue non allineate alla tabella (es. DELETE falliti o dati incoerenti).
+  const tailOpt = getFormatOption(working)
+  const tailTitle = tailOpt?.title || FORMAT_OPTION_TITLE
+  const tailOptId = tailOpt?.id ?? null
+  for (const v of working.variants || []) {
+    const lbl = variantFormatLabel(v, tailTitle, tailOptId)
+    if (!lbl || !desiredLabels.includes(lbl)) {
+      await fetchQuery(`/vendor/products/${pid}/variants/${v.id}`, {
+        method: "DELETE",
+      })
+    }
+  }
   working = await refetchProduct(pid, fields)
 
   if (stockLocationId) {
@@ -371,7 +444,7 @@ export async function persistFormatVariants(params: {
       const row = validRows[i]
       const label = desiredLabels[i]
       const variant = (working.variants || []).find(
-        (v) => variantFormatLabel(v, resolvedTitle) === label
+        (v) => variantFormatLabel(v, resolvedTitle, resolvedOptId) === label
       )
       if (!variant?.id) continue
 

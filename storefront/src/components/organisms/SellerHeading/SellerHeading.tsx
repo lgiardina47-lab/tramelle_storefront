@@ -1,19 +1,25 @@
-import { SellerInfo, SellerStorytellingGallery, sellerStorytellingGalleryUrls } from "@/components/molecules"
+import { SellerInfo } from "@/components/molecules"
+import { SellerDescriptionTabsHtml } from "@/components/molecules/SellerDescriptionTabs/SellerDescriptionTabs"
+import { sellerDescriptionsMapForUi } from "@/lib/helpers/tramelle-seller-description-i18n"
 import { SellerProps } from "@/types/seller"
 import { Chat } from "../Chat/Chat"
 import { HttpTypes } from "@medusajs/types"
-import { Button } from "@medusajs/ui"
 
 export const SellerHeading = ({
   seller,
   user,
   header,
+  urlLocale,
 }: {
   header: boolean
   seller: SellerProps
   user: HttpTypes.StoreCustomer | null
+  urlLocale: string
 }) => {
-  const galleryUrls = sellerStorytellingGalleryUrls(seller.metadata ?? undefined)
+  const descriptions = sellerDescriptionsMapForUi(
+    seller.description,
+    seller.metadata ?? undefined
+  )
 
   return (
     <div className="border-b">
@@ -34,13 +40,11 @@ export const SellerHeading = ({
         )}
       </div>
       <div className="px-5 pb-5">
-        <p
-          dangerouslySetInnerHTML={{
-            __html: seller.description,
-          }}
-          className="label-md"
+        <SellerDescriptionTabsHtml
+          key={urlLocale}
+          descriptions={descriptions}
+          urlLocale={urlLocale}
         />
-        <SellerStorytellingGallery name={seller.name} urls={galleryUrls} />
       </div>
     </div>
   )

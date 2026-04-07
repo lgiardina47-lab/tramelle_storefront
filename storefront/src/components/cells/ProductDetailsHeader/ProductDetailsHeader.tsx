@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { Button } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
 import { ProductVariants } from "@/components/molecules"
@@ -36,18 +38,25 @@ export const ProductDetailsHeader = ({
   locale,
   user,
   wishlist,
+  displayTitle,
 }: {
   product: HttpTypes.StoreProduct & { seller?: SellerProps }
   locale: string
   user: HttpTypes.StoreCustomer | null
   wishlist?: Wishlist
+  /** Titolo già localizzato (tramelle_i18n + paese). */
+  displayTitle?: string
 }) => {
+  const t = useTranslations("Product")
+  const titleForUi = displayTitle?.trim() ? displayTitle : product.title
   const { addToCart, onAddToCart, cart, isAddingItem, wholesaleBuyer } =
     useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
+  const restrictB2cCatalog = !wholesaleBuyer
 
   const { cheapestVariant, cheapestPrice } = getProductPrice({
     product,
+    restrictToB2cVisible: restrictB2cCatalog,
   })
 
   // Check if product has any valid prices in current region
@@ -62,7 +71,9 @@ export const ProductDetailsHeader = ({
     : allSearchParams
 
   const variantId =
-    resolveSelectedStoreVariantId(product, selectedVariant) ||
+    resolveSelectedStoreVariantId(product, selectedVariant, {
+      restrictToB2cVisible: restrictB2cCatalog,
+    }) ||
     (hasAnyPrice ? cheapestVariant?.id : "") ||
     ""
 
@@ -70,6 +81,7 @@ export const ProductDetailsHeader = ({
   const { variantPrice } = getProductPrice({
     product,
     variantId,
+    restrictToB2cVisible: restrictB2cCatalog,
   })
 
   const variantStock =
@@ -100,8 +112,8 @@ export const ProductDetailsHeader = ({
 
     if (wholesaleBuyer && pieces > 0 && nextQty % pieces !== 0) {
       toast.error({
-        title: "Quantità non valida",
-        description: `Per questo prodotto B2B ordina multipli di ${pieces} pezzi (cartone).`,
+        title: t("wholesaleInvalidQtyTitle"),
+        description: t("wholesaleInvalidQtyDescription", { pieces }),
       })
       return
     }
@@ -111,7 +123,7 @@ export const ProductDetailsHeader = ({
 
     const storeCartLineItem = {
       thumbnail: product.thumbnail || "",
-      product_title: product.title,
+      product_title: titleForUi,
       quantity: 1,
       subtotal,
       total,
@@ -136,8 +148,8 @@ export const ProductDetailsHeader = ({
       })
     } catch (error) {
       toast.error({
-        title: "Error adding to cart",
-        description: "Some variant does not have the required inventory",
+        title: t("addToCartErrorTitle"),
+        description: t("addToCartErrorDescription"),
       })
     }
   }
@@ -151,7 +163,7 @@ export const ProductDetailsHeader = ({
           <h2 className="label-md text-secondary">
             {/* {product?.brand || "No brand"} */}
           </h2>
-          <h1 className="heading-lg text-primary" data-testid="product-title">{product.title}</h1>
+          <h1 className="heading-lg text-primary" data-testid="product-title">{titleForUi}</h1>
           <div className="mt-2 flex gap-2 items-center" data-testid="product-price-container">
             {hasAnyPrice && variantPrice ? (
               <>
@@ -167,7 +179,7 @@ export const ProductDetailsHeader = ({
               </>
             ) : (
               <span className="label-md text-secondary pt-2 pb-4" data-testid="product-price-unavailable">
-                Not available in your region
+                {t("notAvailableInRegion")}
               </span>
             )}
           </div>
@@ -183,7 +195,11 @@ export const ProductDetailsHeader = ({
       </div>
       {/* Product Variants */}
       {hasAnyPrice && (
-        <ProductVariants product={product} selectedVariant={selectedVariant} />
+        <ProductVariants
+          product={product}
+          selectedVariant={selectedVariant}
+          restrictToB2cVisible={restrictB2cCatalog}
+        />
       )}
       {hasAnyPrice && variantPrice && (
         <WholesalePricingPanel
@@ -203,10 +219,10 @@ export const ProductDetailsHeader = ({
         data-testid="product-add-to-cart-button"
       >
         {!hasAnyPrice
-          ? "NOT AVAILABLE IN YOUR REGION"
+          ? t("notAvailableInRegionButton")
           : variantStock && variantHasPrice
-          ? "ADD TO CART"
-          : "OUT OF STOCK"}
+          ? t("addToCart")
+          : t("outOfStock")}
       </Button>
       {/* Seller message */}
 

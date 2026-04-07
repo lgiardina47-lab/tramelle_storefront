@@ -1,6 +1,7 @@
 import type { HttpTypes } from "@medusajs/types"
 
 import { normalizeQueryOptionValue } from "./normalize-query-option-value"
+import { isVariantVisibleB2c } from "./tramelle-variant-metadata"
 
 /**
  * Risolve l'id variante store in base alle opzioni prodotto e ai valori scelti (URL / default).
@@ -9,10 +10,21 @@ import { normalizeQueryOptionValue } from "./normalize-query-option-value"
  */
 export function resolveSelectedStoreVariantId(
   product: HttpTypes.StoreProduct,
-  selectedOptionValues: Record<string, string>
+  selectedOptionValues: Record<string, string>,
+  options?: { restrictToB2cVisible?: boolean }
 ): string {
+  const restrict = options?.restrictToB2cVisible ?? false
   const defs = product.options || []
-  const variants = product.variants || []
+  const allVariants = product.variants || []
+  const variants = restrict
+    ? allVariants.filter((v) =>
+        isVariantVisibleB2c(
+          (v as { metadata?: unknown }).metadata as
+            | Record<string, unknown>
+            | undefined
+        )
+      )
+    : allVariants
   if (!variants.length) return ""
 
   if (!defs.length) {

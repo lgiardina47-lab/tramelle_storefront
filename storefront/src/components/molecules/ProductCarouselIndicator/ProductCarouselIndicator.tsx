@@ -5,6 +5,7 @@ import { EmblaCarouselType } from "embla-carousel"
 import { useCallback, useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Indicator } from "@/components/atoms"
+import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 import useEmblaCarousel from "embla-carousel-react"
 
 export const ProductCarouselIndicator = ({
@@ -67,7 +68,10 @@ export const ProductCarouselIndicator = ({
                 onClick={() => changeSlideHandler(index)}
               >
                 <Image
-                  src={decodeURIComponent(slide.url)}
+                  src={
+                    resolveProductThumbnailSrc(slide.url) ??
+                    decodeURIComponent(slide.url)
+                  }
                   alt="Product carousel Indicator"
                   width={64}
                   height={64}

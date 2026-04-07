@@ -7,6 +7,11 @@ import { getSellerListingMetadata } from "../../../../../lib/seller-listing-meta
  * Risolve un seller per storefront sia per **handle** (`alpe-magna`) sia per **id** (`sel_...`).
  * Mercur `GET /store/seller/:handle` non popola la risposta quando il parametro è l'id tecnico.
  */
+/**
+ * Campi graph sul modulo `seller`: `*reviews` non è una relazione valida su questa
+ * entità (MikroORM: "does not have property '*reviews'") → 500 e storefront vuoto.
+ * Le recensioni su scheda venditore restano caricabili da altri endpoint se serve.
+ */
 const DEFAULT_STORE_SELLER_FIELDS = [
   "id",
   "name",
@@ -24,9 +29,6 @@ const DEFAULT_STORE_SELLER_FIELDS = [
   "tax_id",
   "created_at",
   "updated_at",
-  "*reviews",
-  "*reviews.customer",
-  "*reviews.seller",
 ]
 
 function resolveFilters(ref: string): { id: string } | { handle: string } {

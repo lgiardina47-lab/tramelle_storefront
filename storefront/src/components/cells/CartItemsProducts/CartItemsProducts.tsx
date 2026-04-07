@@ -6,6 +6,7 @@ import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedL
 import { UpdateCartItemButton } from '@/components/molecules/UpdateCartItemButton/UpdateCartItemButton';
 import { filterValidCartItems } from '@/lib/helpers/filter-valid-cart-items';
 import { convertToLocale } from '@/lib/helpers/money';
+import { resolveProductThumbnailSrc } from '@/lib/helpers/get-image-url';
 
 export const CartItemsProducts = ({
   products,
@@ -31,7 +32,8 @@ export const CartItemsProducts = ({
         const total = convertToLocale({
           amount: product.subtotal ?? 0,
           currency_code
-        });
+        })
+        const thumb = resolveProductThumbnailSrc(product.thumbnail)
 
         return (
           <div
@@ -41,9 +43,9 @@ export const CartItemsProducts = ({
           >
             <LocalizedClientLink href={`/products/${product.product_handle}`}>
               <div className="w-[100px] h-[132px] flex items-center justify-center" data-testid="cart-item-image">
-                {product.thumbnail ? (
+                {thumb ? (
                   <Image
-                    src={decodeURIComponent(product.thumbnail)}
+                    src={thumb}
                     alt="Product thumbnail"
                     width={100}
                     height={132}

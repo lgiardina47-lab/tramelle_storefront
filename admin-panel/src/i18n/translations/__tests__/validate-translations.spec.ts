@@ -39,12 +39,12 @@ function getTranslationKeys(obj: any, prefix = ""): string[] {
 }
 
 describe("translation schema validation", () => {
-  test("en.json should have all keys defined in schema", () => {
-    const enPath = path.join(translationsDir, "en.json")
-    const enTranslations = JSON.parse(fs.readFileSync(enPath, "utf-8"))
+  test("it.json should have all keys defined in schema", () => {
+    const itPath = path.join(translationsDir, "it.json")
+    const itTranslations = JSON.parse(fs.readFileSync(itPath, "utf-8"))
 
     const schemaKeys = getRequiredKeysFromSchema(schema)
-    const translationKeys = getTranslationKeys(enTranslations)
+    const translationKeys = getTranslationKeys(itTranslations)
 
     const missingInTranslations = schemaKeys.filter(
       (key) => !translationKeys.includes(key)
@@ -54,11 +54,11 @@ describe("translation schema validation", () => {
     )
 
     if (missingInTranslations.length > 0) {
-      console.error("\nMissing keys in en.json:", missingInTranslations)
+      console.error("\nMissing keys in it.json:", missingInTranslations)
     }
 
     if (extraInTranslations.length > 0) {
-      console.error("\nExtra keys in en.json:", extraInTranslations)
+      console.error("\nExtra keys in it.json:", extraInTranslations)
     }
 
     expect(missingInTranslations).toEqual([])

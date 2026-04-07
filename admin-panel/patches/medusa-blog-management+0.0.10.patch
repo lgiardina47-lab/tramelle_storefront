@@ -1,0 +1,26 @@
+diff --git a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js
+index 6b1dc2b..36dc7ba 100644
+--- a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js
++++ b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js
+@@ -338,7 +338,7 @@ const BlogForm = ({ initialValues, onSubmit, isLoading }) => {
+     ] }),
+     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex flex-col gap-2", children: [
+       /* @__PURE__ */ jsxRuntime.jsx(ui.Label, { children: "Thumbnail" }),
+-      formData.thumbnail && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "relative w-full aspect-video rounded-lg overflow-hidden border border-ui-border-base group", children: [
++      formData.thumbnail && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "relative inline-block w-40 max-w-[min(100%,10rem)] aspect-video rounded-lg overflow-hidden border border-ui-border-base group shrink-0", children: [
+         /* @__PURE__ */ jsxRuntime.jsx(
+           "img",
+           {
+diff --git a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs
+index 1588a19..2dabacd 100644
+--- a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs
++++ b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs
+@@ -332,7 +332,7 @@ const BlogForm = ({ initialValues, onSubmit, isLoading }) => {
+     ] }),
+     /* @__PURE__ */ jsxs("div", { className: "flex flex-col gap-2", children: [
+       /* @__PURE__ */ jsx(Label, { children: "Thumbnail" }),
+-      formData.thumbnail && /* @__PURE__ */ jsxs("div", { className: "relative w-full aspect-video rounded-lg overflow-hidden border border-ui-border-base group", children: [
++      formData.thumbnail && /* @__PURE__ */ jsxs("div", { className: "relative inline-block w-40 max-w-[min(100%,10rem)] aspect-video rounded-lg overflow-hidden border border-ui-border-base group shrink-0", children: [
+         /* @__PURE__ */ jsx(
+           "img",
+           {

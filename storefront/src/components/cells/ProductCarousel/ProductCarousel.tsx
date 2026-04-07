@@ -5,6 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import { ProductCarouselIndicator } from "@/components/molecules"
 import { useScreenSize } from "@/hooks/useScreenSize"
+import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 
 export const ProductCarousel = ({
   slides = [],
@@ -39,7 +40,10 @@ export const ProductCarousel = ({
               <Image
                 priority={idx === 0}
                 fetchPriority={idx === 0 ? "high" : "auto"}
-                src={decodeURIComponent(slide.url)}
+                src={
+                  resolveProductThumbnailSrc(slide.url) ??
+                  decodeURIComponent(slide.url)
+                }
                 alt="Product image"
                 width={700}
                 height={700}

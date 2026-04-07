@@ -69,6 +69,10 @@ module.exports = defineConfig({
       resolve: "@mercurjs/resend",
       options: {},
     },
+    {
+      resolve: "medusa-blog-management",
+      options: {},
+    },
   ],
   modules: [
     {

@@ -12,16 +12,40 @@ export const LISTING_FACET_PARAM_TO_ALGOLIA: Record<string, string> = {
   tags_value: "tags.value",
 }
 
-/** Default facet request order for search + sidebar. */
-export const ALGOLIA_LISTING_FACET_ATTRIBUTES: string[] = [
-  "categories.name",
+/**
+ * Facet sidebar listing (richiesta ad Algolia).
+ * Default: seller, tipo, tag — senza categoria in sidebar (si naviga già da `/categories` / ribbon).
+ * Opzionali: `NEXT_PUBLIC_LISTING_CATEGORY_FACET`, `NEXT_PUBLIC_LISTING_VARIANT_FACETS`.
+ * I parametri URL (`categories_name`, `color`, …) restano in {@link LISTING_FACET_PARAM_TO_ALGOLIA}.
+ */
+const ALGOLIA_LISTING_FACET_CORE: string[] = [
   "seller.handle",
   "type.value",
   "tags.value",
+]
+
+const ALGOLIA_LISTING_FACET_CATEGORY: string[] = ["categories.name"]
+
+const ALGOLIA_LISTING_FACET_VARIANTS: string[] = [
   "variants.color",
   "variants.size",
   "variants.condition",
 ]
+
+function buildAlgoliaListingFacetAttributes(): string[] {
+  const out: string[] = []
+  if (process.env.NEXT_PUBLIC_LISTING_CATEGORY_FACET === "true") {
+    out.push(...ALGOLIA_LISTING_FACET_CATEGORY)
+  }
+  out.push(...ALGOLIA_LISTING_FACET_CORE)
+  if (process.env.NEXT_PUBLIC_LISTING_VARIANT_FACETS === "true") {
+    out.push(...ALGOLIA_LISTING_FACET_VARIANTS)
+  }
+  return out
+}
+
+export const ALGOLIA_LISTING_FACET_ATTRIBUTES: string[] =
+  buildAlgoliaListingFacetAttributes()
 
 export const ALGOLIA_TO_LISTING_FACET_PARAM: Record<string, string> =
   Object.fromEntries(

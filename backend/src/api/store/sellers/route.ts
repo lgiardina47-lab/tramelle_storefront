@@ -1,23 +1,53 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+const DESCRIPTION_LOCALES = new Set(["it", "en", "fr", "de", "es"])
+
 /**
  * Elenco pubblico produttori per lo storefront (esclude sospesi).
  * Unisce `seller_listing_profile.metadata` per hero / storytelling come su by-ref.
+ *
+ * Query opzionale `content_locale=it|en|fr|de|es`: mostra solo seller con testo
+ * descrizione in quella lingua (`metadata.tramelle_description_i18n`; per `it`
+ * anche `seller.description` legacy se non c’è i18n).
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse): Promise<void> {
   const limit = Math.min(Math.max(Number(req.query.limit) || 48, 1), 100)
   const offset = Math.max(Number(req.query.offset) || 0, 0)
 
+  const rawLocale =
+    typeof req.query.content_locale === "string"
+      ? req.query.content_locale.trim().toLowerCase()
+      : ""
+  const contentLocale = DESCRIPTION_LOCALES.has(rawLocale) ? rawLocale : null
+
   const knex = req.scope.resolve(ContainerRegistrationKeys.PG_CONNECTION) as any
 
-  const base = knex("seller")
-    .whereNull("deleted_at")
-    .whereNot("store_status", "SUSPENDED")
-    .whereNotNull("handle")
-    .where("handle", "!=", "")
+  let base = knex("seller")
+    .whereNull("seller.deleted_at")
+    .whereNot("seller.store_status", "SUSPENDED")
+    .whereNotNull("seller.handle")
+    .where("seller.handle", "!=", "")
+    .leftJoin("seller_listing_profile as slp", function joinSlp(this: any) {
+      this.on("seller.id", "=", "slp.seller_id").andOnNull("slp.deleted_at")
+    })
 
-  const countRow = await base.clone().count("* as c").first()
+  if (contentLocale === "it") {
+    base = base.whereRaw(
+      `(trim(COALESCE(slp.metadata->'tramelle_description_i18n'->>'it','')) <> '' OR trim(COALESCE(seller.description::text,'')) <> '')`
+    )
+  } else if (contentLocale) {
+    base = base.whereRaw(
+      `trim(COALESCE(slp.metadata->'tramelle_description_i18n'->>'${contentLocale}', '')) <> ''`
+    )
+  }
+
+  const countRow = await base
+    .clone()
+    .clearSelect()
+    .clearOrder()
+    .countDistinct("seller.id as c")
+    .first()
   const count = Number(
     countRow && typeof countRow === "object" && "c" in countRow
       ? (countRow as { c: string | number }).c
@@ -27,17 +57,17 @@ export async function GET(req: MedusaRequest, res: MedusaResponse): Promise<void
   const rows = (await base
     .clone()
     .select(
-      "id",
-      "name",
-      "handle",
-      "description",
-      "photo",
-      "city",
-      "state",
-      "country_code",
-      "store_status"
+      "seller.id",
+      "seller.name",
+      "seller.handle",
+      "seller.description",
+      "seller.photo",
+      "seller.city",
+      "seller.state",
+      "seller.country_code",
+      "seller.store_status"
     )
-    .orderBy("name", "asc")
+    .orderBy("seller.name", "asc")
     .limit(limit)
     .offset(offset)) as Array<{
     id: string

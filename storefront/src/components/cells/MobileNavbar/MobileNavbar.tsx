@@ -6,16 +6,22 @@ import { HttpTypes } from '@medusajs/types';
 
 import { IconButton } from '@/components/atoms';
 import { HeaderCategoryNavbar } from '@/components/molecules';
+import { LanguageSwitcher } from '@/components/molecules/LanguageSwitcher/LanguageSwitcher';
 import { CloseIcon, HamburgerMenuIcon } from '@/icons';
+import type { LanguageSwitcherOption } from '@/lib/helpers/language-switcher-options';
 
 import { MobileCategoryNavbar } from './components';
 
 export const MobileNavbar = ({
   categories,
-  parentCategories
+  parentCategories,
+  locale,
+  languageOptions
 }: {
   categories: HttpTypes.StoreProductCategory[];
   parentCategories: HttpTypes.StoreProductCategory[];
+  locale: string;
+  languageOptions: LanguageSwitcherOption[];
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -76,6 +82,12 @@ export const MobileNavbar = ({
                 categories={categories}
                 parentCategories={parentCategories}
               />
+            </div>
+            <div className="border-t border-primary/20 p-4">
+              <p className="mb-2 text-xs font-semibold uppercase text-primary">
+                Lingua / Paese
+              </p>
+              <LanguageSwitcher locale={locale} options={languageOptions} />
             </div>
           </div>
         </div>

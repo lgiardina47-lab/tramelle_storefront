@@ -11,14 +11,37 @@ type ProductStatusCellProps = {
 export const ProductStatusCell = ({ status, "data-testid": dataTestId }: ProductStatusCellProps) => {
   const { t } = useTranslation()
 
-  const [color, text] = {
+  if (!status) {
+    return null
+  }
+
+  const map: Partial<
+    Record<
+      HttpTypes.AdminProductStatus,
+      ["grey" | "orange" | "green" | "red", string]
+    >
+  > = {
     draft: ["grey", t("products.productStatus.draft")],
     proposed: ["orange", t("products.productStatus.proposed")],
     published: ["green", t("products.productStatus.published")],
     rejected: ["red", t("products.productStatus.rejected")],
-  }[status] as ["grey" | "orange" | "green" | "red", string]
+  }
 
-  return <StatusCell color={color} data-testid={dataTestId}>{text}</StatusCell>
+  const entry = map[status]
+  if (!entry) {
+    return (
+      <StatusCell color="grey" data-testid={dataTestId}>
+        {String(status)}
+      </StatusCell>
+    )
+  }
+
+  const [color, text] = entry
+  return (
+    <StatusCell color={color} data-testid={dataTestId}>
+      {text}
+    </StatusCell>
+  )
 }
 
 export const ProductStatusHeader = () => {

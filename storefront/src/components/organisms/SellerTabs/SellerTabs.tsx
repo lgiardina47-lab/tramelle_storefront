@@ -36,11 +36,7 @@ export const SellerTabs = ({
             Pagina seller: sempre Medusa /store/products + filtro seller_id.
             Algolia spesso è indietro rispetto all’admin → listing vuota in prod se non si reindicizza.
           */}
-          <ProductListing
-            showSidebar
-            seller_id={seller_id}
-            locale={locale}
-          />
+          <ProductListing seller_id={seller_id} locale={locale} />
         </Suspense>
       </TabsContent>
       <TabsContent value="reviews" activeTab={tab}>

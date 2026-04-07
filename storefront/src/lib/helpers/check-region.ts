@@ -1,4 +1,5 @@
 import { listRegions } from "../data/regions"
+import { isStorefrontPermissiveLocalePath } from "../i18n/storefront-path-locale"
 
 /**
  * Verifica se `locale` è un paese noto dalle regioni Medusa.
@@ -7,6 +8,7 @@ import { listRegions } from "../data/regions"
  */
 export const checkRegion = async (locale: string) => {
   const fallback = process.env.NEXT_PUBLIC_DEFAULT_REGION || "it"
+  const normalized = locale.toLowerCase()
 
   try {
     const regions = await listRegions()
@@ -14,16 +16,29 @@ export const checkRegion = async (locale: string) => {
 
     const countries = list.flatMap((r) =>
       (r.countries ?? [])
-        .map((c) => c.iso_2)
+        .map((c) => c.iso_2?.toLowerCase())
         .filter((code): code is string => Boolean(code))
     )
 
     if (!countries.length) {
-      return locale === fallback
+      return (
+        normalized === fallback || isStorefrontPermissiveLocalePath(normalized)
+      )
     }
 
-    return countries.includes(locale)
+    if (countries.includes(normalized)) {
+      return true
+    }
+
+    /** en/fr/de/es: UI i18n; catalogo risolto lato API (`en` → gb/us/ie, ecc.). */
+    if (isStorefrontPermissiveLocalePath(normalized)) {
+      return true
+    }
+
+    return false
   } catch {
-    return locale === fallback
+    return (
+      normalized === fallback || isStorefrontPermissiveLocalePath(normalized)
+    )
   }
 }

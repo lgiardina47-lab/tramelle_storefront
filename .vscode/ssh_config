@@ -1,1 +1,11 @@
+# Copia il blocco "Host tramelle-forward" in C:\Users\Master\.ssh\config
+# Poi: Remote-SSH → Connect to Host → tramelle-forward
+# Sul PC: http://127.0.0.1:3000/it  http://127.0.0.1:7000  http://127.0.0.1:5173  (API :9000)
 
+Host tramelle-forward
+    HostName 82.165.134.103
+    User root
+    LocalForward 127.0.0.1:3000 127.0.0.1:3000
+    LocalForward 127.0.0.1:7000 127.0.0.1:7000
+    LocalForward 127.0.0.1:9000 127.0.0.1:9000
+    LocalForward 127.0.0.1:5173 127.0.0.1:5173

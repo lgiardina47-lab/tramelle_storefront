@@ -4,10 +4,12 @@
   "scripts": {
     "generate:static": "node ./scripts/generate-currencies.js && prettier --write ./src/lib/currencies.ts",
     "dev": "vite",
-    "build": "tsup && node ./scripts/generate-types.js",
+    "build": "vite build && node ./scripts/generate-types.js",
+    "build:lib": "tsup && node ./scripts/generate-types.js",
     "build:preview": "vite build",
     "build:admin": "medusa build",
     "preview": "vite preview",
+    "start": "vite preview --host 0.0.0.0",
     "test": "vitest --run",
     "i18n:validate": "node ./scripts/i18n/validate-translation.js",
     "i18n:schema": "node ./scripts/i18n/generate-schema.js",

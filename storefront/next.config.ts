@@ -1,4 +1,7 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const allowSearchIndexing =
   process.env.NEXT_PUBLIC_ALLOW_SEARCH_INDEXING === 'true';
@@ -29,6 +32,19 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost'
+      },
+      // Dev: `.env` usa spesso 127.0.0.1:9000; `localhost` da solo non basta per `next/image`.
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1'
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.tramelle.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.tramelle.com'
       },
       {
         protocol: 'https',
@@ -71,4 +87,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

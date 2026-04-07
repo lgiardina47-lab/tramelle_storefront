@@ -4,26 +4,52 @@ import {
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
+import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
 import { Metadata } from "next"
 
 const siteLabel = () => resolvedSiteName()
 
 export const generateProductMetadata = async (
-  product: HttpTypes.StoreProduct
+  product: HttpTypes.StoreProduct,
+  countryCode: string
 ): Promise<Metadata> => {
-  const base = publicSiteOrigin()
+  const base = publicSiteOrigin().replace(/\/$/, "")
   const name = siteLabel()
+  const handle = product?.handle || ""
+  const path = `/${countryCode.toLowerCase()}/products/${handle}`
+
+  const href = (cc: string) => `${base}/${cc}/products/${handle}`
+
+  const localized = product
+    ? getLocalizedProductContentForCountry(product, countryCode)
+    : null
+  const metaTitle = localized?.title || product?.title || ""
+  const metaDescription =
+    (localized?.description?.trim() && localized.description) ||
+    `${metaTitle} - ${name}`
 
   return {
-    title: product?.title,
-    description: `${product?.title} - ${name}`,
+    title: metaTitle,
+    description: metaDescription,
     robots: getIndexingRobots(),
-    metadataBase: new URL(`${base}/products/${product?.handle}`),
+    metadataBase: new URL(base),
+    alternates: {
+      canonical: `${base}${path}`,
+      languages: {
+        "it-IT": href("it"),
+        "en-GB": href("gb"),
+        "fr-FR": href("fr"),
+        "de-DE": href("de"),
+        "es-ES": href("es"),
+        "nl-NL": href("nl"),
+        "x-default": href("it"),
+      },
+    },
 
     openGraph: {
-      title: product?.title,
-      description: `${product?.title} - ${name}`,
-      url: `${base}/products/${product?.handle}`,
+      title: metaTitle,
+      description: metaDescription,
+      url: `${base}${path}`,
       siteName: name,
       images: [
         {
@@ -32,15 +58,15 @@ export const generateProductMetadata = async (
             `${base}/images/placeholder.svg`,
           width: 1200,
           height: 630,
-          alt: product?.title,
+          alt: metaTitle,
         },
       ],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: product?.title,
-      description: `${product?.title} - ${name}`,
+      title: metaTitle,
+      description: metaDescription,
       images: [
         product?.thumbnail || `${base}/images/placeholder.svg`,
       ],

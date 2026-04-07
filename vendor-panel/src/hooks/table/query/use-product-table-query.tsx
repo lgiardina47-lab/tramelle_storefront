@@ -9,6 +9,17 @@ type UseProductTableQueryProps = {
 const DEFAULT_FIELDS =
   "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail"
 
+function safeJsonParse<T>(raw: string | undefined): T | undefined {
+  if (!raw?.trim()) {
+    return undefined
+  }
+  try {
+    return JSON.parse(raw) as T
+  } catch {
+    return undefined
+  }
+}
+
 export const useProductTableQuery = ({
   prefix,
   pageSize = 20,
@@ -57,8 +68,8 @@ export const useProductTableQuery = ({
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     sales_channel_id: sales_channel_id?.split(","),
-    created_at: created_at ? JSON.parse(created_at) : undefined,
-    updated_at: updated_at ? JSON.parse(updated_at) : undefined,
+    created_at: safeJsonParse(created_at),
+    updated_at: safeJsonParse(updated_at),
     category_id: category_id?.split(","),
     collection_id: collection_id?.split(","),
     is_giftcard: is_giftcard ? is_giftcard === "true" : undefined,

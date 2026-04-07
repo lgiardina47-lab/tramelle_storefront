@@ -10,7 +10,7 @@ import { FieldError, FieldValues, FormProvider, useForm, useFormContext } from '
 import { Button } from '@/components/atoms';
 import { Alert } from '@/components/atoms/Alert/Alert';
 import { LabeledInput } from '@/components/cells';
-import { login, transferCart } from '@/lib/data/customer';
+import { login } from '@/lib/data/customer';
 import { toast } from '@/lib/helpers/toast';
 
 import { LoginFormData, loginFormSchema } from './schema';
@@ -51,14 +51,12 @@ const Form = () => {
     const res = await login(formData);
 
     if (res.success) {
+      router.refresh();
       router.push('/user');
-      await transferCart();
     } else {
+      setIsAuthError(true);
       toast.error({ title: res.message || 'An error occurred. Please try again.' });
     }
-
-    setIsAuthError(false);
-    router.push('/user');
   };
 
   const clearApiError = () => {

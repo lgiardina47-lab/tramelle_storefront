@@ -6,7 +6,10 @@ import { Wishlist } from '@/types/wishlist';
 
 import { fetchQuery, sdk } from '../config';
 import { getAuthHeaders } from './cookies';
-import { getRegion } from "@/lib/data/regions"
+import {
+  getRegion,
+  resolveStorefrontLocaleToMedusaCountry,
+} from "@/lib/data/regions"
 
 export const getUserWishlists = async ({regionId, countryCode} : {regionId?: string, countryCode?: string}) => {
   const headers = {
@@ -20,9 +23,14 @@ export const getUserWishlists = async ({regionId, countryCode} : {regionId?: str
   };
 
   let finalRegionId = regionId;
+  let medusaCc: string | undefined;
 
-  if (!finalRegionId && countryCode) {
-    const region = await getRegion(countryCode);
+  if (countryCode) {
+    medusaCc = await resolveStorefrontLocaleToMedusaCountry(countryCode);
+  }
+
+  if (!finalRegionId && medusaCc) {
+    const region = await getRegion(medusaCc);
     if (region) {
       finalRegionId = region.id;
     }
@@ -31,8 +39,8 @@ export const getUserWishlists = async ({regionId, countryCode} : {regionId?: str
   if (finalRegionId) {
     query.region_id = finalRegionId;
   }
-  if (countryCode) {
-    query.country_code = countryCode;
+  if (medusaCc) {
+    query.country_code = medusaCc;
   }
 
   return sdk.client

@@ -15,6 +15,58 @@ import {
   setAuthToken
 } from './cookies';
 
+/**
+ * Salva metadata B2C/B2B e assegna il gruppo professionisti lato API Medusa
+ * (`POST /store/tramelle/registration`), perché lo store spesso non persiste `metadata` su create.
+ */
+async function syncTramelleRegistrationViaApi(
+  formData: FormData,
+  bearerToken: string
+): Promise<void> {
+  const base = (process.env.MEDUSA_BACKEND_URL || '').replace(/\/$/, '');
+  const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY?.trim();
+  if (!base || !pk || !bearerToken?.trim()) return;
+
+  const auth = { authorization: `Bearer ${bearerToken.trim()}` };
+
+  const registrationType =
+    (formData.get('registration_type') as string) || 'b2c';
+  const body: Record<string, string> = { registration_type: registrationType };
+
+  if (registrationType === 'b2b_pro') {
+    body.company_name = (formData.get('company_name') as string)?.trim() || '';
+    body.vat_id = (formData.get('vat_id') as string)?.trim() || '';
+    body.sdi_or_pec = (formData.get('sdi_or_pec') as string)?.trim() || '';
+  } else {
+    body.first_name = (formData.get('first_name') as string)?.trim() || '';
+    body.last_name = (formData.get('last_name') as string)?.trim() || '';
+    const phone = (formData.get('phone') as string)?.trim();
+    if (phone) body.phone = phone;
+  }
+
+  try {
+    const res = await fetch(`${base}/store/tramelle/registration`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': pk,
+        ...auth,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      console.warn(
+        '[signup] tramelle/registration',
+        res.status,
+        await res.text()
+      );
+    }
+  } catch (e) {
+    console.warn('[signup] tramelle/registration error', e);
+  }
+}
+
+/** Opzionale: se `MEDUSA_ADMIN_API_KEY` + `TRAMELLE_B2B_PRO_GROUP_ID` sono impostati. */
 async function assignCustomerToB2bProGroupImmediate(customerId: string): Promise<void> {
   const groupId = process.env.TRAMELLE_B2B_PRO_GROUP_ID?.trim();
   const adminKey = process.env.MEDUSA_ADMIN_API_KEY?.trim();
@@ -51,7 +103,8 @@ export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null
     .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
       method: 'GET',
       query: {
-        fields: '*metadata,*orders,*groups'
+        // `*groups` non è ammesso su /store/customers/me in Mercur/Medusa → 400 e la sessione sembra assente.
+        fields: '*metadata,*orders',
       },
       headers,
       cache: 'no-store'
@@ -108,29 +161,30 @@ export async function signup(formData: FormData) {
   }
 
   try {
-    const token = await sdk.auth.register('customer', 'emailpass', {
+    const registerToken = (await sdk.auth.register('customer', 'emailpass', {
       email,
       password: password
-    });
+    })) as string;
 
-    await setAuthToken(token as string);
+    await setAuthToken(registerToken);
 
-    const headers = {
-      ...(await getAuthHeaders())
-    };
+    /** Stesso round-trip Server Action: i cookie appena impostati non sono sempre leggibili con `getAuthHeaders()` — Medusa richiede Bearer esplicito. */
+    const authAfterRegister = { authorization: `Bearer ${registerToken}` };
 
     const { customer: createdCustomer } = await sdk.store.customer.create(
       customerForm,
       {},
-      headers
+      authAfterRegister
     );
 
-    const loginToken = await sdk.auth.login('customer', 'emailpass', {
+    const loginToken = (await sdk.auth.login('customer', 'emailpass', {
       email,
       password
-    });
+    })) as string;
 
-    await setAuthToken(loginToken as string);
+    await setAuthToken(loginToken);
+
+    await syncTramelleRegistrationViaApi(formData, loginToken);
 
     if (registrationType === 'b2b_pro' && createdCustomer?.id) {
       await assignCustomerToB2bProGroupImmediate(createdCustomer.id);
@@ -139,7 +193,7 @@ export async function signup(formData: FormData) {
     const customerCacheTag = await getCacheTag('customers');
     revalidateTag(customerCacheTag);
 
-    await transferCart();
+    await transferCart({ authorization: `Bearer ${loginToken}` });
 
     return createdCustomer;
   } catch (error: any) {
@@ -152,8 +206,12 @@ export async function login(formData: FormData) {
   const password = formData.get('password') as string;
 
   try {
-    const token = await sdk.auth.login('customer', 'emailpass', { email, password });
-    await setAuthToken(token as string);
+    const token = (await sdk.auth.login('customer', 'emailpass', {
+      email,
+      password
+    })) as string;
+    await setAuthToken(token);
+    await transferCart({ authorization: `Bearer ${token}` });
     const customerCacheTag = await getCacheTag('customers');
     revalidateTag(customerCacheTag);
 
@@ -181,14 +239,18 @@ export async function signout() {
   redirect(`/`);
 }
 
-export async function transferCart() {
+export async function transferCart(authOverride?: {
+  authorization: string;
+}) {
   const cartId = await getCartId();
 
   if (!cartId) {
     return;
   }
 
-  const headers = await getAuthHeaders();
+  const headers =
+    authOverride ??
+    ((await getAuthHeaders()) as { authorization: string } | Record<string, never>);
 
   await sdk.store.cart.transferCart(cartId, {}, headers);
 

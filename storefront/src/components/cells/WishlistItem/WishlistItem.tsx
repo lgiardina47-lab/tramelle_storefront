@@ -1,3 +1,5 @@
+"use client"
+
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import Image from "next/image"
 import { HttpTypes } from "@medusajs/types"
@@ -7,6 +9,8 @@ import { convertToLocale } from "@/lib/helpers/money"
 import { Button } from "@/components/atoms"
 import clsx from "clsx"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
+import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
+import { useCartContext } from "@/components/providers"
 
 export const WishlistItem = ({
   product,
@@ -22,11 +26,16 @@ export const WishlistItem = ({
   user?: HttpTypes.StoreCustomer | null;
   testIdPrefix?: string;
 }) => {
-  const { cheapestPrice } = getProductPrice({ product });
+  const { wholesaleBuyer } = useCartContext()
+  const { cheapestPrice } = getProductPrice({
+    product,
+    restrictToB2cVisible: !wholesaleBuyer,
+  })
   const price = convertToLocale({
     amount: cheapestPrice?.calculated_price_number ?? 0,
     currency_code: cheapestPrice?.currency_code ?? "eur",
-  });
+  })
+  const thumbnailSrc = resolveProductThumbnailSrc(product.thumbnail)
 
   return (
     <div
@@ -45,9 +54,9 @@ export const WishlistItem = ({
         </div>
         <LocalizedClientLink href={`/products/${product.handle}`}>
           <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
-            {product.thumbnail ? (
+            {thumbnailSrc ? (
               <Image
-                src={decodeURIComponent(product.thumbnail)}
+                src={thumbnailSrc}
                 alt={product.title}
                 width={360}
                 height={360}

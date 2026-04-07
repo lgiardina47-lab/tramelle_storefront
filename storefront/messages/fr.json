@@ -1,0 +1,78 @@
+{
+  "Product": {
+    "notAvailableInRegion": "Non disponible dans votre région",
+    "addToCart": "AJOUTER AU PANIER",
+    "outOfStock": "RUPTURE DE STOCK",
+    "notAvailableInRegionButton": "NON DISPONIBLE DANS VOTRE RÉGION",
+    "addToCartErrorTitle": "Erreur lors de l’ajout au panier",
+    "addToCartErrorDescription": "Une variante n’a pas le stock suffisant",
+    "wholesaleInvalidQtyTitle": "Quantité non valide",
+    "wholesaleInvalidQtyDescription": "Pour ce produit B2B, commandez des multiples de {pieces} pièces (carton)."
+  },
+  "Nav": {
+    "utilityAria": "Liens utiles",
+    "producers": "Producteurs",
+    "recipes": "Recettes",
+    "giftCards": "Cartes cadeaux",
+    "b2bServices": "Services aux entreprises",
+    "howItWorks": "Comment ça marche",
+    "contact": "Contact",
+    "languageSwitcherAria": "Langue et pays"
+  },
+  "Account": {
+    "sectionTitle": "Votre compte",
+    "orders": "Commandes",
+    "messages": "Messages",
+    "returns": "Retours",
+    "addresses": "Adresses",
+    "reviews": "Avis",
+    "wishlist": "Liste d’envies",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "login": "Connexion",
+    "register": "Inscription",
+    "profileLinkAria": "Aller au profil"
+  },
+  "Header": {
+    "wishlist": "Favoris",
+    "wishlistAria": "Favoris",
+    "logoAlt": "Tramelle — marketplace gastronomique"
+  },
+  "Hero": {
+    "heading": "Trésors gourmets, livrés avec soin",
+    "paragraph": "Spécialités sélectionnées, petits producteurs et trésors d’épicerie sur Tramelle — votre marketplace gastronomique.",
+    "buyNow": "Acheter maintenant",
+    "sellNow": "Vendre maintenant"
+  },
+  "Home": {
+    "trending": "Tendances",
+    "shopByCategory": "ACHETER PAR CATÉGORIE"
+  },
+  "Cart": {
+    "goToCartAria": "Aller au panier",
+    "title": "Panier",
+    "items": "Articles",
+    "delivery": "Livraison",
+    "tax": "TVA",
+    "total": "Total",
+    "goToCart": "Voir le panier",
+    "emptyTitle": "Votre panier est vide",
+    "emptyHint": "Besoin d’inspiration ?",
+    "exploreCategories": "Parcourir les catégories"
+  },
+  "ProductSheet": {
+    "detailsHeading": "Détails du produit",
+    "additionalAttributesHeading": "Attributs supplémentaires",
+    "shippingHeading": "Livraison et retours",
+    "shippingPoint1": "Les options, délais et frais de livraison dépendent du vendeur et de la destination ; vous les verrez au paiement.",
+    "shippingPoint2": "Le droit de rétractation s’applique selon la loi en vigueur (ex. 14 jours dans l’UE, avec exceptions pour denrées périssables ou produits scellés pour raisons d’hygiène). Voir les conditions du vendeur.",
+    "sellerReviewsHeading": "Avis sur le vendeur",
+    "seeMore": "Voir plus",
+    "reviewsCount": "{count, plural, =0 {Pas encore d’avis} one {# avis} other {# avis}}",
+    "viewSellerAria": "Voir le vendeur {name}",
+    "moreFromSeller": "Plus de ce vendeur",
+    "postedPrefix": "Publié :",
+    "reportListing": "Signaler l’annonce",
+    "reportListingModalHeading": "Signaler l’annonce"
+  }
+}

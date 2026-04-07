@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui";
 
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
@@ -13,6 +14,13 @@ import { useExtendableForm } from "../../../../../dashboard-app/forms/hooks";
 import { useUpdateProduct } from "../../../../../hooks/api/products";
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 import { transformNullableFormData } from "../../../../../lib/form-helpers";
+import {
+  DEFAULT_PRODUCT_CONTENT_LOCALE,
+  getEditFormTextValuesForLang,
+  getProductI18nMap,
+  normalizeContentLang,
+  TRAMELLE_PRODUCT_I18N_KEY,
+} from "../../../../../lib/tramelle-product-i18n";
 import { useExtension } from "../../../../../providers/extension-provider";
 
 type EditProductFormProps = {
@@ -30,21 +38,23 @@ const EditProductSchema = zod.object({
 });
 
 export const EditProductForm = ({ product }: EditProductFormProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const direction = useDocumentDirection();
   const { getFormFields, getFormConfigs } = useExtension();
   const fields = getFormFields("product", "edit");
   const configs = getFormConfigs("product", "edit");
 
+  const textDefaults = getEditFormTextValuesForLang(product, i18n.language);
+
   const form = useExtendableForm({
     defaultValues: {
       status: product.status,
-      title: product.title,
+      title: textDefaults.title,
       material: product.material || "",
-      subtitle: product.subtitle || "",
+      subtitle: textDefaults.subtitle,
       handle: product.handle || "",
-      description: product.description || "",
+      description: textDefaults.description,
       discountable: product.discountable,
     },
     schema: EditProductSchema,
@@ -52,25 +62,105 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
     data: product,
   });
 
+  const contentLang = normalizeContentLang(i18n.language);
+
+  useEffect(() => {
+    const nextText = getEditFormTextValuesForLang(product, i18n.language);
+    form.reset({
+      status: product.status,
+      title: nextText.title,
+      material: product.material || "",
+      subtitle: nextText.subtitle,
+      handle: product.handle || "",
+      description: nextText.description,
+      discountable: product.discountable,
+    });
+  }, [
+    product.id,
+    product.status,
+    product.handle,
+    product.material,
+    product.discountable,
+    product.title,
+    product.subtitle,
+    product.description,
+    product.metadata,
+    i18n.language,
+  ]);
+
   const { mutateAsync, isPending } = useUpdateProduct(product.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { title, discountable, handle, status, ...optional } = data;
+    const {
+      title,
+      discountable,
+      handle,
+      status,
+      subtitle,
+      description,
+      material,
+    } = data;
 
-    const nullableData = transformNullableFormData(optional);
+    if (contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE) {
+      const nullableData = transformNullableFormData({
+        subtitle,
+        description,
+        material,
+      });
+      await mutateAsync(
+        {
+          title,
+          discountable,
+          handle,
+          status: status as HttpTypes.AdminProductStatus,
+          ...nullableData,
+        },
+        {
+          onSuccess: ({ product: p }) => {
+            toast.success(
+              t("products.edit.successToast", { title: p.title }),
+            );
+            handleSuccess();
+          },
+          onError: (e) => {
+            toast.error(e.message);
+          },
+        },
+      );
+      return;
+    }
+
+    const prevMeta =
+      product.metadata &&
+      typeof product.metadata === "object" &&
+      !Array.isArray(product.metadata)
+        ? { ...(product.metadata as Record<string, unknown>) }
+        : {};
+    const nextI18n = {
+      ...getProductI18nMap(prevMeta),
+      [contentLang]: {
+        title,
+        subtitle: subtitle?.trim() ? subtitle : undefined,
+        description: description?.trim() ? description : undefined,
+      },
+    };
+    const nullableMaterial = transformNullableFormData({ material });
 
     await mutateAsync(
       {
-        title,
         discountable,
         handle,
         status: status as HttpTypes.AdminProductStatus,
-        ...nullableData,
+        ...nullableMaterial,
+        metadata: {
+          ...prevMeta,
+          [TRAMELLE_PRODUCT_I18N_KEY]: nextI18n,
+        },
       },
       {
-        onSuccess: ({ product }) => {
+        onSuccess: ({ product: p }) => {
           toast.success(
-            t("products.edit.successToast", { title: product.title }),
+            t("products.edit.successToast", { title: p.title }),
           );
           handleSuccess();
         },
@@ -100,6 +190,14 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
               className="flex flex-col gap-y-4"
               data-testid="product-edit-form-main-fields"
             >
+              <Text size="small" className="text-ui-fg-muted">
+                {contentLang === DEFAULT_PRODUCT_CONTENT_LOCALE
+                  ? t(
+                      "tramelle.productEdit.canonicalHint",
+                      "Titolo, sottotitolo e descrizione: lingua italiana (campi principali del prodotto).",
+                    )
+                  : `Stai modificando la traduzione ${contentLang.toUpperCase()}: viene salvata in metadata.tramelle_i18n; i campi principali (it) non cambiano.`}
+              </Text>
               <Form.Field
                 control={form.control}
                 name="status"

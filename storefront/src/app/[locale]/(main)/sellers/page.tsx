@@ -71,7 +71,11 @@ export default async function SellersDirectoryPage({
   const page = Number.isFinite(pageRaw) && pageRaw >= 1 ? pageRaw : 1
   const offset = (page - 1) * PAGE_SIZE
 
-  const data = await listStoreSellers({ limit: PAGE_SIZE, offset })
+  const data = await listStoreSellers({
+    limit: PAGE_SIZE,
+    offset,
+    contentLocale: locale,
+  })
   const sellers = data?.sellers ?? []
   const total = data?.count ?? 0
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
@@ -98,15 +102,15 @@ export default async function SellersDirectoryPage({
       ) : sellers.length === 0 ? (
         <p className="text-sm text-neutral-600">
           {locale === "it"
-            ? "Nessun produttore disponibile al momento."
-            : "No producers available at the moment."}
+            ? "Nessun produttore con descrizione in italiano al momento."
+            : "No producers with a description in this language yet."}
         </p>
       ) : (
         <>
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {sellers.map((seller) => (
               <li key={seller.id}>
-                <SellerDirectoryCard seller={seller} />
+                <SellerDirectoryCard seller={seller} urlLocale={locale} />
               </li>
             ))}
           </ul>

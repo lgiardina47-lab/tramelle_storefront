@@ -26,8 +26,9 @@ export default defineConfig(({ mode }) => {
   /**
    * Add this to your .env file to specify the project to load admin extensions from.
    */
-  const MEDUSA_PROJECT = env.VITE_MEDUSA_PROJECT || null;
-  const sources = MEDUSA_PROJECT ? [MEDUSA_PROJECT] : [];
+  const MEDUSA_PROJECT =
+    env.VITE_MEDUSA_PROJECT || path.resolve(__dirname, '../backend');
+  const sources = [MEDUSA_PROJECT];
 
   return {
     plugins: [
@@ -69,6 +70,18 @@ export default defineConfig(({ mode }) => {
         'localhost',
         '.localhost',
       ],
-    }
+    },
+    preview: {
+      open: false,
+      port: Number(process.env.PORT) || ADMIN_PORT,
+      strictPort: true,
+      host: '0.0.0.0',
+      allowedHosts: [
+        'manage.tramelle.com',
+        'www.manage.tramelle.com',
+        'localhost',
+        '.localhost',
+      ],
+    },
   };
 });

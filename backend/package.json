@@ -13,12 +13,14 @@
     "medusa"
   ],
   "scripts": {
+    "postinstall": "patch-package",
     "build": "medusa build",
     "start": "medusa start",
     "dev": "medusa develop",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "repair:seller-auth": "medusa exec ./src/scripts/repair-seller-auth-identities.ts",
     "algolia:sync": "medusa exec ./src/scripts/sync-algolia.ts",
+    "export:categories": "medusa exec ./src/scripts/export-product-categories.ts",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
@@ -35,7 +37,8 @@
     "@mercurjs/payment-stripe-connect": "^1.5.3",
     "@mercurjs/requests": "^1.5.3",
     "@mercurjs/resend": "^1.5.3",
-    "@mercurjs/reviews": "^1.5.3"
+    "@mercurjs/reviews": "^1.5.3",
+    "medusa-blog-management": "^0.0.10"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.11.3",
@@ -46,6 +49,8 @@
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
     "jest": "^29.7.0",
+    "patch-package": "^8.0.1",
+    "postinstall-postinstall": "^2.1.0",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

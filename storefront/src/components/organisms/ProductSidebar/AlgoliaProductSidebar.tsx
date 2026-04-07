@@ -35,8 +35,12 @@ export const AlgoliaProductSidebar = ({
         const param = ALGOLIA_TO_LISTING_FACET_PARAM[attr]
         if (!param) return null
         const buckets = facets[attr]
-        if (!buckets || typeof buckets !== "object") return null
-        const entries = Object.entries(buckets)
+        if (!buckets || typeof buckets !== "object" || Array.isArray(buckets))
+          return null
+        const entries = Object.entries(buckets as Record<string, number>).filter(
+          ([label, count]) =>
+            String(label).trim().length > 0 && typeof count === "number"
+        )
         if (!entries.length) return null
         return { attr, param, entries }
       }).filter(Boolean) as {

@@ -15,6 +15,26 @@ type CategoryNode = {
   children?: CategoryNode[]
 }
 
+/** Riferimento livello per export cat1 / cat2 / cat3. */
+export type CatalogLevelRef = {
+  id: string
+  name: string
+  handle: string
+}
+
+/**
+ * Una riga per ogni categoria: primi tre livelli come cat1–cat3, percorso completo in `path_*`.
+ * Oltre tre livelli cat3 resta il terzo ancestor e `self` è la categoria corrente (più profonda).
+ */
+export type CatalogLevelRow = {
+  cat1: CatalogLevelRef | null
+  cat2: CatalogLevelRef | null
+  cat3: CatalogLevelRef | null
+  path: CatalogLevelRef[]
+  self: CatalogLevelRef
+  path_handles: string
+}
+
 function pickCategoryFields(c: ProductCategoryDTO): Omit<CategoryNode, "children"> {
   return {
     id: c.id,
@@ -68,10 +88,38 @@ function buildTree(
   })
 }
 
+function toLevelRef(c: Omit<CategoryNode, "children">): CatalogLevelRef {
+  return { id: c.id, name: c.name, handle: c.handle }
+}
+
+function buildCatalogLevelRows(
+  nodes: CategoryNode[],
+  ancestors: CatalogLevelRef[]
+): CatalogLevelRow[] {
+  const rows: CatalogLevelRow[] = []
+  for (const n of nodes) {
+    const self = toLevelRef(n)
+    const path = [...ancestors, self]
+    rows.push({
+      cat1: path[0] ?? null,
+      cat2: path[1] ?? null,
+      cat3: path[2] ?? null,
+      path,
+      self,
+      path_handles: path.map((p) => p.handle).join("/"),
+    })
+    if (n.children?.length) {
+      rows.push(...buildCatalogLevelRows(n.children, path))
+    }
+  }
+  return rows
+}
+
 /**
- * Esporta categorie prodotto (flat + albero con sottocategorie), sempre con `handle`.
+ * Esporta categorie prodotto: `flat`, `tree` e `catalog_cat1_cat2_cat3` (una riga per categoria con cat1–cat3, path completo).
  *
- *   EXPORT_CATEGORIES_OUT=/path/categories.json npx medusa exec ./src/scripts/export-product-categories.ts
+ *   EXPORT_CATEGORIES_OUT=/path/categories.json yarn export:categories
+ * oppure: npx medusa exec ./src/scripts/export-product-categories.ts
  */
 export default async function exportProductCategories({ container }: ExecArgs) {
   const logger = container.resolve(ContainerRegistrationKeys.LOGGER)
@@ -97,12 +145,15 @@ export default async function exportProductCategories({ container }: ExecArgs) {
 
   const childrenByParent = buildChildrenMap(categories)
   const tree = buildTree(childrenByParent, null)
+  const catalog_cat1_cat2_cat3 = buildCatalogLevelRows(tree, [])
 
   const payload = {
     exported_at: new Date().toISOString(),
     count: categories.length,
     flat,
     tree,
+    /** Una riga per categoria: cat1–cat3 (primi tre livelli), path completo in `path`. */
+    catalog_cat1_cat2_cat3,
   }
 
   const out = process.env.EXPORT_CATEGORIES_OUT?.trim()

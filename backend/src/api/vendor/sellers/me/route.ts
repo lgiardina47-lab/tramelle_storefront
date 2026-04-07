@@ -6,9 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { updateSellerWorkflow } from "@mercurjs/b2c-core/workflows"
 
 import { resolveVendorSellerId } from "../../../../lib/vendor-resolve-seller-id"
-import {
-  getSellerListingMetadata,
-} from "../../../../lib/seller-listing-metadata"
+import { getSellerListingMetadata } from "../../../../lib/seller-listing-metadata"
 
 const DEFAULT_VENDOR_ME_FIELDS = [
   "id",
@@ -108,12 +106,14 @@ export const POST = async (
   ).validatedBody
   const workflowPayload: Record<string, unknown> =
     body && typeof body === "object" ? { ...body } : {}
+  const { metadata: _dropMetadata, ...workflowInput } = workflowPayload
   await updateSellerWorkflow(req.scope).run({
     input: {
       id,
-      ...workflowPayload,
+      ...workflowInput,
     },
   })
+
   const fields = resolveVendorMeGraphFields(req)
   const { data: [seller] } = await query.graph(
     {

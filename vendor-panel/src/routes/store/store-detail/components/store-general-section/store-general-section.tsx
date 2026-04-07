@@ -10,6 +10,12 @@ import {
   getSellerLogoDisplayUrl,
   getSellerStorytellingGalleryUrls,
 } from "../../../../../utils/tramelle-partner-media"
+import {
+  DESCRIPTION_I18N_TAB_LABELS,
+  defaultDescriptionI18nFormValues,
+  TRAMELLE_DESCRIPTION_I18N_LOCALES,
+  type TramelleDescriptionI18nLocale,
+} from "../../../../../utils/tramelle-seller-description-i18n"
 import imagesConverter from "../../../../../utils/images-conventer"
 
 function BannerPreview({ url }: { url: string | null }) {
@@ -68,6 +74,53 @@ function StoreLogoWithFallback({ seller }: { seller: StoreVendor }) {
         setSrc("/logo.svg")
       }}
     />
+  )
+}
+
+function SellerDescriptionReadonly({
+  seller,
+}: {
+  seller: StoreVendor
+}) {
+  const base = defaultDescriptionI18nFormValues(
+    seller.metadata,
+    seller.description
+  )
+  const desc = (seller.description || "").trim()
+  const display: typeof base =
+    !(base.it || "").trim() && desc
+      ? { ...base, it: seller.description ?? "" }
+      : base
+
+  const [tab, setTab] = useState<TramelleDescriptionI18nLocale>("it")
+  const body = (display[tab] || "").trim()
+
+  return (
+    <div className="flex max-w-prose flex-col gap-2">
+      <div className="flex flex-wrap gap-1">
+        {TRAMELLE_DESCRIPTION_I18N_LOCALES.map((loc) => (
+          <button
+            key={loc}
+            type="button"
+            className={`text-xs font-medium rounded border px-2 py-0.5 transition-colors ${
+              tab === loc
+                ? "border-ui-border-interactive bg-ui-bg-interactive text-ui-fg-on-color"
+                : "border-ui-border-base bg-ui-bg-subtle text-ui-fg-subtle hover:bg-ui-bg-subtle-hover"
+            }`}
+            onClick={() => setTab(loc)}
+          >
+            {DESCRIPTION_I18N_TAB_LABELS[loc]}
+          </button>
+        ))}
+      </div>
+      <Text
+        size="small"
+        leading="compact"
+        className={body ? "whitespace-pre-wrap" : "text-ui-fg-muted"}
+      >
+        {body || "—"}
+      </Text>
+    </div>
   )
 }
 
@@ -175,13 +228,11 @@ export const StoreGeneralSection = ({ seller }: { seller: StoreVendor }) => {
           {seller.phone}
         </Text>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+      <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4 items-start">
         <Text size="small" leading="compact" weight="plus">
           Description
         </Text>
-        <Text size="small" leading="compact">
-          {seller.description || "-"}
-        </Text>
+        <SellerDescriptionReadonly seller={seller} />
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4 items-start gap-y-2">
         <Text size="small" leading="compact" weight="plus">

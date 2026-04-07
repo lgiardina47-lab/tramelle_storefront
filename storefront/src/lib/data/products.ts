@@ -9,27 +9,13 @@ import { SellerProps } from '@/types/seller';
 import { sdk } from '../config';
 import { ALGOLIA_LISTING_FACET_ATTRIBUTES } from '../helpers/algolia-facets';
 import { storefrontListingProductFields } from '../helpers/product-list-fields';
-import { isWholesaleCustomer } from '../helpers/wholesale-customer';
 import { getAuthHeaders } from './cookies';
 import { retrieveCustomer } from './customer';
-import { getRegion, retrieveRegion } from './regions';
-
-function redactVariantInventoryForRetail<
-  T extends HttpTypes.StoreProduct & { seller?: SellerProps }
->(products: T[], includeInventory: boolean): T[] {
-  if (includeInventory) {
-    return products;
-  }
-  return products.map(p => ({
-    ...p,
-    variants: p.variants?.map(v => {
-      const { inventory_quantity: _iq, ...rest } = v as HttpTypes.StoreProductVariant & {
-        inventory_quantity?: number | null;
-      };
-      return rest as typeof v;
-    })
-  })) as T[];
-}
+import {
+  getRegion,
+  resolveStorefrontLocaleToMedusaCountry,
+  retrieveRegion
+} from './regions';
 
 export const listProducts = async ({
   pageParam = 1,
@@ -67,9 +53,11 @@ export const listProducts = async ({
   const offset = (_pageParam - 1) * limit;
 
   let region: HttpTypes.StoreRegion | undefined | null;
+  let medusaCountryCode: string | undefined;
 
   if (countryCode) {
-    region = await getRegion(countryCode);
+    medusaCountryCode = await resolveStorefrontLocaleToMedusaCountry(countryCode);
+    region = await getRegion(medusaCountryCode);
   } else {
     region = await retrieveRegion(regionId!);
   }
@@ -85,9 +73,7 @@ export const listProducts = async ({
     ...(await getAuthHeaders())
   };
 
-  const customer = await retrieveCustomer();
-  const includeVariantInventory = isWholesaleCustomer(customer);
-  const listingFields = storefrontListingProductFields(includeVariantInventory);
+  const listingFields = storefrontListingProductFields();
 
   const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
 
@@ -98,7 +84,7 @@ export const listProducts = async ({
     }>(`/store/products`, {
       method: 'GET',
       query: {
-        country_code: countryCode,
+        country_code: medusaCountryCode ?? countryCode,
         category_id,
         collection_id,
         limit,
@@ -132,14 +118,9 @@ export const listProducts = async ({
         );
       });
 
-      const productsOut = redactVariantInventoryForRetail(
-        response,
-        includeVariantInventory
-      );
-
       return {
         response: {
-          products: productsOut,
+          products: response,
           count
         },
         nextPage: nextPage,
@@ -202,6 +183,7 @@ export const listProductsWithSort = async ({
     const headers = {
       ...(await getAuthHeaders())
     };
+    const medusaCc = await resolveStorefrontLocaleToMedusaCountry(countryCode);
     const pageResult = await sdk.client
       .fetch<{
         products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -211,7 +193,7 @@ export const listProductsWithSort = async ({
         query: {
           limit,
           offset,
-          country_code: countryCode
+          country_code: medusaCc
         },
         headers,
         cache: 'no-store'
@@ -306,7 +288,6 @@ export const searchProducts = async (params: {
   };
 
   const loggedCustomer = await retrieveCustomer();
-  const includeVariantInventory = isWholesaleCustomer(loggedCustomer);
 
   let customer_id = params.customer_id;
 
@@ -348,10 +329,7 @@ export const searchProducts = async (params: {
     .then(response => {
       return {
         ...response,
-        products: redactVariantInventoryForRetail(
-          response.products ?? [],
-          includeVariantInventory
-        )
+        products: response.products ?? []
       };
     })
     .catch(() => {
@@ -382,9 +360,10 @@ export async function fetchMedusaCatalogFallback(params: {
   const headers = {
     ...(await getAuthHeaders())
   };
-  const customer = await retrieveCustomer();
-  const includeVariantInventory = isWholesaleCustomer(customer);
-  const fields = storefrontListingProductFields(includeVariantInventory);
+  const fields = storefrontListingProductFields();
+  const medusaCc = await resolveStorefrontLocaleToMedusaCountry(
+    params.countryCode
+  );
 
   const medusa = await sdk.client.fetch<{
     products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -392,7 +371,7 @@ export async function fetchMedusaCatalogFallback(params: {
   }>(`/store/products`, {
     method: 'GET',
     query: {
-      country_code: params.countryCode,
+      country_code: medusaCc,
       ...(params.category_id ? { category_id: params.category_id } : {}),
       ...(params.collection_id ? { collection_id: params.collection_id } : {}),
       ...(params.region_id ? { region_id: params.region_id } : {}),
@@ -405,10 +384,5 @@ export async function fetchMedusaCatalogFallback(params: {
     cache: 'no-store'
   });
 
-  const products = redactVariantInventoryForRetail(
-    medusa.products ?? [],
-    includeVariantInventory
-  );
-
-  return { products, count: medusa.count ?? 0 };
+  return { products: medusa.products ?? [], count: medusa.count ?? 0 };
 }

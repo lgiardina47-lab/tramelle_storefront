@@ -1,7 +1,10 @@
+"use client"
+
 import { SellerProps } from "@/types/seller"
 import { SellerReview } from "../SellerReview/SellerReview"
 import LocalizedClientLink from "../LocalizedLink/LocalizedLink"
 import { SellerInfoHeader } from "../SellerInfoHeader/SellerInfoHeader"
+import { useTranslations } from "next-intl"
 
 export const SellerInfo = ({
   seller,
@@ -14,6 +17,7 @@ export const SellerInfo = ({
   showArrow?: boolean
   bottomBorder?: boolean
 }) => {
+  const t = useTranslations("ProductSheet")
   const { photo, name, reviews } = seller
 
   const reviewCount = reviews
@@ -30,7 +34,10 @@ export const SellerInfo = ({
   return (
     <div className="flex flex-col w-full">
       {showArrow ? (
-        <LocalizedClientLink href={`/sellers/${seller.handle}`} aria-label={`View ${name} seller`}>
+        <LocalizedClientLink
+          href={`/sellers/${seller.handle}`}
+          aria-label={t("viewSellerAria", { name })}
+        >
           <SellerInfoHeader
             photo={photo}
             name={name}
@@ -52,7 +59,7 @@ export const SellerInfo = ({
       )}
       {!header && (
         <div className="flex flex-col gap-5 p-4">
-          <h3 className="heading-sm uppercase">Seller reviews</h3>
+          <h3 className="heading-sm uppercase">{t("sellerReviewsHeading")}</h3>
           {reviews
             ?.filter((rev) => rev !== null)
             .slice(-3)

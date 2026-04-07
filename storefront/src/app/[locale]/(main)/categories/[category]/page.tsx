@@ -5,6 +5,7 @@ import { Suspense } from "react"
 import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
 import { SubcategoryRibbon } from "@/components/molecules/CategoryNavbar/components/SubcategoryRibbon"
+import { CategoryBanner } from "@/components/molecules/CategoryBanner/CategoryBanner"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
 import { notFound } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
@@ -15,6 +16,7 @@ import { listProducts } from "@/lib/data/products"
 import { toHreflang } from "@/lib/helpers/hreflang"
 import {
   getIndexingRobots,
+  preferBackendProductSearchListing,
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
@@ -76,9 +78,6 @@ export async function generateMetadata({
     },
   }
 }
-
-const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
-const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
 
 async function Category({
   params,
@@ -162,6 +161,18 @@ async function Category({
 
       <h1 className="heading-xl uppercase">{category.name}</h1>
 
+      <CategoryBanner
+        name={category.name}
+        handle={category.handle}
+        imageUrl={
+          category.metadata &&
+          typeof (category.metadata as { image_url?: unknown }).image_url ===
+            "string"
+            ? (category.metadata as { image_url: string }).image_url
+            : null
+        }
+      />
+
       {category.category_children && category.category_children.length > 0 ? (
         <div className="mb-4 mt-1 lg:hidden">
           <SubcategoryRibbon
@@ -174,8 +185,8 @@ async function Category({
       ) : null}
 
       <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
-          <ProductListing category_id={category.id} showSidebar locale={locale} />
+        {bot || !preferBackendProductSearchListing() ? (
+          <ProductListing category_id={category.id} locale={locale} />
         ) : (
           <AlgoliaProductsListing
             category_id={category.id}

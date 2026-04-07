@@ -144,7 +144,8 @@
     "hide": "Nascondi",
     "export": "Esporta",
     "import": "Importa",
-    "cannotUndo": "Questa azione non può essere annullata"
+    "cannotUndo": "Questa azione non può essere annullata",
+    "retry": "Retry"
   },
   "operators": {
     "in": "In"
@@ -313,7 +314,9 @@
       "lastTwelveMonths": "Ultimi 12 mesi",
       "custom": "Personalizzato",
       "from": "Da",
-      "to": "A"
+      "to": "A",
+      "starting": "Starting",
+      "ending": "Ending"
     },
     "compare": {
       "lessThan": "Meno di",
@@ -330,7 +333,16 @@
       "true": "Vero",
       "false": "Falso"
     },
-    "addFilter": "Aggiungi filtro"
+    "addFilter": "Aggiungi filtro",
+    "sortLabel": "Sort",
+    "filterLabel": "Filter",
+    "searchLabel": "Search",
+    "sorting": {
+      "alphabeticallyAsc": "A to Z",
+      "alphabeticallyDesc": "Z to A",
+      "dateAsc": "Newest first",
+      "dateDesc": "Oldest first"
+    }
   },
   "errorBoundary": {
     "badRequestTitle": "400 - Richiesta non valida",
@@ -392,7 +404,8 @@
   "products": {
     "domain": "Prodotti",
     "list": {
-      "noRecordsMessage": "Crea il tuo primo prodotto per iniziare a vendere."
+      "noRecordsMessage": "Crea il tuo primo prodotto per iniziare a vendere.",
+      "noRecordsTitle": "No products yet"
     },
     "edit": {
       "header": "Modifica Prodotto",
@@ -491,7 +504,12 @@
         "heading": "Nessun risultato",
         "description": "Nessuna variante corrisponde ai criteri di filtro correnti."
       },
-      "useFormatsTable": "Usa la sezione \"Formati e prezzi\" sopra per aggiungere i formati. Le varianti vengono create automaticamente."
+      "useFormatsTable": "Usa la sezione \"Formati e prezzi\" sopra per aggiungere i formati. Le varianti vengono create automaticamente.",
+      "editStocksAndPrices": {
+        "header": "Edit stock levels & prices",
+        "description": "Edit the stock levels and prices for the product variants.",
+        "successToast": "Stock levels and prices were successfully updated."
+      }
     },
     "formats": {
       "title": "Formati e prezzi",
@@ -520,7 +538,28 @@
       "addTier": "+ Aggiungi scaglione",
       "colTierMin": "Qtà min",
       "colTierPrice": "Prezzo unitario (€)",
-      "tierHint": "Scaglioni aggiuntivi da 2 pezzi in su. Colonna retail = prezzo da 1 pezzo."
+      "tierHint": "Scaglioni aggiuntivi da 2 pezzi in su. Colonna retail = prezzo da 1 pezzo.",
+      "colListPrice": "List price (€)",
+      "colDiscountPct": "Discount %",
+      "colEffectivePrice": "Effective price",
+      "colB2cVisible": "Storefront visibility",
+      "visibleOn": "Visible on B2C",
+      "visibleOff": "Hidden on B2C",
+      "sectionB2c": "B2C",
+      "sectionB2b": "B2B",
+      "sectionB2cShort": "List, discount, storefront, stock.",
+      "sectionB2bShort": "Same variant as B2C: tiers & carton.",
+      "accordionB2cTitle": "B2C — Public pricing",
+      "accordionB2cHint": "Variant name comes from pack size (e.g. 500 g). Set list price, optional discount, storefront visibility and stock.",
+      "accordionB2bTitle": "B2B — Reseller pricing",
+      "accordionB2bHint": "Same variant label as B2C. Add wholesale tiers and optional display labels; minimum quantity drives the price rule.",
+      "b2bVariantLabel": "Variant (same as B2C)",
+      "colLayerLabel": "B2B format",
+      "colQtyUnit": "Qty × unit",
+      "colMinOrderLabel": "Min. order (label)",
+      "layerPlaceholder": "e.g. Single",
+      "qtyUnitPlaceholder": "e.g. 12 pcs",
+      "minOrderPlaceholder": "e.g. 1 carton"
     },
     "attributes": "Attributi",
     "editAttributes": "Modifica Attributi",
@@ -633,6 +672,10 @@
       },
       "hs_code": {
         "label": "Codice HS"
+      },
+      "shipping_profile": {
+        "label": "Shipping profile",
+        "hint": "Connect the product to a shipping profile"
       }
     },
     "variant": {
@@ -709,6 +752,35 @@
           "header": "Impossibile eliminare il prodotto"
         }
       }
+    },
+    "stock": {
+      "heading": "Manage product stock levels and locations",
+      "description": "Update the stocked inventory levels for all of the product's variants.",
+      "loading": "Hang on this may take a moment...",
+      "tooltips": {
+        "alreadyManaged": "This inventory item is already editable under {{title}}.",
+        "alreadyManagedWithSku": "This inventory item is already editable under {{title}} ({{sku}})."
+      }
+    },
+    "shippingProfile": {
+      "header": "Shipping configuration",
+      "edit": {
+        "header": "Shipping Configuration",
+        "toasts": {
+          "success": "Successfully updated the shipping profile for {{title}}."
+        }
+      },
+      "create": {
+        "errors": {
+          "required": "Shipping profile is required"
+        }
+      }
+    },
+    "bulkDelete": {
+      "title": "Delete Products",
+      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
+      "success": "Successfully deleted {{count}} product(s).",
+      "error": "Failed to delete products"
     }
   },
   "collections": {
@@ -848,6 +920,21 @@
       "updateLocations": "Posizioni aggiornate con successo.",
       "updateLevel": "Livello di inventario aggiornato con successo.",
       "updateItem": "Articolo di inventario aggiornato con successo."
+    },
+    "adjustInventory": {
+      "errors": {
+        "stockedQuantity": "Stocked quantity cannot be updated to less than the reserved quantity of {{quantity}}."
+      }
+    },
+    "stock": {
+      "title": "Update inventory levels",
+      "description": "Update the stocked inventory levels for the selected inventory items.",
+      "action": "Edit stock levels",
+      "placeholder": "Not enabled",
+      "disablePrompt_one": "You are about to disable {{count}} location level. This action cannot be undone.",
+      "disablePrompt_other": "You are about to disable {{count}} location levels. This action cannot be undone.",
+      "disabledToggleTooltip": "Cannot disable: clear incoming and/or reserved quantity before disabling.",
+      "successToast": "Inventory levels updated successfully."
     }
   },
   "giftCards": {
@@ -952,6 +1039,16 @@
       },
       "list": {
         "noRecordsMessage": "Questo gruppo non ha clienti."
+      }
+    },
+    "list": {
+      "empty": {
+        "heading": "No customer groups",
+        "description": "There are no customer groups to display."
+      },
+      "filtered": {
+        "heading": "No results",
+        "description": "No customer groups match the current filter criteria."
       }
     }
   },
@@ -1238,7 +1335,9 @@
       "error": {
         "wrongQuantity": "Solo un articolo è disponibile per l'adempimento",
         "wrongQuantity_other": "La quantità deve essere un numero compreso tra 1 e {{number}}",
-        "noItems": "Nessun articolo da adempiere."
+        "noItems": "Nessun articolo da adempiere.",
+        "noShippingOption": "Shipping option is required",
+        "noLocation": "Location is required"
       },
       "status": {
         "notFulfilled": "Non adempiuto",
@@ -1257,11 +1356,15 @@
         "created": "Adempimento creato con successo",
         "canceled": "Adempimento annullato con successo",
         "fulfillmentShipped": "Impossibile annullare un adempimento già spedito",
-        "fulfillmentDelivered": "Adempimento segnato come consegnato con successo"
+        "fulfillmentDelivered": "Adempimento segnato come consegnato con successo",
+        "fulfillmentPickedUp": "Fulfillment marked as picked up successfully"
       },
       "trackingLabel": "Tracciamento",
       "shippingFromLabel": "Spedizione da",
-      "itemsLabel": "Articoli"
+      "itemsLabel": "Articoli",
+      "differentOptionSelected": "The selected shipping option is different from the one selected by the customer.",
+      "disabledItemTooltip": "The shipping option you have selected don’t allow fulfillment of this item",
+      "markAsPickedUp": "Mark as picked up"
     },
     "refund": {
       "title": "Crea Rimborso",
@@ -1350,6 +1453,11 @@
           "requested": "Richiesta di trasferimento ordine #{{transferId}} richiesta",
           "confirmed": "Richiesta di trasferimento ordine #{{transferId}} confermata",
           "declined": "Richiesta di trasferimento ordine #{{transferId}} rifiutata"
+        },
+        "update_order": {
+          "shipping_address": "Shipping address updated",
+          "billing_address": "Billing address updated",
+          "email": "Email updated"
         }
       }
     },
@@ -1357,6 +1465,30 @@
       "displayId": "ID di visualizzazione",
       "refundableAmount": "Importo rimborsabile",
       "returnableQuantity": "Quantità restituibile"
+    },
+    "orderCanceled": "Order canceled successfully",
+    "status": {
+      "not_paid": "Not paid",
+      "pending": "Pending",
+      "completed": "Completed",
+      "draft": "Draft",
+      "archived": "Archived",
+      "canceled": "Canceled",
+      "requires_action": "Requires action"
+    },
+    "edit": {
+      "email": {
+        "title": "Edit email",
+        "requestSuccess": "Order email updated to {{email}}."
+      },
+      "shippingAddress": {
+        "title": "Edit shipping address",
+        "requestSuccess": "Order shipping address updated."
+      },
+      "billingAddress": {
+        "title": "Edit billing address",
+        "requestSuccess": "Order billing address updated."
+      }
     }
   },
   "draftOrders": {
@@ -1459,7 +1591,8 @@
       "connectedTo": "Connesso a {{count}} di {{total}} canali di vendita",
       "noChannels": "La posizione non è connessa a nessun canale di vendita.",
       "action": "Collega canali di vendita",
-      "successToast": "I canali di vendita sono stati aggiornati con successo."
+      "successToast": "I canali di vendita sono stati aggiornati con successo.",
+      "hint": "Manage the sales channels that are connected to this location."
     },
     "shippingOptions": {
       "create": {
@@ -1479,7 +1612,13 @@
           "details": "Dettagli",
           "prices": "Prezzi"
         },
-        "action": "Crea opzione"
+        "action": "Crea opzione",
+        "pickup": {
+          "header": "Create Pickup Option for {{zone}}",
+          "hint": "Create a new pickup option to define how products are picked up from this location.",
+          "label": "Pickup options",
+          "successToast": "Pickup option {{name}} was successfully created."
+        }
       },
       "delete": {
         "confirmation": "Stai per eliminare l'opzione di spedizione {{name}}. Questa azione non può essere annullata.",
@@ -1498,7 +1637,9 @@
           "shipping_one": "{{count}} opzione di spedizione",
           "shipping_other": "{{count}} opzioni di spedizione",
           "returns_one": "{{count}} opzione di reso",
-          "returns_other": "{{count}} opzioni di reso"
+          "returns_other": "{{count}} opzioni di reso",
+          "pickup_one": "{{count}} pickup option",
+          "pickup_other": "{{count}} pickup options"
         },
         "priceType": {
           "label": "Tipo di prezzo",
@@ -1518,7 +1659,43 @@
           "hint": "Se i clienti possono utilizzare questa opzione durante il checkout."
         },
         "provider": "Fornitore di adempimento",
-        "profile": "Profilo di spedizione"
+        "profile": "Profilo di spedizione",
+        "fulfillmentOption": "Fulfillment option"
+      },
+      "conditionalPrices": {
+        "header": "Conditional Prices for {{name}}",
+        "description": "Manage the conditional prices for this shipping option based on the cart item total.",
+        "attributes": {
+          "cartItemTotal": "Cart item total"
+        },
+        "summaries": {
+          "range": "If <0>{{attribute}}</0> is between <1>{{gte}}</1> and <2>{{lte}}</2>",
+          "greaterThan": "If <0>{{attribute}}</0> ≥ <1>{{gte}}</1>",
+          "lessThan": "If <0>{{attribute}}</0> ≤ <1>{{lte}}</1>"
+        },
+        "actions": {
+          "addPrice": "Add price",
+          "manageConditionalPrices": "Manage conditional prices"
+        },
+        "rules": {
+          "amount": "Shipping option price",
+          "gte": "Minimum cart item total",
+          "lte": "Maximum cart item total"
+        },
+        "customRules": {
+          "label": "Custom rules",
+          "tooltip": "This conditional price has rules that cannot be managed in the dashboard.",
+          "eq": "Cart item total must equal",
+          "gt": "Cart item total must be greater than",
+          "lt": "Cart item total must be less than"
+        },
+        "errors": {
+          "amountRequired": "Shipping option price is required",
+          "minOrMaxRequired": "At least one of minimum or maximum cart item total must be provided",
+          "minGreaterThanMax": "Minimum cart item total must be less than or equal to maximum cart item total",
+          "duplicateAmount": "Shipping option price must be unique for each condition",
+          "overlappingConditions": "Conditions must be unique across all price rules"
+        }
       }
     },
     "serviceZones": {
@@ -1546,6 +1723,11 @@
       "fields": {
         "noRecords": "Non ci sono zone di servizio a cui aggiungere opzioni di spedizione.",
         "tip": "Una zona di servizio è una raccolta di zone o aree geografiche. Viene utilizzata per limitare le opzioni di spedizione disponibili a un insieme definito di posizioni."
+      }
+    },
+    "pickupOptions": {
+      "edit": {
+        "header": "Edit Pickup Option"
       }
     }
   },
@@ -1898,7 +2080,19 @@
         }
       },
       "status": {
-        "title": "Stato"
+        "label": "Stato",
+        "draft": {
+          "title": "Draft",
+          "description": "Customers will not be able to use the code yet"
+        },
+        "active": {
+          "title": "Active",
+          "description": "Customers will be able to use the code"
+        },
+        "inactive": {
+          "title": "Inactive",
+          "description": "Customers will no longer be able to use the code"
+        }
       },
       "method": {
         "label": "Metodo",
@@ -2200,7 +2394,18 @@
       "member": "Membro"
     },
     "deleteUserWarning": "Stai per eliminare l'utente {{name}}. Questa azione non può essere annullata.",
-    "invite": "Invita"
+    "invite": "Invita",
+    "list": {
+      "empty": {
+        "heading": "No users found",
+        "description": "Once a user has been invited, they will appear here."
+      },
+      "filtered": {
+        "heading": "No results",
+        "description": "No users match the current filter criteria."
+      }
+    },
+    "deleteUserSuccess": "User {{name}} deleted successfully"
   },
   "store": {
     "domain": "Negozio",
@@ -2226,7 +2431,9 @@
       "currenciesUpdated": "Valute aggiornate con successo",
       "currenciesRemoved": "Valute rimosse dal negozio con successo",
       "updatedTaxInclusivitySuccessfully": "Inclusività fiscale aggiornata con successo"
-    }
+    },
+    "defaultSalesChannel": "Default sales channel",
+    "defaultLocation": "Default location"
   },
   "regions": {
     "domain": "Regioni",
@@ -2377,6 +2584,19 @@
           "noRecordsMessage": "Crea prima un prodotto."
         }
       }
+    },
+    "list": {
+      "empty": {
+        "heading": "No sales channels found",
+        "description": "Once a sales channel has been created, it will appear here."
+      },
+      "filtered": {
+        "heading": "No results",
+        "description": "No sales channels match the current filter criteria."
+      }
+    },
+    "tooltip": {
+      "cannotDeleteDefault": "Cannot delete default sales channel"
     }
   },
   "apiKeyManagement": {
@@ -2498,7 +2718,8 @@
   "login": {
     "forgotPassword": "Hai dimenticato la password? - <0>Reimposta</0>",
     "title": "Benvenuto in Medusa",
-    "hint": "Accedi per accedere all'area account"
+    "hint": "Accedi per accedere all'area account",
+    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
   },
   "invite": {
     "title": "Benvenuto in Medusa",
@@ -2646,15 +2867,21 @@
     "expired": "Scaduto",
     "active": "Attivo",
     "enabled": "Abilitato",
-    "disabled": "Disabilitato"
+    "disabled": "Disabilitato",
+    "inactive": "Inactive",
+    "draft": "Draft"
   },
   "labels": {
-    "productVariant": "Variante di Prodotto",
+    "productVariant": "Variante del prodotto",
     "prices": "Prezzi",
     "available": "Disponibile",
-    "inStock": "In magazzino",
+    "inStock": "Disponibile",
     "added": "Aggiunto",
-    "removed": "Rimosso"
+    "removed": "Rimosso",
+    "from": "Da",
+    "to": "A",
+    "beaware": "Attenzione",
+    "loading": "Caricamento in corso"
   },
   "fields": {
     "amount": "Importo",
@@ -2813,7 +3040,10 @@
     "startDate": "Data di inizio",
     "endDate": "Data di fine",
     "draft": "Bozza",
-    "values": "Valori"
+    "values": "Valori",
+    "by": "By",
+    "currentPriceTemplate": "Current price {{regionOrCurrency}}",
+    "stockTemplate": "Stock Location {{stockLocation}}"
   },
   "dateTime": {
     "years_one": "Anno",

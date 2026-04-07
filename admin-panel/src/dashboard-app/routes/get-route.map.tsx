@@ -1,5 +1,6 @@
 import type { HttpTypes } from "@medusajs/types";
 
+import blogAdmin from "medusa-blog-management/admin";
 import { t } from "i18next";
 import { Outlet, type RouteObject, type UIMatch } from "react-router-dom";
 
@@ -11,6 +12,12 @@ import { ErrorBoundary } from "@components/utilities/error-boundary";
 
 import { TaxRegionDetailBreadcrumb } from "@routes/tax-regions/tax-region-detail/breadcrumb";
 import { taxRegionLoader } from "@routes/tax-regions/tax-region-detail/loader";
+
+import { createRouteMap, getRouteExtensions } from "./utils";
+
+const blogExtensionRoutes = createRouteMap(
+  getRouteExtensions(blogAdmin.routeModule, "core"),
+);
 
 export function getRouteMap({
   settingsRoutes,
@@ -1023,6 +1030,7 @@ export function getRouteMap({
               ],
             },
             ...coreRoutes,
+            ...blogExtensionRoutes,
           ],
         },
       ],

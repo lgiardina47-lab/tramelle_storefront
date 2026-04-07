@@ -1,0 +1,78 @@
+{
+  "Product": {
+    "notAvailableInRegion": "Not available in your region",
+    "addToCart": "ADD TO CART",
+    "outOfStock": "OUT OF STOCK",
+    "notAvailableInRegionButton": "NOT AVAILABLE IN YOUR REGION",
+    "addToCartErrorTitle": "Error adding to cart",
+    "addToCartErrorDescription": "Some variant does not have the required inventory",
+    "wholesaleInvalidQtyTitle": "Invalid quantity",
+    "wholesaleInvalidQtyDescription": "For this B2B product order multiples of {pieces} pieces (carton)."
+  },
+  "Nav": {
+    "utilityAria": "Utility links",
+    "producers": "Producers",
+    "recipes": "Recipes",
+    "giftCards": "Gift cards",
+    "b2bServices": "Business services",
+    "howItWorks": "How it works",
+    "contact": "Contact us",
+    "languageSwitcherAria": "Language and country"
+  },
+  "Account": {
+    "sectionTitle": "Your account",
+    "orders": "Orders",
+    "messages": "Messages",
+    "returns": "Returns",
+    "addresses": "Addresses",
+    "reviews": "Reviews",
+    "wishlist": "Wishlist",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "profileLinkAria": "Go to user profile"
+  },
+  "Header": {
+    "wishlist": "Wishlist",
+    "wishlistAria": "Wishlist",
+    "logoAlt": "Tramelle — gourmet marketplace"
+  },
+  "Hero": {
+    "heading": "Gourmet finds, delivered with care",
+    "paragraph": "Discover curated specialties, small-batch producers, and pantry gems on Tramelle — your gourmet marketplace.",
+    "buyNow": "Buy now",
+    "sellNow": "Sell now"
+  },
+  "Home": {
+    "trending": "Trending listings",
+    "shopByCategory": "SHOP BY CATEGORY"
+  },
+  "Cart": {
+    "goToCartAria": "Go to cart",
+    "title": "Shopping cart",
+    "items": "Items",
+    "delivery": "Delivery",
+    "tax": "Tax",
+    "total": "Total",
+    "goToCart": "Go to cart",
+    "emptyTitle": "Your shopping cart is empty",
+    "emptyHint": "Looking for inspiration?",
+    "exploreCategories": "Browse categories"
+  },
+  "ProductSheet": {
+    "detailsHeading": "Product details",
+    "additionalAttributesHeading": "Additional attributes",
+    "shippingHeading": "Shipping & returns",
+    "shippingPoint1": "Shipping options, delivery times and costs depend on the seller and destination; you’ll see what’s available at checkout.",
+    "shippingPoint2": "Returns follow applicable law (e.g. 14-day withdrawal in the EU, with exceptions for perishable or hygiene-sealed goods). Check the seller’s terms for details.",
+    "sellerReviewsHeading": "Seller reviews",
+    "seeMore": "See more",
+    "reviewsCount": "{count, plural, =0 {No reviews yet} one {# review} other {# reviews}}",
+    "viewSellerAria": "View seller {name}",
+    "moreFromSeller": "More from this seller",
+    "postedPrefix": "Posted:",
+    "reportListing": "Report listing",
+    "reportListingModalHeading": "Report listing"
+  }
+}

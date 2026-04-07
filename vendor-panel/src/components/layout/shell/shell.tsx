@@ -17,6 +17,7 @@ import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
 import { ProgressBar } from "../../common/progress-bar"
 import { Notifications } from "../notifications"
+import { VendorLanguageMenu } from "../../utilities/vendor-language-menu"
 import { AdminChat } from "../admin-chat"
 import { useMe } from "../../../hooks/api"
 
@@ -211,6 +212,7 @@ const Topbar = () => {
         <Breadcrumbs />
       </div>
       <div className="flex items-center justify-end gap-x-3">
+        <VendorLanguageMenu />
         <AdminChat />
         <Notifications />
       </div>

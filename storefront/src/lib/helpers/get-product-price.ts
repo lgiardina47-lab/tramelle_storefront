@@ -1,6 +1,23 @@
 import { HttpTypes } from "@medusajs/types"
 import { getPercentageDiff } from "./get-precentage-diff"
 import { convertToLocale, minorUnitsToMajor } from "./money"
+import { isOrphanStoreVariant } from "./product-orphan-variants"
+import { isVariantVisibleB2c } from "./tramelle-variant-metadata"
+
+function variantsForCatalog(
+  product: HttpTypes.StoreProduct,
+  restrictToB2cVisible: boolean
+) {
+  let vs = product.variants || []
+  vs = vs.filter((v: { metadata?: unknown; options?: unknown }) => {
+    if (isOrphanStoreVariant(product, v)) return false
+    return true
+  })
+  if (!restrictToB2cVisible) return vs
+  return vs.filter((v: { metadata?: unknown }) =>
+    isVariantVisibleB2c(v.metadata as Record<string, unknown> | undefined)
+  )
+}
 
 export const getPricesForVariant = (variant: any) => {
   if (
@@ -88,20 +105,26 @@ export const getPricesForVariant = (variant: any) => {
 export function getProductPrice({
   product,
   variantId,
+  restrictToB2cVisible = false,
 }: {
   product: HttpTypes.StoreProduct
   variantId?: string
+  /** Se true, ignora varianti con metadata `tramelle_b2c_visible: false` (solo catalogo retail). */
+  restrictToB2cVisible?: boolean
 }) {
   if (!product || !product.id) {
     throw new Error("No product provided")
   }
 
+  const catalogVariants = () => variantsForCatalog(product, restrictToB2cVisible)
+
   const cheapestVariant = () => {
-    if (!product || !product.variants?.length) {
+    const variants = catalogVariants()
+    if (!variants.length) {
       return null
     }
 
-    return product.variants
+    return variants
       .filter((v: any) => !!v.calculated_price)
       .sort((a: any, b: any) => {
         return a.calculated_price.calculated_amount_with_tax &&
@@ -113,7 +136,8 @@ export function getProductPrice({
   }
 
   const cheapestPrice = () => {
-    if (!product || !product.variants?.length) {
+    const variants = catalogVariants()
+    if (!variants.length) {
       return null
     }
 
@@ -127,7 +151,8 @@ export function getProductPrice({
       return null
     }
 
-    const variant: any = product.variants?.find(
+    const pool = catalogVariants()
+    const variant: any = pool.find(
       (v: any) => v.id === variantId || v.sku === variantId
     )
 

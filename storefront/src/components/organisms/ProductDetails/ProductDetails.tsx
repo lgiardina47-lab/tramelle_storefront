@@ -13,6 +13,7 @@ import { AdditionalAttributeProps } from "@/types/product"
 import { SellerProps } from "@/types/seller"
 import { Wishlist } from "@/types/wishlist"
 import { HttpTypes } from "@medusajs/types"
+import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
 
 export const ProductDetails = async ({
   product,
@@ -31,6 +32,8 @@ export const ProductDetails = async ({
     wishlist = await getUserWishlists({countryCode: locale})
   }
 
+  const localized = getLocalizedProductContentForCountry(product, locale)
+
   return (
     <div>
       <ProductDetailsHeader
@@ -38,8 +41,9 @@ export const ProductDetails = async ({
         locale={locale}
         user={user}
         wishlist={wishlist}
+        displayTitle={localized.title}
       />
-      <ProductPageDetails details={product?.description || ""} />
+      <ProductPageDetails details={localized.description || ""} />
       <ProductAdditionalAttributes
         attributes={product?.attribute_values || []}
       />

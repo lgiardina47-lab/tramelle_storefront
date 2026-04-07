@@ -16,6 +16,7 @@ import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
 import { ProgressBar } from "../../common/progress-bar"
+import { AdminLanguageMenu } from "../../utilities/admin-language-menu"
 import { Notifications } from "../notifications"
 
 export const Shell = ({ children }: PropsWithChildren) => {
@@ -199,6 +200,7 @@ const Topbar = () => {
         <Breadcrumbs />
       </div>
       <div className="flex items-center justify-end gap-x-3">
+        <AdminLanguageMenu />
         <Notifications />
       </div>
     </div>

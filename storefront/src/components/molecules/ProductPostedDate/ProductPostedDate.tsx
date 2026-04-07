@@ -1,18 +1,34 @@
-import { formatDistanceToNow } from 'date-fns';
+"use client"
 
-export const ProductPostedDate = async ({
+import { de, enUS, es, fr, it } from "date-fns/locale"
+import { formatDistanceToNow } from "date-fns"
+import type { Locale } from "date-fns"
+import { useLocale, useTranslations } from "next-intl"
+
+const dfLocales: Record<string, Locale> = {
+  it,
+  en: enUS,
+  de,
+  fr,
+  es,
+}
+
+export const ProductPostedDate = ({
   posted,
 }: {
-  posted: string | null;
+  posted: string | null
 }) => {
-  const postedDate = formatDistanceToNow(
-    new Date(posted || ''),
-    { addSuffix: true }
-  );
+  const locale = useLocale()
+  const t = useTranslations("ProductSheet")
+  const dfLoc = dfLocales[locale] ?? enUS
+  const postedDate = formatDistanceToNow(new Date(posted || ""), {
+    addSuffix: true,
+    locale: dfLoc,
+  })
 
   return (
-    <p className='label-md text-secondary'>
-      Posted: {postedDate}
+    <p className="label-md text-secondary">
+      {t("postedPrefix")} {postedDate}
     </p>
-  );
-};
+  )
+}

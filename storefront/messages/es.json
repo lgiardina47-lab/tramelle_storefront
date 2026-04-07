@@ -1,0 +1,78 @@
+{
+  "Product": {
+    "notAvailableInRegion": "No disponible en tu región",
+    "addToCart": "AÑADIR AL CARRITO",
+    "outOfStock": "AGOTADO",
+    "notAvailableInRegionButton": "NO DISPONIBLE EN TU REGIÓN",
+    "addToCartErrorTitle": "Error al añadir al carrito",
+    "addToCartErrorDescription": "Alguna variante no tiene el stock necesario",
+    "wholesaleInvalidQtyTitle": "Cantidad no válida",
+    "wholesaleInvalidQtyDescription": "Para este producto B2B, pide múltiplos de {pieces} unidades (caja)."
+  },
+  "Nav": {
+    "utilityAria": "Enlaces útiles",
+    "producers": "Productores",
+    "recipes": "Recetas",
+    "giftCards": "Tarjetas regalo",
+    "b2bServices": "Servicios para empresas",
+    "howItWorks": "Cómo funciona",
+    "contact": "Contacto",
+    "languageSwitcherAria": "Idioma y país"
+  },
+  "Account": {
+    "sectionTitle": "Tu cuenta",
+    "orders": "Pedidos",
+    "messages": "Mensajes",
+    "returns": "Devoluciones",
+    "addresses": "Direcciones",
+    "reviews": "Reseñas",
+    "wishlist": "Lista de deseos",
+    "settings": "Ajustes",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse",
+    "profileLinkAria": "Ir al perfil"
+  },
+  "Header": {
+    "wishlist": "Favoritos",
+    "wishlistAria": "Favoritos",
+    "logoAlt": "Tramelle — marketplace gourmet"
+  },
+  "Hero": {
+    "heading": "Descubrimientos gourmet, entregados con mimo",
+    "paragraph": "Especialidades seleccionadas, pequeños productores y tesoros de despensa en Tramelle — tu marketplace gourmet.",
+    "buyNow": "Comprar ahora",
+    "sellNow": "Vender ahora"
+  },
+  "Home": {
+    "trending": "Destacados",
+    "shopByCategory": "COMPRAR POR CATEGORÍA"
+  },
+  "Cart": {
+    "goToCartAria": "Ir al carrito",
+    "title": "Carrito",
+    "items": "Artículos",
+    "delivery": "Entrega",
+    "tax": "IVA",
+    "total": "Total",
+    "goToCart": "Ver carrito",
+    "emptyTitle": "Tu carrito está vacío",
+    "emptyHint": "¿Buscas inspiración?",
+    "exploreCategories": "Explorar categorías"
+  },
+  "ProductSheet": {
+    "detailsHeading": "Detalles del producto",
+    "additionalAttributesHeading": "Atributos adicionales",
+    "shippingHeading": "Envío y devoluciones",
+    "shippingPoint1": "Las opciones de envío, plazos y costes dependen del vendedor y del destino; las verás al finalizar la compra.",
+    "shippingPoint2": "El derecho de desistimiento se rige por la normativa aplicable (p. ej., 14 días en la UE, con excepciones para productos perecederos o sellados por higiene). Consulta las condiciones del vendedor.",
+    "sellerReviewsHeading": "Reseñas del vendedor",
+    "seeMore": "Ver más",
+    "reviewsCount": "{count, plural, =0 {Sin reseñas} one {# reseña} other {# reseñas}}",
+    "viewSellerAria": "Ver vendedor {name}",
+    "moreFromSeller": "Más de este vendedor",
+    "postedPrefix": "Publicado:",
+    "reportListing": "Denunciar anuncio",
+    "reportListingModalHeading": "Denunciar anuncio"
+  }
+}

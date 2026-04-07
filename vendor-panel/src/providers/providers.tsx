@@ -8,6 +8,7 @@ import {
   DashboardExtensionProvider,
 } from "../extensions"
 import { queryClient } from "../lib/query-client"
+import { VendorAccountLocaleSync } from "../components/utilities/vendor-account-locale-sync"
 import { I18nProvider } from "./i18n-provider"
 import { ThemeProvider } from "./theme-provider"
 
@@ -23,7 +24,10 @@ export const Providers = ({ api, children }: ProvidersProps) => {
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
               <I18n />
-              <I18nProvider>{children}</I18nProvider>
+              <I18nProvider>
+                <VendorAccountLocaleSync />
+                {children}
+              </I18nProvider>
               <Toaster />
             </ThemeProvider>
           </QueryClientProvider>

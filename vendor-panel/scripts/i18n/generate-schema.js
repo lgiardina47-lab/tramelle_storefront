@@ -3,7 +3,7 @@ const path = require("path")
 const prettier = require("prettier")
 
 const translationsDir = path.join(__dirname, "../../src/i18n/translations")
-const enPath = path.join(translationsDir, "en.json")
+const itPath = path.join(translationsDir, "it.json")
 const schemaPath = path.join(translationsDir, "$schema.json")
 
 function generateSchemaFromObject(obj) {
@@ -35,12 +35,12 @@ function generateSchemaFromObject(obj) {
 }
 
 async function outputSchema() {
-  const enContent = await fs.readFile(enPath, "utf-8")
-  const enJson = JSON.parse(enContent)
+  const itContent = await fs.readFile(itPath, "utf-8")
+  const itJson = JSON.parse(itContent)
 
   const schema = {
     $schema: "http://json-schema.org/draft-07/schema#",
-    ...generateSchemaFromObject(enJson),
+    ...generateSchemaFromObject(itJson),
   }
 
   const formattedSchema = await prettier.format(

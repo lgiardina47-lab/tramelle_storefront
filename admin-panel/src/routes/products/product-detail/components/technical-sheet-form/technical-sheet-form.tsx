@@ -12,11 +12,13 @@ import {
   toast,
 } from "@medusajs/ui"
 import { useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { FormProvider, useForm } from "react-hook-form"
 import * as zod from "zod"
 
 import { Form } from "../../../../../components/common/form"
 import { useUpdateProduct } from "../../../../../hooks/api/products"
+import { normalizeContentLang, DEFAULT_PRODUCT_CONTENT_LOCALE } from "../../../../../lib/tramelle-product-i18n"
 import {
   PAIRING_ICON_OPTIONS,
   formValuesToTechnicalSheet,
@@ -49,6 +51,8 @@ type ProductTechnicalSheetFormProps = {
 }
 
 export const TechnicalSheetForm = ({ product }: ProductTechnicalSheetFormProps) => {
+  const { i18n } = useTranslation()
+  const contentLang = normalizeContentLang(i18n.language)
   const { mutateAsync, isPending } = useUpdateProduct(product.id)
 
   const form = useForm<TechnicalSheetFormValues>({
@@ -104,6 +108,12 @@ export const TechnicalSheetForm = ({ product }: ProductTechnicalSheetFormProps) 
           Dati editoriali e nutrizionali salvati in{" "}
           <code className="text-xs">metadata.technical_sheet</code> per il sito.
         </Text>
+        {contentLang !== DEFAULT_PRODUCT_CONTENT_LOCALE && (
+          <Text size="small" className="text-orange-600">
+            Lingua interfaccia {contentLang.toUpperCase()}: questa scheda è unica (campi non
+            separati per lingua); usa il selettore in alto per l’interfaccia, i dati restano condivisi.
+          </Text>
+        )}
       </div>
 
       <FormProvider {...form}>

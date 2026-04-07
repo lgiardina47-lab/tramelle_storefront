@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input, Textarea, toast } from "@medusajs/ui"
+import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -17,13 +17,20 @@ import {
 import { useCallback } from "react"
 import { uploadFilesQuery } from "../../../../../lib/client"
 import { HttpTypes } from "@medusajs/types"
+import { languages } from "../../../../../i18n/languages"
+import { TRAMELLE_VENDOR_LOCALE_SET } from "../../../../../i18n/tramelle-locales"
 
 type EditProfileProps = {
   user: TeamMemberProps
 }
 
+const panelLanguageOptions = languages.filter((l) =>
+  TRAMELLE_VENDOR_LOCALE_SET.has(l.code)
+)
+
 const EditProfileSchema = zod.object({
   name: zod.string().optional(),
+  ui_language: zod.string().min(2),
   media: zod.array(MediaSchema).optional(),
   phone: zod.string().optional(),
   bio: zod.string().optional(),
@@ -48,12 +55,25 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
 ]
 
 export const EditProfileForm = ({ user }: EditProfileProps) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { handleSuccess } = useRouteModal()
+
+  const savedUi =
+    (user.metadata &&
+      typeof user.metadata === "object" &&
+      "ui_locale" in user.metadata &&
+      String((user.metadata as { ui_locale?: unknown }).ui_locale || "")) ||
+    user.language ||
+    i18n.language ||
+    "it"
+  const initialUi = panelLanguageOptions.some((l) => l.code === savedUi)
+    ? savedUi
+    : panelLanguageOptions[0]?.code || "it"
 
   const form = useForm<zod.infer<typeof EditProfileSchema>>({
     defaultValues: {
       name: user.name ?? "",
+      ui_language: initialUi,
       phone: user.phone ?? "",
       bio: user.bio ?? "",
       media: [],
@@ -93,12 +113,24 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
       }
     }
 
+    const prevMeta =
+      user.metadata &&
+      typeof user.metadata === "object" &&
+      !Array.isArray(user.metadata)
+        ? { ...(user.metadata as Record<string, unknown>) }
+        : {}
+
     await mutateAsync(
       {
         name: values.name,
         photo: uploadedMedia[0]?.url || user.photo || "",
         phone: values.phone,
         bio: values.bio,
+        language: values.ui_language,
+        metadata: {
+          ...prevMeta,
+          ui_locale: values.ui_language,
+        },
       },
       {
         onError: (error) => {
@@ -107,6 +139,13 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
         },
       }
     )
+
+    await i18n.changeLanguage(values.ui_language)
+    try {
+      document.cookie = `lng=${values.ui_language};path=/;max-age=31536000;samesite=lax`
+    } catch {
+      /* ignore */
+    }
 
     toast.success(t("profile.toast.edit"))
     handleSuccess()
@@ -179,6 +218,37 @@ export const EditProfileForm = ({ user }: EditProfileProps) => {
                 )
               }}
             />
+            {panelLanguageOptions.length > 1 ? (
+              <Form.Field
+                control={form.control}
+                name="ui_language"
+                render={({ field: { onChange, ref, value } }) => (
+                  <Form.Item>
+                    <Form.Label>{t("profile.fields.languageLabel")}</Form.Label>
+                    <Text size="small" className="text-ui-fg-muted">
+                      {t("profile.edit.languageHint")}
+                    </Text>
+                    <Form.Control>
+                      <Select value={value} onValueChange={onChange}>
+                        <Select.Trigger ref={ref}>
+                          <Select.Value
+                            placeholder={t("profile.edit.languagePlaceholder")}
+                          />
+                        </Select.Trigger>
+                        <Select.Content>
+                          {panelLanguageOptions.map((lan) => (
+                            <Select.Item key={lan.code} value={lan.code}>
+                              {lan.display_name}
+                            </Select.Item>
+                          ))}
+                        </Select.Content>
+                      </Select>
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            ) : null}
             <Form.Field
               control={form.control}
               name="name"

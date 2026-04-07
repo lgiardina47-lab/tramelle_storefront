@@ -8,6 +8,9 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { Product } from "@/types/product"
 import { useCartContext } from "@/components/providers"
+import { useParams } from "next/navigation"
+import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
+import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 
 export const ProductCard = ({
   product,
@@ -17,6 +20,11 @@ export const ProductCard = ({
   className?: string
 }) => {
   const { wholesaleBuyer } = useCartContext()
+  const params = useParams()
+  const countryCode =
+    typeof params?.locale === "string"
+      ? params.locale
+      : (process.env.NEXT_PUBLIC_DEFAULT_REGION || "it")
 
   if (!product) {
     return null
@@ -24,9 +32,15 @@ export const ProductCard = ({
 
   const { cheapestPrice, cheapestVariant } = getProductPrice({
     product: product as HttpTypes.StoreProduct,
+    restrictToB2cVisible: !wholesaleBuyer,
   })
 
-  const productName = String(product.title || "Product")
+  const localized = getLocalizedProductContentForCountry(
+    product as HttpTypes.StoreProduct,
+    countryCode
+  )
+  const productName = String(localized.title || product.title || "Product")
+  const thumbnailSrc = resolveProductThumbnailSrc(product.thumbnail)
 
   return (
     <div
@@ -45,11 +59,11 @@ export const ProductCard = ({
           data-testid="product-card-link"
         >
           <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
-            {product.thumbnail ? (
+            {thumbnailSrc ? (
               <Image
                 priority
                 fetchPriority="high"
-                src={decodeURIComponent(product.thumbnail)}
+                src={thumbnailSrc}
                 alt={`${productName} image`}
                 width={100}
                 height={100}

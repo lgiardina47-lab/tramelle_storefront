@@ -1,9 +1,18 @@
 import { Trash } from "@medusajs/icons"
-import { Button, Container, Heading, Input, Label, Text, toast } from "@medusajs/ui"
-import { Fragment, useEffect, useMemo, useState } from "react"
+import {
+  Button,
+  Container,
+  Heading,
+  Input,
+  Label,
+  Switch,
+  Text,
+  toast,
+} from "@medusajs/ui"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { productsQueryKeys } from "../../../../../hooks/api/products"
+import { productsQueryKeys, variantsQueryKeys } from "../../../../../hooks/api/products"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
 import { useStore } from "../../../../../hooks/api/store"
 import { queryClient } from "../../../../../lib/query-client"
@@ -18,6 +27,7 @@ import {
   skuForRow,
   unitsForFamily,
   emptyWholesaleTier,
+  effectiveRetailEuros,
 } from "../../lib/formato-product"
 import { persistFormatVariants } from "../../lib/persist-format-variants"
 import { VENDOR_PRODUCT_DETAIL_FIELDS } from "../../product-detail-fields"
@@ -25,6 +35,12 @@ import { VENDOR_PRODUCT_DETAIL_FIELDS } from "../../product-detail-fields"
 type ProductFormatsPricesSectionProps = {
   product: ExtendedAdminProduct
 }
+
+/** Tabella densa: meno alPadding, input bassi. */
+const denseCell = "py-1 pr-1.5 align-middle"
+const denseTh =
+  "text-ui-fg-muted pb-1 pr-1.5 text-left text-xs font-medium whitespace-nowrap"
+const denseInputWrap = "[&_input]:h-8 [&_input]:text-xs"
 
 export function ProductFormatsPricesSection({
   product,
@@ -73,7 +89,9 @@ export function ProductFormatsPricesSection({
         key: `new-${crypto.randomUUID?.() ?? String(Date.now())}`,
         amount: "",
         unit: unitChoices[0],
-        priceEuros: "",
+        listPriceEuros: "",
+        b2cDiscountPercent: "",
+        b2cVisible: true,
         stock: "",
         ean: "",
         hsCode: phs,
@@ -116,11 +134,15 @@ export function ProductFormatsPricesSection({
     )
   }
 
-  const updateTierRow = (
-    rowKey: string,
-    tierKey: string,
-    patch: Partial<{ minQty: number | ""; priceEuros: number | "" }>
-  ) => {
+  type TierPatch = Partial<{
+    minQty: number | ""
+    priceEuros: number | ""
+    layerLabel: string
+    qtyUnitLabel: string
+    minOrderLabel: string
+  }>
+
+  const updateTierRow = (rowKey: string, tierKey: string, patch: TierPatch) => {
     setRows((prev) =>
       prev.map((r) =>
         r.key === rowKey
@@ -160,9 +182,10 @@ export function ProductFormatsPricesSection({
         measureFamily,
       })
       await queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(product.id, {
-          fields: VENDOR_PRODUCT_DETAIL_FIELDS,
-        }),
+        queryKey: productsQueryKeys.all,
+      })
+      await queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.all,
       })
       toast.success(t("products.formats.saveSuccess"))
     } catch (e: any) {
@@ -191,334 +214,512 @@ export function ProductFormatsPricesSection({
   }
 
   return (
-    <Container className="divide-y p-0">
-      <div className="flex flex-col gap-3 px-6 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <Heading level="h2">{t("products.formats.title")}</Heading>
-            <Text size="small" className="text-ui-fg-muted mt-1">
-              {t("products.formats.subtitle")}
-            </Text>
-          </div>
-          <Button
-            type="button"
-            variant="secondary"
-            size="small"
-            onClick={addRow}
-          >
-            {t("products.formats.addRow")}
-          </Button>
-        </div>
-
-        <div className="flex flex-wrap items-end gap-4">
-          <div className="flex flex-col gap-y-1">
-            <Label>{t("products.formats.measureFamily")}</Label>
-            <select
-              className="bg-ui-bg-field border-ui-border-base txt-compact-small rounded-md border px-2 py-1.5"
-              value={measureFamily}
-              onChange={(e) =>
-                onFamilyChange(e.target.value as MeasureFamily)
-              }
+    <div className="flex flex-col gap-4">
+      {/* Card 1: strumenti + SOLO tabella B2C (nulla B2B qui sotto) */}
+      <Container className="divide-y p-0">
+        <div className="flex flex-col gap-2 px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <Heading level="h2" className="text-base">
+                {t("products.formats.title")}
+              </Heading>
+              <Text size="xsmall" className="text-ui-fg-muted">
+                {t("products.formats.subtitle")}
+              </Text>
+            </div>
+            <Button
+              type="button"
+              variant="secondary"
+              size="small"
+              onClick={addRow}
             >
-              <option value="mass">{t("products.formats.familyMass")}</option>
-              <option value="volume">
-                {t("products.formats.familyVolume")}
-              </option>
-            </select>
-            <Text size="xsmall" className="text-ui-fg-muted">
+              {t("products.formats.addRow")}
+            </Button>
+          </div>
+
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex flex-col gap-y-0.5">
+              <Label className="text-xs">
+                {t("products.formats.measureFamily")}
+              </Label>
+              <select
+                className="bg-ui-bg-field border-ui-border-base h-8 rounded-md border px-2 text-xs"
+                value={measureFamily}
+                onChange={(e) =>
+                  onFamilyChange(e.target.value as MeasureFamily)
+                }
+              >
+                <option value="mass">{t("products.formats.familyMass")}</option>
+                <option value="volume">
+                  {t("products.formats.familyVolume")}
+                </option>
+              </select>
+            </div>
+            <Text size="xsmall" className="text-ui-fg-muted max-w-md">
               {t("products.formats.measureHint", {
                 type: product.type?.value || "—",
               })}
             </Text>
           </div>
         </div>
-      </div>
 
-      <div className="overflow-x-auto px-6 py-4">
-        <table className="w-full min-w-[1180px] text-left text-sm">
-          <thead>
-            <tr className="text-ui-fg-muted border-b border-ui-border-base">
-              <th className="pb-2 pr-2 font-medium">
-                {t("products.formats.colAmount")}
-              </th>
-              <th className="pb-2 pr-2 font-medium">
-                {t("products.formats.colUnit")}
-              </th>
-              <th className="pb-2 pr-2 font-medium">
-                {t("products.formats.colPrice")}
-              </th>
-              <th className="pb-2 pr-2 font-medium">
-                {t("products.formats.colStock")}
-              </th>
-              <th className="pb-2 pr-2 font-medium">
-                {t("products.formats.colEan")}
-              </th>
-              <th className="pb-2 pr-2 font-medium min-w-[100px]">
-                {t("products.formats.colHs")}
-              </th>
-              <th className="pb-2 pr-2 font-medium w-24">
-                {t("products.formats.colPieces")}
-              </th>
-              <th className="pb-2 pr-2 font-medium">
-                {t("products.formats.colSku")}
-              </th>
-              <th className="pb-2 w-12" />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const label =
-                row.amount !== "" && !Number.isNaN(Number(row.amount))
-                  ? formatLabel(row.amount as number, row.unit)
-                  : "—"
-              return (
-                <Fragment key={row.key}>
-                  <tr className="border-b border-ui-border-base">
-                    <td className="py-2 pr-2 align-middle">
-                      <Input
-                        type="number"
-                        min={0}
-                        step="any"
-                        value={row.amount === "" ? "" : row.amount}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          updateRow(row.key, {
-                            amount: v === "" ? "" : parseFloat(v),
-                          })
-                        }}
-                      />
-                    </td>
-                    <td className="py-2 pr-2 align-middle">
-                      <select
-                        className="bg-ui-bg-field border-ui-border-base txt-compact-small w-full rounded-md border px-2 py-1.5"
-                        value={row.unit}
-                        onChange={(e) =>
-                          updateRow(row.key, {
-                            unit: e.target.value as FormatRow["unit"],
-                          })
-                        }
-                      >
-                        {unitChoices.map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td className="py-2 pr-2 align-middle">
-                      <div className="flex items-center gap-1">
-                        <span className="text-ui-fg-muted shrink-0">€</span>
+        <div className="px-6 py-3">
+          <div className="mb-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+            <Heading level="h3" className="text-sm font-semibold">
+              {t("products.formats.sectionB2c")}
+            </Heading>
+            <Text size="xsmall" className="text-ui-fg-muted">
+              {t("products.formats.sectionB2cShort")}
+            </Text>
+          </div>
+          <div className={`overflow-x-auto ${denseInputWrap}`}>
+            <table className="w-full min-w-[760px] text-left text-xs">
+              <thead>
+                <tr className="border-ui-border-base border-b">
+                  <th className={denseTh}>{t("products.formats.colAmount")}</th>
+                  <th className={denseTh}>{t("products.formats.colUnit")}</th>
+                  <th className={denseTh}>{t("products.formats.colListPrice")}</th>
+                  <th className={denseTh}>{t("products.formats.colDiscountPct")}</th>
+                  <th className={denseTh}>
+                    {t("products.formats.colEffectivePrice")}
+                  </th>
+                  <th className={denseTh}>{t("products.formats.colB2cVisible")}</th>
+                  <th className={denseTh}>{t("products.formats.colStock")}</th>
+                  <th className={denseTh}>{t("products.formats.colEan")}</th>
+                  <th className={denseTh}>{t("products.formats.colHs")}</th>
+                  <th className={denseTh}>{t("products.formats.colSku")}</th>
+                  <th className="w-8 pb-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => {
+                  const label =
+                    row.amount !== "" && !Number.isNaN(Number(row.amount))
+                      ? formatLabel(row.amount as number, row.unit)
+                      : "—"
+                  const effective = effectiveRetailEuros(
+                    row.listPriceEuros,
+                    row.b2cDiscountPercent
+                  )
+                  return (
+                    <tr
+                      key={row.key}
+                      className="border-ui-border-base border-b last:border-0"
+                    >
+                      <td className={denseCell}>
                         <Input
                           type="number"
                           min={0}
-                          step="0.01"
-                          value={row.priceEuros === "" ? "" : row.priceEuros}
+                          step="any"
+                          value={row.amount === "" ? "" : row.amount}
                           onChange={(e) => {
                             const v = e.target.value
                             updateRow(row.key, {
-                              priceEuros: v === "" ? "" : parseFloat(v),
+                              amount: v === "" ? "" : parseFloat(v),
                             })
                           }}
                         />
-                      </div>
-                    </td>
-                    <td className="py-2 pr-2 align-middle">
-                      <Input
-                        type="number"
-                        min={0}
-                        step={1}
-                        placeholder={
-                          defaultStockLocationId
-                            ? undefined
-                            : t("products.formats.stockNoLocation")
+                      </td>
+                      <td className={denseCell}>
+                        <select
+                          className="bg-ui-bg-field border-ui-border-base h-8 w-full rounded-md border px-1.5 text-xs"
+                          value={row.unit}
+                          onChange={(e) =>
+                            updateRow(row.key, {
+                              unit: e.target.value as FormatRow["unit"],
+                            })
+                          }
+                        >
+                          {unitChoices.map((u) => (
+                            <option key={u} value={u}>
+                              {u}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className={denseCell}>
+                        <div className="flex items-center gap-0.5">
+                          <span className="text-ui-fg-muted shrink-0 text-xs">
+                            €
+                          </span>
+                          <Input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            value={
+                              row.listPriceEuros === ""
+                                ? ""
+                                : row.listPriceEuros
+                            }
+                            onChange={(e) => {
+                              const v = e.target.value
+                              updateRow(row.key, {
+                                listPriceEuros:
+                                  v === "" ? "" : parseFloat(v),
+                              })
+                            }}
+                          />
+                        </div>
+                      </td>
+                      <td className={`${denseCell} w-14`}>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step="0.1"
+                          placeholder="—"
+                          value={
+                            row.b2cDiscountPercent === ""
+                              ? ""
+                              : row.b2cDiscountPercent
+                          }
+                          onChange={(e) => {
+                            const v = e.target.value
+                            updateRow(row.key, {
+                              b2cDiscountPercent:
+                                v === "" ? "" : parseFloat(v),
+                            })
+                          }}
+                        />
+                      </td>
+                      <td className={`${denseCell} text-ui-fg-muted whitespace-nowrap`}>
+                        {row.listPriceEuros !== "" &&
+                        !Number.isNaN(Number(row.listPriceEuros))
+                          ? `€ ${effective.toFixed(2)}`
+                          : "—"}
+                      </td>
+                      <td className={denseCell}>
+                        <Switch
+                          checked={row.b2cVisible}
+                          onCheckedChange={(v) =>
+                            updateRow(row.key, { b2cVisible: v })
+                          }
+                          title={
+                            row.b2cVisible
+                              ? t("products.formats.visibleOn")
+                              : t("products.formats.visibleOff")
+                          }
+                        />
+                      </td>
+                      <td className={denseCell}>
+                        <Input
+                          type="number"
+                          min={0}
+                          step={1}
+                          placeholder={
+                            defaultStockLocationId
+                              ? undefined
+                              : t("products.formats.stockNoLocation")
+                          }
+                          value={row.stock === "" ? "" : row.stock}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            updateRow(row.key, {
+                              stock: v === "" ? "" : parseInt(v, 10),
+                            })
+                          }}
+                        />
+                      </td>
+                      <td className={`${denseCell} min-w-[6.5rem]`}>
+                        <Input
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="off"
+                          placeholder={t("products.formats.eanPlaceholder")}
+                          value={row.ean}
+                          onChange={(e) =>
+                            updateRow(row.key, {
+                              ean: e.target.value.replace(/\s+/g, ""),
+                            })
+                          }
+                        />
+                      </td>
+                      <td className={denseCell}>
+                        <Input
+                          type="text"
+                          autoComplete="off"
+                          placeholder={t("products.formats.hsPlaceholder")}
+                          value={row.hsCode}
+                          onChange={(e) =>
+                            updateRow(row.key, { hsCode: e.target.value })
+                          }
+                        />
+                      </td>
+                      <td
+                        className={`${denseCell} font-mono text-ui-fg-muted max-w-[7rem] truncate`}
+                        title={
+                          label !== "—"
+                            ? skuForRow(product.handle, label)
+                            : ""
                         }
-                        value={row.stock === "" ? "" : row.stock}
-                        onChange={(e) => {
-                          const v = e.target.value
-                          updateRow(row.key, {
-                            stock: v === "" ? "" : parseInt(v, 10),
-                          })
-                        }}
-                      />
-                    </td>
-                    <td className="py-2 pr-2 align-middle min-w-[140px]">
-                      <Input
-                        type="text"
-                        inputMode="numeric"
-                        autoComplete="off"
-                        placeholder={t("products.formats.eanPlaceholder")}
-                        value={row.ean}
-                        onChange={(e) =>
-                          updateRow(row.key, {
-                            ean: e.target.value.replace(/\s+/g, ""),
-                          })
-                        }
-                      />
-                    </td>
-                    <td className="py-2 pr-2 align-middle">
-                      <Input
-                        type="text"
-                        autoComplete="off"
-                        placeholder={t("products.formats.hsPlaceholder")}
-                        value={row.hsCode}
-                        onChange={(e) =>
-                          updateRow(row.key, { hsCode: e.target.value })
-                        }
-                      />
-                    </td>
-                    <td className="py-2 pr-2 align-middle">
-                      <Input
-                        type="number"
-                        min={0}
-                        step={1}
-                        placeholder="—"
-                        value={
-                          row.piecesPerCarton === "" ? "" : row.piecesPerCarton
-                        }
-                        onChange={(e) => {
-                          const v = e.target.value
-                          updateRow(row.key, {
-                            piecesPerCarton:
-                              v === "" ? "" : parseInt(v, 10),
-                          })
-                        }}
-                      />
-                    </td>
-                    <td className="py-2 pr-2 align-middle">
-                      <Text size="small" className="font-mono text-ui-fg-muted">
+                      >
                         {label !== "—"
                           ? skuForRow(product.handle, label)
                           : "—"}
-                      </Text>
-                    </td>
-                    <td className="py-2 align-middle">
-                      <Button
-                        type="button"
-                        variant="transparent"
-                        size="small"
-                        className="px-1"
-                        disabled={rows.length <= 1}
-                        onClick={() => removeRow(row.key)}
-                        title={t("actions.delete")}
+                      </td>
+                      <td className={`${denseCell} w-8 p-0`}>
+                        <Button
+                          type="button"
+                          variant="transparent"
+                          size="small"
+                          className="px-1"
+                          disabled={rows.length <= 1}
+                          onClick={() => removeRow(row.key)}
+                          title={t("actions.delete")}
+                        >
+                          <Trash className="text-ui-fg-subtle" />
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Container>
+
+      {/* Card 2: SOLO tabella B2B — blocco separato sotto, non annidato nella B2C */}
+      <Container className="divide-y p-0">
+        <div className="px-6 py-4">
+          <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-1">
+            <Heading level="h3" className="text-sm font-semibold">
+              {t("products.formats.sectionB2b")}
+            </Heading>
+            <Text size="xsmall" className="text-ui-fg-muted">
+              {t("products.formats.sectionB2bShort")}
+            </Text>
+          </div>
+        </div>
+
+        <div className={`px-6 py-3 ${denseInputWrap}`}>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-left text-xs">
+              <thead>
+                <tr className="border-ui-border-base border-b">
+                  <th className={denseTh}>
+                    {t("products.formats.b2bVariantLabel")}
+                  </th>
+                  <th className={denseTh}>{t("products.formats.colPieces")}</th>
+                  <th className={denseTh}>{t("products.formats.colLayerLabel")}</th>
+                  <th className={denseTh}>{t("products.formats.colQtyUnit")}</th>
+                  <th className={denseTh}>{t("products.formats.colTierMin")}</th>
+                  <th className={denseTh}>{t("products.formats.colTierPrice")}</th>
+                  <th className={denseTh}>
+                    {t("products.formats.colMinOrderLabel")}
+                  </th>
+                  <th className="w-8 pb-1" />
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => {
+                  const label =
+                    row.amount !== "" && !Number.isNaN(Number(row.amount))
+                      ? formatLabel(row.amount as number, row.unit)
+                      : "—"
+                  const tiers = row.wholesaleTiers
+
+                  if (tiers.length === 0) {
+                    return (
+                      <tr
+                        key={`${row.key}-b2b`}
+                        className="border-ui-border-base border-b last:border-0"
                       >
-                        <Trash className="text-ui-fg-muted" />
-                      </Button>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-ui-border-base last:border-0">
-                    <td colSpan={9} className="bg-ui-bg-subtle-hover py-3 pr-2 pl-2">
-                      <div className="rounded-md border border-ui-border-base bg-ui-bg-base p-3">
-                        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                          <Text size="small" className="font-medium">
-                            {t("products.formats.tiersSection")}
-                          </Text>
+                        <td className={`${denseCell} font-medium`}>{label}</td>
+                        <td className={denseCell}>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={1}
+                            placeholder="—"
+                            className="max-w-[5rem]"
+                            value={
+                              row.piecesPerCarton === ""
+                                ? ""
+                                : row.piecesPerCarton
+                            }
+                            onChange={(e) => {
+                              const v = e.target.value
+                              updateRow(row.key, {
+                                piecesPerCarton:
+                                  v === "" ? "" : parseInt(v, 10),
+                              })
+                            }}
+                          />
+                        </td>
+                        <td
+                          className={`${denseCell} text-ui-fg-muted`}
+                          colSpan={5}
+                        >
+                          —
+                        </td>
+                        <td className={`${denseCell} w-8`}>
                           <Button
                             type="button"
                             variant="secondary"
                             size="small"
+                            className="h-8"
                             onClick={() => addTierRow(row.key)}
                           >
                             {t("products.formats.addTier")}
                           </Button>
-                        </div>
-                        <Text size="xsmall" className="text-ui-fg-muted mb-2">
-                          {t("products.formats.tierHint")}
-                        </Text>
-                        {row.wholesaleTiers.length === 0 ? (
-                          <Text size="small" className="text-ui-fg-muted">
-                            —
-                          </Text>
-                        ) : (
-                          <table className="w-full max-w-lg text-left text-sm">
-                            <thead>
-                              <tr className="text-ui-fg-muted border-b border-ui-border-base">
-                                <th className="pb-1 pr-2 font-medium">
-                                  {t("products.formats.colTierMin")}
-                                </th>
-                                <th className="pb-1 pr-2 font-medium">
-                                  {t("products.formats.colTierPrice")}
-                                </th>
-                                <th className="pb-1 w-10" />
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {row.wholesaleTiers.map((tier) => (
-                                <tr key={tier.key}>
-                                  <td className="py-1 pr-2 align-middle">
-                                    <Input
-                                      type="number"
-                                      min={2}
-                                      step={1}
-                                      value={
-                                        tier.minQty === "" ? "" : tier.minQty
-                                      }
-                                      onChange={(e) => {
-                                        const v = e.target.value
-                                        updateTierRow(row.key, tier.key, {
-                                          minQty:
-                                            v === "" ? "" : parseInt(v, 10),
-                                        })
-                                      }}
-                                    />
-                                  </td>
-                                  <td className="py-1 pr-2 align-middle">
-                                    <div className="flex items-center gap-1">
-                                      <span className="text-ui-fg-muted shrink-0">
-                                        €
-                                      </span>
-                                      <Input
-                                        type="number"
-                                        min={0}
-                                        step="0.01"
-                                        value={
-                                          tier.priceEuros === ""
-                                            ? ""
-                                            : tier.priceEuros
-                                        }
-                                        onChange={(e) => {
-                                          const v = e.target.value
-                                          updateTierRow(row.key, tier.key, {
-                                            priceEuros:
-                                              v === "" ? "" : parseFloat(v),
-                                          })
-                                        }}
-                                      />
-                                    </div>
-                                  </td>
-                                  <td className="py-1 align-middle">
-                                    <Button
-                                      type="button"
-                                      variant="transparent"
-                                      size="small"
-                                      className="px-1"
-                                      onClick={() =>
-                                        removeTierRow(row.key, tier.key)
-                                      }
-                                      title={t("actions.delete")}
-                                    >
-                                      <Trash className="text-ui-fg-muted" />
-                                    </Button>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                </Fragment>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+                        </td>
+                      </tr>
+                    )
+                  }
 
-      <div className="flex justify-end px-6 py-4">
-        <Button type="button" onClick={handleSave} isLoading={saving}>
-          {t("products.formats.save")}
-        </Button>
-      </div>
-    </Container>
+                  return tiers.map((tier, tierIdx) => (
+                    <tr
+                      key={tier.key}
+                      className="border-ui-border-base border-b last:border-0"
+                    >
+                      {tierIdx === 0 ? (
+                        <td
+                          className={`${denseCell} align-top font-medium`}
+                          rowSpan={tiers.length}
+                        >
+                          {label}
+                        </td>
+                      ) : null}
+                      {tierIdx === 0 ? (
+                        <td
+                          className={`${denseCell} align-top`}
+                          rowSpan={tiers.length}
+                        >
+                          <Input
+                            type="number"
+                            min={0}
+                            step={1}
+                            placeholder="—"
+                            className="max-w-[5rem]"
+                            value={
+                              row.piecesPerCarton === ""
+                                ? ""
+                                : row.piecesPerCarton
+                            }
+                            onChange={(e) => {
+                              const v = e.target.value
+                              updateRow(row.key, {
+                                piecesPerCarton:
+                                  v === "" ? "" : parseInt(v, 10),
+                              })
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="small"
+                            className="mt-1 h-7 w-full px-1 text-[10px]"
+                            onClick={() => addTierRow(row.key)}
+                          >
+                            {t("products.formats.addTier")}
+                          </Button>
+                        </td>
+                      ) : null}
+                      <td className={denseCell}>
+                        <Input
+                          type="text"
+                          placeholder={t(
+                            "products.formats.layerPlaceholder"
+                          )}
+                          value={tier.layerLabel}
+                          onChange={(e) =>
+                            updateTierRow(row.key, tier.key, {
+                              layerLabel: e.target.value,
+                            })
+                          }
+                        />
+                      </td>
+                      <td className={denseCell}>
+                        <Input
+                          type="text"
+                          placeholder={t(
+                            "products.formats.qtyUnitPlaceholder"
+                          )}
+                          value={tier.qtyUnitLabel}
+                          onChange={(e) =>
+                            updateTierRow(row.key, tier.key, {
+                              qtyUnitLabel: e.target.value,
+                            })
+                          }
+                        />
+                      </td>
+                      <td className={`${denseCell} w-16`}>
+                        <Input
+                          type="number"
+                          min={2}
+                          step={1}
+                          value={tier.minQty === "" ? "" : tier.minQty}
+                          onChange={(e) => {
+                            const v = e.target.value
+                            updateTierRow(row.key, tier.key, {
+                              minQty: v === "" ? "" : parseInt(v, 10),
+                            })
+                          }}
+                        />
+                      </td>
+                      <td className={denseCell}>
+                        <div className="flex items-center gap-0.5">
+                          <span className="text-ui-fg-muted shrink-0 text-xs">
+                            €
+                          </span>
+                          <Input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            value={
+                              tier.priceEuros === "" ? "" : tier.priceEuros
+                            }
+                            onChange={(e) => {
+                              const v = e.target.value
+                              updateTierRow(row.key, tier.key, {
+                                priceEuros:
+                                  v === "" ? "" : parseFloat(v),
+                              })
+                            }}
+                          />
+                        </div>
+                      </td>
+                      <td className={denseCell}>
+                        <Input
+                          type="text"
+                          placeholder={t(
+                            "products.formats.minOrderPlaceholder"
+                          )}
+                          value={tier.minOrderLabel}
+                          onChange={(e) =>
+                            updateTierRow(row.key, tier.key, {
+                              minOrderLabel: e.target.value,
+                            })
+                          }
+                        />
+                      </td>
+                      <td className={`${denseCell} w-8 p-0`}>
+                        <Button
+                          type="button"
+                          variant="transparent"
+                          size="small"
+                          className="px-1"
+                          onClick={() => removeTierRow(row.key, tier.key)}
+                          title={t("actions.delete")}
+                        >
+                          <Trash className="text-ui-fg-subtle" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="flex justify-end px-6 py-4">
+          <Button type="button" onClick={handleSave} isLoading={saving}>
+            {t("products.formats.save")}
+          </Button>
+        </div>
+      </Container>
+    </div>
   )
 }

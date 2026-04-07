@@ -1,4 +1,5 @@
 import { convertToLocale } from "@/lib/helpers/money"
+import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 export const Item = ({
@@ -17,13 +18,14 @@ export const Item = ({
     amount: item.total ?? 0,
     currency_code: currencyCode,
   })
+  const thumb = resolveProductThumbnailSrc(item.thumbnail)
 
   return (
     <div className="border rounded-sm p-1 flex gap-2">
       <div className="w-[100px] h-[132px] flex items-center justify-center">
-        {item.thumbnail ? (
+        {thumb ? (
           <Image
-            src={decodeURIComponent(item.thumbnail)}
+            src={thumb}
             alt="Product thumbnail"
             width={100}
             height={132}

@@ -1,9 +1,13 @@
 ---
-description: Divieto assoluto di delegare operatività all’utente; l’agent esegue nel workspace e verifica (anche produzione tramite tool).
+description: Non delegare operatività all’utente (richiesta esplicita). L’agent esegue comandi, verifiche e deploy nel workspace; mai solo istruzioni.
 alwaysApply: true
 ---
 
 # Esecuzione operativa (marketplace)
+
+## Richiesta esplicita dell’utente
+
+**Non delegare l’operatività all’utente.** È un requisito del progetto: comandi shell, PM2, build, migrazioni, test, controlli su URL e log vanno **eseguiti dall’agent** quando l’ambiente lo consente. **Vietato** sostituire l’azione con «copia questo» / «lancia tu» se il tentativo è possibile da qui.
 
 ## Regola principale
 
@@ -20,6 +24,7 @@ alwaysApply: true
 
 ## Comportamento richiesto
 
+- **Porte Tramelle fisse (3000 / 9000 / 7000 / 5173):** non cambiarle; se occupate, **terminare il processo sulla TCP e riavviare** lo stesso servizio sulla stessa porta (mai `-p 3001` o altre porte “di comodo” senza richiesta esplicita). Dettaglio e script in [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc).
 - **VPS / PM2 — default: un solo front “pesante” alla volta** con [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) `storefront` | `admin` | `vendor` | `backend` (evita saturazione VPS piccola).
 - **VPS / PM2 — tutti i pannelli + API insieme:** se l’utente vuole shop + manage + vendor contemporaneamente, usare [`scripts/pm2-work-all-fronts.sh`](scripts/pm2-work-all-fronts.sh) (attende `/health`, poi avvia i quattro processi). Richiede RAM/CPU adeguate; in alternativa upgrade VPS o tenere `pm2-work-one.sh`.
 - Solo shop già ok senza restart: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh).

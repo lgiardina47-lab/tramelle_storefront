@@ -10,6 +10,7 @@ import {
   MagnifyingGlass,
   MinusMini,
   OpenRectArrowOut,
+  PencilSquare,
   ReceiptPercent,
   Shopping,
   ShoppingCart,
@@ -349,6 +350,17 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <ChatBubble />,
       label: t("messages.domain"),
       to: "/messages",
+    },
+    {
+      icon: <PencilSquare />,
+      label: t("blog.domain"),
+      to: "/blog",
+      items: [
+        {
+          label: t("blog.createPost"),
+          to: "/blog/create",
+        },
+      ],
     },
   ];
 };

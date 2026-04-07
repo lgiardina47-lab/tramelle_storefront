@@ -400,11 +400,22 @@ export const useProducts = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => 
-     fetchQuery("/vendor/products", {
+    queryFn: async () => {
+      const response = await fetchQuery("/vendor/products", {
         method: "GET",
         query: query as Record<string, string | number>,
-      }),
+      })
+      const raw = response?.products
+      if (!Array.isArray(raw)) {
+        return response
+      }
+      const formatted = productsImagesFormatter(raw)
+      return {
+        ...response,
+        products:
+          formatted && Array.isArray(formatted) ? formatted : raw,
+      }
+    },
     queryKey: productsQueryKeys.list(query),
     ...options,
   })

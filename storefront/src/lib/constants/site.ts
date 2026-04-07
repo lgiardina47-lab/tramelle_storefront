@@ -10,6 +10,39 @@ export function publicSiteOrigin(): string {
   return DEFAULT_PUBLIC_SITE_ORIGIN
 }
 
+function hostWithoutPort(hostHeader: string): string {
+  const h = hostHeader.trim().toLowerCase()
+  if (h.startsWith("[")) {
+    const end = h.indexOf("]")
+    if (end !== -1) return h.slice(1, end)
+  }
+  return h.split(":")[0] ?? h
+}
+
+/**
+ * Home “Coming Soon” in produzione: **solo** host pubblico Tramelle (`tramelle.com` / `www`),
+ * così `next start` su localhost resta shop completo. Forza tramite `NEXT_PUBLIC_COMING_SOON_HOME=true`;
+ * disattiva ovunque con `NEXT_PUBLIC_COMING_SOON_HOME=false`.
+ */
+export function shouldUseProductionComingSoonHome(
+  hostHeader: string | null | undefined
+): boolean {
+  if (process.env.NODE_ENV !== "production") return false
+  if (process.env.NEXT_PUBLIC_COMING_SOON_HOME === "false") return false
+  if (!hostHeader?.trim()) return false
+
+  const host = hostWithoutPort(hostHeader)
+  if (!host) return false
+
+  if (host === "localhost" || host === "127.0.0.1" || host === "::1") {
+    return false
+  }
+
+  if (process.env.NEXT_PUBLIC_COMING_SOON_HOME === "true") return true
+
+  return host === "tramelle.com" || host === "www.tramelle.com"
+}
+
 /** Default branding when env vars are unset (must match .env.local.example). */
 export const DEFAULT_SITE_NAME = "Tramelle - Gourmet Marketplace"
 
@@ -48,6 +81,16 @@ export function resolvedSiteDescription(): string {
 /** Set `NEXT_PUBLIC_ALLOW_SEARCH_INDEXING=true` to allow crawlers; default is blocked. */
 export function allowSearchIndexing(): boolean {
   return process.env.NEXT_PUBLIC_ALLOW_SEARCH_INDEXING === "true"
+}
+
+/**
+ * Listing prodotti con ricerca/facet: lo storefront usa `POST /store/products/search` sul Medusa (plugin Algolia).
+ * Le credenziali Algolia restano nel backend (`ALGOLIA_APP_ID` / `ALGOLIA_API_KEY`); **non** servono
+ * `NEXT_PUBLIC_ALGOLIA_ID` né `NEXT_PUBLIC_ALGOLIA_SEARCH_KEY` per abilitare questa UI.
+ * Per forzare il catalogo statico Medusa (`ProductListing`), imposta `NEXT_PUBLIC_DISABLE_ALGOLIA_LISTING=true`.
+ */
+export function preferBackendProductSearchListing(): boolean {
+  return process.env.NEXT_PUBLIC_DISABLE_ALGOLIA_LISTING !== "true"
 }
 
 export function getIndexingRobots(options?: {

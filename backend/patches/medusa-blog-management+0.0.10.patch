@@ -1,0 +1,78 @@
+diff --git a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js
+index 6b1dc2b..78879b4 100644
+--- a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js
++++ b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.js
+@@ -579,24 +579,7 @@ const routeModule = {
+   ]
+ };
+ const menuItemModule = {
+-  menuItems: [
+-    {
+-      label: config$1.label,
+-      icon: config$1.icon,
+-      path: "/blog",
+-      nested: void 0,
+-      rank: void 0,
+-      translationNs: void 0
+-    },
+-    {
+-      label: config.label,
+-      icon: void 0,
+-      path: "/blog/create",
+-      nested: void 0,
+-      rank: void 0,
+-      translationNs: void 0
+-    }
+-  ]
++  menuItems: []
+ };
+ const formModule = { customFields: {} };
+ const displayModule = {
+diff --git a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs
+index 1588a19..8fe294a 100644
+--- a/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs
++++ b/node_modules/medusa-blog-management/.medusa/server/src/admin/index.mjs
+@@ -573,24 +573,7 @@ const routeModule = {
+   ]
+ };
+ const menuItemModule = {
+-  menuItems: [
+-    {
+-      label: config$1.label,
+-      icon: config$1.icon,
+-      path: "/blog",
+-      nested: void 0,
+-      rank: void 0,
+-      translationNs: void 0
+-    },
+-    {
+-      label: config.label,
+-      icon: void 0,
+-      path: "/blog/create",
+-      nested: void 0,
+-      rank: void 0,
+-      translationNs: void 0
+-    }
+-  ]
++  menuItems: []
+ };
+ const formModule = { customFields: {} };
+ const displayModule = {
+diff --git a/node_modules/medusa-blog-management/.medusa/server/src/modules/blog/service.js b/node_modules/medusa-blog-management/.medusa/server/src/modules/blog/service.js
+index 840d2d2..c2c651c 100644
+--- a/node_modules/medusa-blog-management/.medusa/server/src/modules/blog/service.js
++++ b/node_modules/medusa-blog-management/.medusa/server/src/modules/blog/service.js
+@@ -7,12 +7,7 @@ class BlogModuleService extends (0, utils_1.MedusaService)({
+ }) {
+     constructor(container) {
+         super(container);
+-        if (!container.manager) {
+-            throw new Error("EntityManager is not available in the container. " +
+-                "Ensure the plugin is properly registered in medusa-config.ts " +
+-                "and the database connection is configured.");
+-        }
+-        this.manager_ = container.manager;
++        // Medusa 2.11: MedusaService does not expose container.manager (see patch).
+     }
+     async incrementReadCount(id) {
+         const post = await this.retrievePost(id);

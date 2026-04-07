@@ -1,0 +1,43 @@
+---
+description: Contesto monorepo Mercur/Medusa Tramelle — stack, porte, env, script; promemoria operatività agent
+alwaysApply: true
+---
+
+# Contesto progetto Tramelle (MercurJS)
+
+Monorepo **MercurJS** su **Medusa v2** + plugin `@mercurjs/*`: sostituisce lo stack marketplace legacy documentato in [`README.md`](README.md).
+
+## Porte fisse (immutabili)
+
+**Fonte di verità:** [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs). I numeri **non devono mai cambiare**: Nginx/Plesk (`apply-plesk-tramelle-proxy.sh`), PM2 e documentazione sono allineati a queste porte.
+
+| Porta | Servizio | Cartella / processo tipico |
+|------:|----------|----------------------------|
+| **3000** | Storefront Next.js | [`storefront/`](storefront) (`tramelle-store`) |
+| **9000** | API Medusa + Mercur | [`backend/`](backend) (`tramelle-backend`) |
+| **7000** | Admin Vite (preview) | [`admin-panel/`](admin-panel) (`tramelle-admin`) |
+| **5173** | Vendor Vite (preview) | [`vendor-panel/`](vendor-panel) (`tramelle-vendor`) |
+
+**Se una porta è occupata:** l’agent **sospende/termina il processo** che la occupa e **riavvia** lo **stesso** servizio sulla **stessa** porta (es. `fuser -k 3000/tcp`, breve `sleep`, poi `yarn dev` / `scripts/dev-storefront.sh` — già così per [`scripts/dev-all-fronts-codespace.sh`](scripts/dev-all-fronts-codespace.sh)). **Vietato** aggirare `EADDRINUSE` con una porta alternativa (es. `next dev -p 3001`) salvo eccezione esplicita documentata fuori da Tramelle. **Vietato** cambiare i default delle porte senza aggiornare proxy Plesk e regole. Preferire `pm2 restart` in produzione; `fuser -k` in dev quando serve sbloccare processi non gestiti da PM2.
+
+**Accesso dal PC con SSH port forwarding (VPS invariata):** sul **proprio computer** (non sulla VPS) aprire un tunnel verso **3000, 7000, 9000** della VPS e il vendor sulla VPS **5173** tramite una porta locale diversa se serve (su Windows **non** usare `127.0.0.1:5173` locale: spesso *Permission denied* per range riservati Hyper-V). Script: [`scripts/ssh-forward-tramelle-from-your-pc.sh`](scripts/ssh-forward-tramelle-from-your-pc.sh) — mappa vendor come **15173 → VPS:5173**; URL vendor sul PC: `http://127.0.0.1:15173`. Con `ExitOnForwardFailure=yes`, un solo bind fallito chiude tutto il tunnel: evitare `-L 5173:...` locale su Windows se fallisce.
+
+**Redis** su `127.0.0.1:6379` è atteso in sviluppo insieme al backend. **PostgreSQL** dedicato: `DATABASE_URL` in [`backend/.env`](backend/.env) (partire da `backend/.env.example`). Qualsiasi modifica a schema/query/migrazioni deve restare coerente con il progetto database indicato dall’utente (**Supabase `zqiwwqpvdvhsfnhivwih`**).
+
+## Variabili d’ambiente (punti d’ingresso)
+
+- Backend: [`backend/.env`](backend/.env) / `backend/.env.example` — Stripe obbligatorio per avvio; Algolia/Resend/TalkJS opzionali o con fallback.
+- Storefront: `storefront/.env.local` da [`storefront/.env.local.example`](storefront/.env.local.example) — publishable key `pk_...` dal seed Medusa.
+- Pannelli: `admin-panel/.env`, `vendor-panel/.env` (es. TalkJS `VITE_*`, publishable key vendor dove richiesto).
+
+## Script operativi (root [`scripts/`](scripts))
+
+- **VPS / PM2:** [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh), [`scripts/pm2-work-all-fronts.sh`](scripts/pm2-work-all-fronts.sh), [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh) — dettagli e vincoli RAM in [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc).
+- **Dev locale / Codespace:** [`scripts/dev-storefront.sh`](scripts/dev-storefront.sh), [`scripts/dev-all-fronts-codespace.sh`](scripts/dev-all-fronts-codespace.sh).
+- **Algolia:** [`scripts/push-algolia-index-settings.mjs`](scripts/push-algolia-index-settings.mjs) quando l’indice è attivo.
+
+Storefront: in iterazione UI usare **`yarn dev`** / `dev-storefront.sh`, non build di produzione a ogni modifica — vedi [`storefront-live-preview.mdc`](storefront-live-preview.mdc).
+
+## Operatività: mai scaricare il lavoro sull’utente
+
+**Richiesta esplicita dell’utente:** non delegare operatività. **Priorità assoluta:** comandi, migrazioni, seed, test, verifiche HTTP, ispezione sito pubblico (`https://tramelle.com`), PM2/deploy quando richiesti — **eseguiti dall’agent** nel workspace o con tool/MCP, non spiegati come compito per l’utente. Regola completa (sezione *Richiesta esplicita dell’utente*) in [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc).

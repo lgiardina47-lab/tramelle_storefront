@@ -16,7 +16,7 @@ import {
   removeCartId,
   setCartId
 } from './cookies';
-import { getRegion } from './regions';
+import { getRegion, medusaCountryToStorefrontPathSegment } from './regions';
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -459,7 +459,8 @@ export async function updateRegion(countryCode: string, currentPath: string) {
   const productsCacheTag = await getCacheTag('products');
   revalidateTag(productsCacheTag);
 
-  redirect(`/${countryCode}${currentPath}`);
+  const pathSeg = await medusaCountryToStorefrontPathSegment(countryCode);
+  redirect(`/${pathSeg}${currentPath}`);
 }
 
 /**
@@ -552,9 +553,10 @@ export async function updateRegionWithValidation(
   const productsCacheTag = await getCacheTag('products');
   revalidateTag(productsCacheTag);
 
+  const pathSeg = await medusaCountryToStorefrontPathSegment(countryCode);
   return {
     removedItems,
-    newPath: `/${countryCode}${currentPath}`
+    newPath: `/${pathSeg}${currentPath}`
   };
 }
 

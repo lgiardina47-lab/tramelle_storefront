@@ -34,7 +34,7 @@ import {
 
 import { productsToInsert } from './seed-products'
 
-const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl']
+const countries = ['be', 'de', 'dk', 'se', 'fr', 'es', 'it', 'pl', 'cz', 'nl', 'gb']
 
 export async function createAdminUser(container: MedusaContainer) {
   const authService = container.resolve(Modules.AUTH)

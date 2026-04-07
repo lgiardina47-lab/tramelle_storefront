@@ -1,5 +1,29 @@
 import 'server-only';
-import { cookies as nextCookies } from 'next/headers';
+import { cookies as nextCookies, headers } from 'next/headers';
+
+/**
+ * Cookie `Secure` solo se il client raggiunge il sito in HTTPS (o il proxy dice https).
+ * Con `NODE_ENV=production` e URL `http://127.0.0.1:3000`, `secure: true` fa scartare il cookie
+ * dal browser → login/registrazione sembrano fallire (JWT mai salvato).
+ */
+async function cookieSecureFlag(): Promise<boolean> {
+  if (
+    process.env.COOKIE_INSECURE === '1' ||
+    process.env.COOKIE_INSECURE === 'true'
+  ) {
+    return false
+  }
+  try {
+    const h = await headers()
+    const proto = h.get('x-forwarded-proto')
+    if (proto) {
+      return proto.split(",")[0]?.trim() === "https"
+    }
+  } catch {
+    /* headers() non disponibile in alcuni contesti */
+  }
+  return false
+}
 
 export const getAuthHeaders = async (): Promise<
   { authorization: string } | {}
@@ -53,7 +77,7 @@ export const setAuthToken = async (token: string) => {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    secure: await cookieSecureFlag(),
   });
 };
 
@@ -75,7 +99,7 @@ export const setCartId = async (cartId: string) => {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
     sameSite: 'strict',
-    secure: process.env.NODE_ENV === 'production',
+    secure: await cookieSecureFlag(),
   });
 };
 

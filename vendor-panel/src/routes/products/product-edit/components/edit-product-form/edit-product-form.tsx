@@ -1,4 +1,5 @@
-import { Button, Input, Text, Textarea, toast } from "@medusajs/ui"
+import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
@@ -10,10 +11,20 @@ import { useExtendableForm } from "../../../../../extensions/forms/hooks"
 import { useUpdateProduct } from "../../../../../hooks/api/products"
 
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
+import { fetchQuery } from "../../../../../lib/client"
 import {
   FormExtensionZone,
   useDashboardExtension,
 } from "../../../../../extensions"
+
+/** Lingue destinazione DeepL (sorgente fissata: IT). */
+const DEEPL_TARGET_OPTIONS = [
+  { value: "en", label: "English" },
+  { value: "fr", label: "Français" },
+  { value: "de", label: "Deutsch" },
+  { value: "es", label: "Español" },
+  { value: "nl", label: "Nederlands" },
+] as const
 
 type EditProductFormProps = {
   product: ExtendedAdminProduct
@@ -27,8 +38,21 @@ const EditProductSchema = zod.object({
 })
 
 export const EditProductForm = ({ product }: EditProductFormProps) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { handleSuccess } = useRouteModal()
+  const [deeplPending, setDeeplPending] = useState(false)
+  const [deeplTargetLang, setDeeplTargetLang] = useState<string>("en")
+
+  useEffect(() => {
+    const lang = i18n.resolvedLanguage?.split("-")[0]?.toLowerCase() || ""
+    if (
+      lang &&
+      lang !== "it" &&
+      DEEPL_TARGET_OPTIONS.some((o) => o.value === lang)
+    ) {
+      setDeeplTargetLang(lang)
+    }
+  }, [i18n.resolvedLanguage])
 
   const { getFormFields, getFormConfigs } = useDashboardExtension()
   const fields = getFormFields("product", "edit")
@@ -47,6 +71,43 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   })
 
   const { mutateAsync, isPending } = useUpdateProduct(product.id)
+
+  const translateDescription = async () => {
+    const text = form.getValues("description")?.trim()
+    if (!text) {
+      toast.error(t("tramelle.deeplNeedText", "Inserisci una descrizione da tradurre."))
+      return
+    }
+    const target = deeplTargetLang.toUpperCase()
+    if (target === "IT") {
+      toast.error(
+        t(
+          "tramelle.deeplNeedOtherLang",
+          "Scegli una lingua di destinazione diversa dall’italiano."
+        )
+      )
+      return
+    }
+    setDeeplPending(true)
+    try {
+      const res = (await fetchQuery("/vendor/tramelle/deepl-translate", {
+        method: "POST",
+        body: {
+          text,
+          source_lang: "IT",
+          target_lang: target,
+        },
+      })) as { translated?: string }
+      if (res.translated) {
+        form.setValue("description", res.translated, { shouldDirty: true })
+        toast.success(t("tramelle.deeplOk", "Traduzione applicata."))
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "DeepL")
+    } finally {
+      setDeeplPending(false)
+    }
+  }
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const { description, discountable, handle, title } = data
@@ -200,9 +261,51 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                 render={({ field }) => {
                   return (
                     <Form.Item>
-                      <Form.Label optional>
-                        {t("fields.description")}
-                      </Form.Label>
+                      <div className="flex flex-col gap-y-3">
+                        <div className="flex flex-col gap-y-1 sm:flex-row sm:items-center sm:justify-between">
+                          <Form.Label optional className="mb-0">
+                            {t("fields.description")}
+                          </Form.Label>
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <div className="flex min-w-[140px] flex-col gap-y-1">
+                              <Text
+                                size="xsmall"
+                                className="text-ui-fg-muted"
+                              >
+                                {t(
+                                  "tramelle.deeplTargetLabel",
+                                  "Traduci in (da IT)"
+                                )}
+                              </Text>
+                              <Select
+                                value={deeplTargetLang}
+                                onValueChange={setDeeplTargetLang}
+                              >
+                                <Select.Trigger>
+                                  <Select.Value />
+                                </Select.Trigger>
+                                <Select.Content>
+                                  {DEEPL_TARGET_OPTIONS.map((o) => (
+                                    <Select.Item key={o.value} value={o.value}>
+                                      {o.label}
+                                    </Select.Item>
+                                  ))}
+                                </Select.Content>
+                              </Select>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="small"
+                              className="shrink-0 self-start sm:mt-5"
+                              isLoading={deeplPending}
+                              onClick={() => void translateDescription()}
+                            >
+                              {t("tramelle.deeplButton", "Traduci con DeepL")}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                       <Form.Control>
                         <Textarea {...field} />
                       </Form.Control>

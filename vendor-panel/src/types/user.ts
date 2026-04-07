@@ -48,4 +48,7 @@ export interface TeamMemberProps {
   bio?: string
   phone?: string
   role: string
+  /** Preferenza lingua pannello (Mercur / metadata). */
+  metadata?: Record<string, unknown> | null
+  language?: string
 }

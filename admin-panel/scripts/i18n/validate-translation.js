@@ -10,7 +10,7 @@ const validate = ajv.compile(schema)
 const fileName = process.argv[2]
 
 if (!fileName) {
-  console.error("Please provide a file name (e.g., en.json) as an argument.")
+  console.error("Please provide a file name (e.g., it.json) as an argument.")
   process.exit(1)
 }
 

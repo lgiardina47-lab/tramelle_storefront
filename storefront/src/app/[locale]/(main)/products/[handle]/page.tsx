@@ -16,7 +16,7 @@ export async function generateMetadata({
     forceCache: true,
   }).then(({ response }) => response.products[0])
 
-  return generateProductMetadata(prod)
+  return generateProductMetadata(prod, locale)
 }
 
 export default async function ProductPage({

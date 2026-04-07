@@ -1,0 +1,78 @@
+{
+  "Product": {
+    "notAvailableInRegion": "In Ihrer Region nicht verfügbar",
+    "addToCart": "IN DEN WARENKORB",
+    "outOfStock": "AUSVERKAUFT",
+    "notAvailableInRegionButton": "IN IHRER REGION NICHT VERFÜGBAR",
+    "addToCartErrorTitle": "Fehler beim Hinzufügen zum Warenkorb",
+    "addToCartErrorDescription": "Eine Variante hat nicht genug Bestand",
+    "wholesaleInvalidQtyTitle": "Ungültige Menge",
+    "wholesaleInvalidQtyDescription": "Für dieses B2B-Produkt Bestellmengen in Vielfachen von {pieces} Stück (Karton)."
+  },
+  "Nav": {
+    "utilityAria": "Nützliche Links",
+    "producers": "Erzeuger",
+    "recipes": "Rezepte",
+    "giftCards": "Geschenkkarten",
+    "b2bServices": "Dienstleistungen für Unternehmen",
+    "howItWorks": "So funktioniert’s",
+    "contact": "Kontakt",
+    "languageSwitcherAria": "Sprache und Land"
+  },
+  "Account": {
+    "sectionTitle": "Ihr Konto",
+    "orders": "Bestellungen",
+    "messages": "Nachrichten",
+    "returns": "Retouren",
+    "addresses": "Adressen",
+    "reviews": "Bewertungen",
+    "wishlist": "Wunschliste",
+    "settings": "Einstellungen",
+    "logout": "Abmelden",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "profileLinkAria": "Zum Profil"
+  },
+  "Header": {
+    "wishlist": "Merkliste",
+    "wishlistAria": "Merkliste",
+    "logoAlt": "Tramelle — Gourmet-Marktplatz"
+  },
+  "Hero": {
+    "heading": "Gourmet-Schätze, sorgfältig geliefert",
+    "paragraph": "Ausgewählte Spezialitäten, kleine Erzeuger und Vorratsschätze bei Tramelle — Ihr Gourmet-Marktplatz.",
+    "buyNow": "Jetzt kaufen",
+    "sellNow": "Jetzt verkaufen"
+  },
+  "Home": {
+    "trending": "Im Trend",
+    "shopByCategory": "NACH KATEGORIE SHOPPEN"
+  },
+  "Cart": {
+    "goToCartAria": "Zum Warenkorb",
+    "title": "Warenkorb",
+    "items": "Artikel",
+    "delivery": "Lieferung",
+    "tax": "MwSt.",
+    "total": "Gesamt",
+    "goToCart": "Zum Warenkorb",
+    "emptyTitle": "Ihr Warenkorb ist leer",
+    "emptyHint": "Auf der Suche nach Inspiration?",
+    "exploreCategories": "Kategorien durchstöbern"
+  },
+  "ProductSheet": {
+    "detailsHeading": "Produktdetails",
+    "additionalAttributesHeading": "Weitere Eigenschaften",
+    "shippingHeading": "Versand & Rückgabe",
+    "shippingPoint1": "Versandoptionen, Lieferzeiten und Kosten hängen vom Verkäufer und Zielort ab; beim Checkout sehen Sie die verfügbaren Optionen.",
+    "shippingPoint2": "Widerruf und Rückgabe richten sich nach geltendem Recht (z. B. 14 Tage in der EU, mit Ausnahmen u. a. für verderbliche oder aus Hygienegründen versiegelte Ware). Details in den AGB des Verkäufers.",
+    "sellerReviewsHeading": "Bewertungen zum Verkäufer",
+    "seeMore": "Mehr anzeigen",
+    "reviewsCount": "{count, plural, =0 {Noch keine Bewertungen} one {# Bewertung} other {# Bewertungen}}",
+    "viewSellerAria": "Verkäuferprofil {name} anzeigen",
+    "moreFromSeller": "Mehr von diesem Verkäufer",
+    "postedPrefix": "Eingestellt:",
+    "reportListing": "Anzeige melden",
+    "reportListingModalHeading": "Anzeige melden"
+  }
+}

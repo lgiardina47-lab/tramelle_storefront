@@ -1,0 +1,78 @@
+{
+  "Product": {
+    "notAvailableInRegion": "Non disponibile nella tua area",
+    "addToCart": "AGGIUNGI AL CARRELLO",
+    "outOfStock": "ESAURITO",
+    "notAvailableInRegionButton": "NON DISPONIBILE NELLA TUA AREA",
+    "addToCartErrorTitle": "Errore aggiunta al carrello",
+    "addToCartErrorDescription": "Una variante non ha la disponibilità richiesta",
+    "wholesaleInvalidQtyTitle": "Quantità non valida",
+    "wholesaleInvalidQtyDescription": "Per questo prodotto B2B ordina multipli di {pieces} pezzi (cartone)."
+  },
+  "Nav": {
+    "utilityAria": "Link utili",
+    "producers": "Produttori",
+    "recipes": "Ricette",
+    "giftCards": "Buoni regalo",
+    "b2bServices": "Servizi per le aziende",
+    "howItWorks": "Come funziona",
+    "contact": "Contattaci",
+    "languageSwitcherAria": "Lingua e paese"
+  },
+  "Account": {
+    "sectionTitle": "Il tuo account",
+    "orders": "Ordini",
+    "messages": "Messaggi",
+    "returns": "Resi",
+    "addresses": "Indirizzi",
+    "reviews": "Recensioni",
+    "wishlist": "Preferiti",
+    "settings": "Impostazioni",
+    "logout": "Esci",
+    "login": "Accedi",
+    "register": "Registrati",
+    "profileLinkAria": "Vai al profilo"
+  },
+  "Header": {
+    "wishlist": "Preferiti",
+    "wishlistAria": "Preferiti",
+    "logoAlt": "Tramelle — marketplace gourmet"
+  },
+  "Hero": {
+    "heading": "Scoperte gourmet, consegnate con cura",
+    "paragraph": "Specialità selezionate, piccoli produttori e tesori da dispensa su Tramelle — il tuo marketplace gourmet.",
+    "buyNow": "Acquista ora",
+    "sellNow": "Vendi ora"
+  },
+  "Home": {
+    "trending": "In evidenza",
+    "shopByCategory": "ACQUISTA PER CATEGORIA"
+  },
+  "Cart": {
+    "goToCartAria": "Vai al carrello",
+    "title": "Carrello",
+    "items": "Articoli",
+    "delivery": "Consegna",
+    "tax": "IVA",
+    "total": "Totale",
+    "goToCart": "Vai al carrello",
+    "emptyTitle": "Il carrello è vuoto",
+    "emptyHint": "Cerchi ispirazione?",
+    "exploreCategories": "Sfoglia le categorie"
+  },
+  "ProductSheet": {
+    "detailsHeading": "Dettagli prodotto",
+    "additionalAttributesHeading": "Altri attributi",
+    "shippingHeading": "Spedizione e resi",
+    "shippingPoint1": "Spedizione e tempi di consegna dipendono dal venditore e dalla destinazione; al checkout vedi costi e opzioni disponibili per il tuo ordine.",
+    "shippingPoint2": "Diritto di recesso secondo la normativa applicabile (es. 14 giorni in UE, con eccezioni per beni deperibili o sigillati per motivi igienici). Per dettagli consulta le condizioni del venditore.",
+    "sellerReviewsHeading": "Recensioni sul venditore",
+    "seeMore": "Vedi altre",
+    "reviewsCount": "{count, plural, =0 {Nessuna recensione} one {# recensione} other {# recensioni}}",
+    "viewSellerAria": "Vai al venditore {name}",
+    "moreFromSeller": "Altri prodotti di questo venditore",
+    "postedPrefix": "Pubblicato:",
+    "reportListing": "Segnala annuncio",
+    "reportListingModalHeading": "Segnala annuncio"
+  }
+}
