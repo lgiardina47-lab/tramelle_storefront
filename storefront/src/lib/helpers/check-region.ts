@@ -30,7 +30,7 @@ export const checkRegion = async (locale: string) => {
       return true
     }
 
-    /** en/fr/de/es: UI i18n; catalogo risolto lato API (`en` → gb/us/ie, ecc.). */
+    /** en/fr/de/es/ja: UI i18n; catalogo risolto lato API (`en` → gb/us/ie, ecc.). */
     if (isStorefrontPermissiveLocalePath(normalized)) {
       return true
     }

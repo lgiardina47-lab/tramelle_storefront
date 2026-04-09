@@ -1,0 +1,24 @@
+---
+description: Ogni sessione — leggere e applicare le regole workspace; mai delegare operatività eseguibile dall’agente.
+alwaysApply: true
+---
+
+# Regole ad ogni chat / sessione
+
+## Obbligo di lettura e applicazione
+
+**All’apertura di ogni conversazione e prima di operare**, l’agente deve considerare applicate **integralmente** tutte le regole del progetto in [`.cursor/rules/`](.cursor/rules/), in particolare:
+
+- [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc) — non delegare comandi, build, verifiche HTTP, PM2, ecc. all’utente se sono eseguibili da qui.
+- [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc) — porte fisse (3000 / 9000 / 7000 / 5173), script, contesto Medusa/Mercur.
+- [`storefront-live-preview.mdc`](storefront-live-preview.mdc) — **UI storefront in tempo reale** con `yarn dev`; **no attese** su build prod per anteprima; deploy solo su richiesta esplicita.
+
+Non assumere di “ricordare” a memoria: se il contesto della chat non include ancora il testo di una regola, **leggere il file** con gli strumenti (`Read`) quando serve per essere coerenti.
+
+## Vietato delegare operatività
+
+È **vietato** chiudere con «esegui tu», «controlla tu sul sito», «lancia tu sul server» o checklist al posto di tentativi concreti quando l’ambiente (workspace, terminale, fetch/MCP) consente l’esecuzione. Eccezione solo se oggettivamente impossibile: in quel caso **tentativo fatto** + errore/limite preciso.
+
+## Coerenza con il resto del progetto
+
+Questa regola **rinforza** le altre `alwaysApply` già presenti; in caso di dubbio tra istruzioni generiche e le regole Tramelle, prevalgono le regole in `.cursor/rules/`.

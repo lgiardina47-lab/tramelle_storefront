@@ -1,0 +1,494 @@
+{
+  "167": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "acqua"
+  },
+  "1": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "acqua"
+  },
+  "6": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "cioccolato"
+  },
+  "8": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "funghi e tartufi"
+  },
+  "29": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "funghi e tartufi"
+  },
+  "30": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "liquori e distillati"
+  },
+  "9": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "liquori e distillati"
+  },
+  "277": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "marmellate confetture e creme spalmabili"
+  },
+  "10": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "marmellate confetture e creme spalmabili"
+  },
+  "31": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "marmellate confetture e creme spalmabili"
+  },
+  "11": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "miele e derivati"
+  },
+  "34": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "miele e derivati"
+  },
+  "38": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti della panificazione"
+  },
+  "14": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti della panificazione"
+  },
+  "190": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti della panificazione"
+  },
+  "41": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "sale, pepe e spezie"
+  },
+  "20": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "sale, pepe e spezie"
+  },
+  "42": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "sale, pepe e spezie"
+  },
+  "4": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "caffè, tè e infusi"
+  },
+  "25": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "caffè, tè e infusi"
+  },
+  "24": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "caffè, tè e infusi"
+  },
+  "7": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "dolci, prodotti da forno e cereali da colazione"
+  },
+  "117": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "dolci, prodotti da forno e cereali da colazione"
+  },
+  "27": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "dolci, prodotti da forno e cereali da colazione"
+  },
+  "28": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "dolci, prodotti da forno e cereali da colazione"
+  },
+  "481": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "dolci, prodotti da forno e cereali da colazione"
+  },
+  "181": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "121": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "35": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "122": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "182": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "12": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "183": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "184": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "185": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "186": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "oli, aceti e condimenti"
+  },
+  "187": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pasta e riso"
+  },
+  "13": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pasta e riso"
+  },
+  "188": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pasta e riso"
+  },
+  "189": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pasta e riso"
+  },
+  "36": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pasta e riso"
+  },
+  "171": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "5": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "174": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "175": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "176": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "311": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "177": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "178": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "carne e uova"
+  },
+  "33": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve ittiche ed animali"
+  },
+  "272": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve ittiche ed animali"
+  },
+  "276": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve ittiche ed animali"
+  },
+  "274": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve ittiche ed animali"
+  },
+  "275": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve ittiche ed animali"
+  },
+  "273": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve ittiche ed animali"
+  },
+  "126": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "frutta fresca, disidratata ed essiccata"
+  },
+  "127": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "frutta fresca, disidratata ed essiccata"
+  },
+  "125": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "frutta fresca, disidratata ed essiccata"
+  },
+  "191": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "fuori pasto dolci e salati"
+  },
+  "128": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "fuori pasto dolci e salati"
+  },
+  "129": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "fuori pasto dolci e salati"
+  },
+  "131": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "latte e yogurt"
+  },
+  "130": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "latte e yogurt"
+  },
+  "132": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "latte e yogurt"
+  },
+  "192": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "succhi di frutta, smoothies e centrifugati"
+  },
+  "145": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "succhi di frutta, smoothies e centrifugati"
+  },
+  "37": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "cereali, farine e legumi"
+  },
+  "149": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "cereali, farine e legumi"
+  },
+  "196": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "cereali, farine e legumi"
+  },
+  "32": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve e sughi vegetali"
+  },
+  "271": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve e sughi vegetali"
+  },
+  "270": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve e sughi vegetali"
+  },
+  "151": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "conserve e sughi vegetali"
+  },
+  "197": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "formaggi e latticini"
+  },
+  "16": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "formaggi e latticini"
+  },
+  "153": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "formaggi e latticini"
+  },
+  "199": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "formaggi e latticini"
+  },
+  "200": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "piatti, sughi pronti e preparati da gastronomia"
+  },
+  "159": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "piatti, sughi pronti e preparati da gastronomia"
+  },
+  "158": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "piatti, sughi pronti e preparati da gastronomia"
+  },
+  "201": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "piatti, sughi pronti e preparati da gastronomia"
+  },
+  "202": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "piatti, sughi pronti e preparati da gastronomia"
+  },
+  "215": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "216": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "204": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "205": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "206": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "207": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "208": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "212": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "209": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "210": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "211": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "203": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "26": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "214": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "salumi"
+  },
+  "162": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "verdura fresca, disidratata ed essiccata"
+  },
+  "163": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "verdura fresca, disidratata ed essiccata"
+  },
+  "17": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "verdura fresca, disidratata ed essiccata"
+  },
+  "164": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "vino e bollicine"
+  },
+  "19": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "vino e bollicine"
+  },
+  "165": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "bevande analcoliche"
+  },
+  "229": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "baby food"
+  },
+  "230": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "erbe aromatiche, fiori, germogli, alghe e semi"
+  },
+  "231": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "erbe aromatiche, fiori, germogli, alghe e semi"
+  },
+  "232": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "erbe aromatiche, fiori, germogli, alghe e semi"
+  },
+  "233": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "erbe aromatiche, fiori, germogli, alghe e semi"
+  },
+  "234": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "erbe aromatiche, fiori, germogli, alghe e semi"
+  },
+  "237": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pesce, frutti di mare, crostacei e prodotti ittici"
+  },
+  "238": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pesce, frutti di mare, crostacei e prodotti ittici"
+  },
+  "239": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pesce, frutti di mare, crostacei e prodotti ittici"
+  },
+  "15": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "pesce, frutti di mare, crostacei e prodotti ittici"
+  },
+  "241": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti con certificazione export fda e/o sfcr"
+  },
+  "169": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "birra e fermentati"
+  },
+  "3": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "birra e fermentati"
+  },
+  "242": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti con certificazione halal"
+  },
+  "243": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti con certificazione kosher"
+  },
+  "244": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti senza glutine e vegani"
+  },
+  "245": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "prodotti senza glutine e vegani"
+  },
+  "268": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "arte della tavola e attrezzature"
+  },
+  "23": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "arte della tavola e attrezzature"
+  },
+  "472": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "Destination"
+  },
+  "473": {
+    "section_menu_title": "Merceologia",
+    "parent_menu_title": "Destination"
+  }
+}

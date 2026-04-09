@@ -53,7 +53,7 @@ export function LanguageSwitcher({ locale, options, className }: Props) {
 
   return (
     <div
-      className={['flex flex-wrap items-center gap-1', className].filter(Boolean).join(' ')}
+      className={['flex shrink-0 flex-wrap items-center justify-end gap-1', className].filter(Boolean).join(' ')}
       role="navigation"
       aria-label={t('languageSwitcherAria')}
     >

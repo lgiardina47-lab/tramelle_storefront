@@ -9,7 +9,7 @@ const DESCRIPTION_LOCALES = new Set(["it", "en", "fr", "de", "es"])
  *
  * Query opzionale `content_locale=it|en|fr|de|es`: mostra solo seller con testo
  * descrizione in quella lingua (`metadata.tramelle_description_i18n`; per `it`
- * anche `seller.description` legacy se non c’è i18n).
+ * anche `seller.description` legacy o `metadata.tramelle_import_description_source` se non c’è i18n).
  */
 export async function GET(req: MedusaRequest, res: MedusaResponse): Promise<void> {
   const limit = Math.min(Math.max(Number(req.query.limit) || 48, 1), 100)
@@ -34,7 +34,7 @@ export async function GET(req: MedusaRequest, res: MedusaResponse): Promise<void
 
   if (contentLocale === "it") {
     base = base.whereRaw(
-      `(trim(COALESCE(slp.metadata->'tramelle_description_i18n'->>'it','')) <> '' OR trim(COALESCE(seller.description::text,'')) <> '')`
+      `(trim(COALESCE(slp.metadata->'tramelle_description_i18n'->>'it','')) <> '' OR trim(COALESCE(seller.description::text,'')) <> '' OR trim(COALESCE(slp.metadata->>'tramelle_import_description_source','')) <> '')`
     )
   } else if (contentLocale) {
     base = base.whereRaw(

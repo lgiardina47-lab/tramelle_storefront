@@ -35,12 +35,13 @@ export async function generateMetadata({
   )
 
   if (showComingSoon) {
-    const title = "Prossimamente"
+    const title = "Source Gourmet Marketplace"
     const description =
-      "Tramelle.com: l'eccellenza non ha più confini. La vetrina globale per i maestri del Gourmet — B2C e B2B, 5 lingue, un'unica piattaforma."
+      "Tramelle.com: l'eccellenza non ha più confini. La vetrina globale per i maestri del Gourmet — B2C e B2B, 6 lingue, un'unica piattaforma."
     const canonical = `${baseUrl}/${locale}`
+    const ogTitle = `${title} · ${resolvedSiteName()}`
     return {
-      title,
+      title: { absolute: title },
       description,
       robots: getIndexingRobots({ googleBotRich: true }),
       icons: {
@@ -50,7 +51,7 @@ export async function generateMetadata({
       },
       alternates: { canonical },
       openGraph: {
-        title: `${title} | ${resolvedSiteName()}`,
+        title: ogTitle,
         description,
         url: canonical,
         siteName: resolvedSiteName(),
@@ -58,7 +59,7 @@ export async function generateMetadata({
       },
       twitter: {
         card: "summary_large_image",
-        title,
+        title: ogTitle,
         description,
       },
     }

@@ -15,6 +15,7 @@ const LABELS: Record<StorefrontI18nLocale, string> = {
   fr: "FR",
   de: "DE",
   es: "ES",
+  ja: "JA",
 }
 
 function activeLocales(map: TramelleDescriptionI18n): StorefrontI18nLocale[] {

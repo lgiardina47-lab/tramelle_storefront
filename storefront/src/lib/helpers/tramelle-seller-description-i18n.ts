@@ -3,8 +3,12 @@ import type { StorefrontI18nLocale } from "@/i18n/routing"
 export const TRAMELLE_SELLER_DESCRIPTION_I18N_KEY =
   "tramelle_description_i18n" as const
 
+/** Testo italiano grezzo da import Pitti (prima di revisione / traduzioni). */
+export const TRAMELLE_IMPORT_DESCRIPTION_SOURCE_KEY =
+  "tramelle_import_description_source" as const
+
 export const TRAMELLE_DESCRIPTION_I18N_LOCALES: readonly StorefrontI18nLocale[] =
-  ["it", "en", "fr", "de", "es"]
+  ["it", "en", "fr", "de", "es", "ja"]
 
 export type TramelleDescriptionI18n = Record<StorefrontI18nLocale, string>
 
@@ -14,6 +18,7 @@ const EMPTY: TramelleDescriptionI18n = {
   fr: "",
   de: "",
   es: "",
+  ja: "",
 }
 
 function metadataRecord(
@@ -56,6 +61,11 @@ export function sellerDescriptionsMapForUi(
   const legacy = typeof description === "string" ? description : ""
   if (legacy.trim()) {
     return { ...EMPTY, it: legacy }
+  }
+  const metaRec = metadataRecord(metadata)
+  const src = metaRec?.[TRAMELLE_IMPORT_DESCRIPTION_SOURCE_KEY]
+  if (typeof src === "string" && src.trim()) {
+    return { ...EMPTY, it: src }
   }
   return { ...EMPTY }
 }

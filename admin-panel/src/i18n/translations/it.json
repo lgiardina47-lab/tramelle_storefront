@@ -2648,6 +2648,47 @@
       "description": "Le notifiche sulle attività di Medusa saranno elencate qui."
     }
   },
+  "requests": {
+    "domain": "Richieste",
+    "seller": "Venditori",
+    "product": "Prodotti",
+    "review-remove": "Rimozione recensioni",
+    "return": "Resi",
+    "product-collection": "Collezioni",
+    "product-category": "Categorie",
+    "product-tag": "Tag",
+    "product-type": "Tipi di prodotto",
+    "product-update": "Aggiornamenti prodotto"
+  },
+  "sellers": {
+    "domain": "Venditori",
+    "fields": {
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefono",
+      "description": "Descrizione",
+      "address": "Indirizzo",
+      "address_line": "Via e numero civico",
+      "postal_code": "CAP",
+      "city": "Città",
+      "country_code": "Paese (codice)",
+      "tax_id": "Codice fiscale / ID fiscale",
+      "partita_iva": "Partita IVA",
+      "rea": "REA",
+      "sdi": "Codice SDI"
+    },
+    "edit": {
+      "header": "Modifica venditore",
+      "successToast": "Venditore {{name}} aggiornato con successo."
+    }
+  },
+  "messages": {
+    "domain": "Messaggi"
+  },
+  "blog": {
+    "domain": "Blog",
+    "createPost": "Nuovo articolo"
+  },
   "errors": {
     "serverError": "Errore del server - Riprova più tardi.",
     "invalidCredentials": "Email o password errati"

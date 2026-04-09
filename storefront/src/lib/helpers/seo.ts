@@ -41,6 +41,7 @@ export const generateProductMetadata = async (
         "fr-FR": href("fr"),
         "de-DE": href("de"),
         "es-ES": href("es"),
+        "ja-JP": href("ja"),
         "nl-NL": href("nl"),
         "x-default": href("it"),
       },

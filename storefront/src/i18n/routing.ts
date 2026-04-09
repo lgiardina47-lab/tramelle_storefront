@@ -6,7 +6,7 @@ import { defineRouting } from "next-intl/routing"
  * paese → file messaggi è in `countryCodeToStorefrontMessagesLocale`.
  */
 export const routing = defineRouting({
-  locales: ["it", "en", "fr", "de", "es"],
+  locales: ["it", "en", "fr", "de", "es", "ja"],
   defaultLocale: "it",
 })
 

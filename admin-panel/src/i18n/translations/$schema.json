@@ -12141,6 +12141,19 @@
       },
       "required": ["domain"],
       "additionalProperties": false
+    },
+    "blog": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "createPost": {
+          "type": "string"
+        }
+      },
+      "required": ["domain", "createPost"],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -12200,6 +12213,7 @@
     "dateTime",
     "views",
     "attributes",
+    "blog",
     "requests",
     "sellers",
     "messages",

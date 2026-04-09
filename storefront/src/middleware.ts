@@ -279,8 +279,15 @@ export async function middleware(request: NextRequest) {
         urlFirst === STOREFRONT_EN_URL_SEGMENT)
     );
 
+    /** Già `/ja`, `/es`, `/en`, `/it`, …: non anteporre il country risolto (es. evita `/it/ja`). */
+    const urlAlreadyLocalePrefixed =
+      Boolean(urlFirst) &&
+      (regionMap.has(urlFirst) ||
+        isStorefrontPermissiveLocalePath(urlFirst) ||
+        urlFirst === STOREFRONT_EN_URL_SEGMENT);
+
     // If no country code in URL but we can resolve one, redirect to locale-prefixed path
-    if (!urlHasCountryCode && countryCode) {
+    if (!urlHasCountryCode && countryCode && !urlAlreadyLocalePrefixed) {
       const redirectPath = pathname === '/' ? '' : pathname;
       const queryString = request.nextUrl.search ? request.nextUrl.search : '';
       const pathSeg =

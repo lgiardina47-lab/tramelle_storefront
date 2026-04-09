@@ -10,6 +10,7 @@ export const toHreflang = (code: string): string => {
     de: "de-DE",
     fr: "fr-FR",
     es: "es-ES",
+    ja: "ja-JP",
     it: "it-IT",
     nl: "nl-NL",
     se: "sv-SE",

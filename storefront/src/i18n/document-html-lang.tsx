@@ -9,6 +9,7 @@ const BCP47: Record<string, string> = {
   fr: "fr",
   de: "de",
   es: "es",
+  ja: "ja-JP",
 }
 
 /** Sincronizza `<html lang>` con la lingua i18n attiva (non con il solo codice paese URL). */

@@ -10,7 +10,7 @@ export type LanguageSwitcherOption = {
 }
 
 /**
- * Lingue storefront: IT, EN, FR, DE, ES. `/en` usa backend gb/us/ie come da `storefront-path-locale`.
+ * Lingue storefront: IT, EN, FR, DE, ES, JA. `/en` usa backend gb/us/ie come da `storefront-path-locale`.
  */
 export function buildLanguageSwitcherOptions(
   _regions: HttpTypes.StoreRegion[]
@@ -21,5 +21,6 @@ export function buildLanguageSwitcherOptions(
     { label: "FR", country: "fr" },
     { label: "DE", country: "de" },
     { label: "ES", country: "es" },
+    { label: "JA", country: "ja" },
   ]
 }

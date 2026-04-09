@@ -18,6 +18,7 @@ import {
   updateSellerWorkflow,
 } from "@mercurjs/b2c-core/workflows"
 
+import { TRAMELLE_IMPORT_DESCRIPTION_SOURCE_KEY } from "../lib/tramelle-listing-description-keys"
 import {
   getSellerListingMetadata,
   setSellerListingMetadata,
@@ -136,6 +137,15 @@ type ImportFile = {
   sellers: JsonSeller[]
 }
 
+/** Testo scheda dal JSON Pitti — va in metadata sorgente (intero), non nelle tab i18n. */
+function importDescriptionSourceText(row: JsonSeller): string {
+  return (
+    row.company_profile?.trim() ||
+    row.short_description?.trim() ||
+    ""
+  )
+}
+
 function buildSellerImportMetadata(row: JsonSeller): Record<string, unknown> | undefined {
   const bannerUrl = row.brand_banner_url?.trim()
   const rawGallery = row.product_image_urls
@@ -186,6 +196,10 @@ function buildSellerImportMetadata(row: JsonSeller): Record<string, unknown> | u
   const sdi = row.sdi?.trim()
   if (sdi) {
     meta.sdi = sdi
+  }
+  const source = importDescriptionSourceText(row)
+  if (source) {
+    meta[TRAMELLE_IMPORT_DESCRIPTION_SOURCE_KEY] = source
   }
   return Object.keys(meta).length ? meta : undefined
 }
@@ -496,6 +510,10 @@ function defaultJsonPath(): string {
  *
  * IMPORT_MARKETPLACE_CONFIRM=1 npx medusa exec ./src/scripts/import-json-catalog.ts
  *
+ * Testo lungo Pitti: **`metadata.tramelle_import_description_source`** su listing profile (intero, nessun taglio).
+ * Le tab **`tramelle_description_i18n`** non sono riempite dall’import (es. revisione IT + traduzioni a parte).
+ * Alla creazione seller, **`description`** sul record resta vuota; lo storefront può usare la sorgente come fallback IT finché manca i18n.
+ *
  * Seller già presenti (`IMPORT_UPDATE_SELLER_PHOTOS=1`): aggiorna `photo`, `state` (regione da `listing_country`),
  * **`country_code`** (default `it`, vedi `IMPORT_SELLER_COUNTRY_CODE`),
  * metadata (sito, logo_url, hero, gallery, **listing_region**, **taste_category_handles**, **taste_region_by_handle**),
@@ -521,7 +539,7 @@ function defaultJsonPath(): string {
  *
  * **Solo aggiornare dati seller già in DB** (nessuna nuova categoria, nessun sync metadata categorie):
  * `IMPORT_SELLER_DATA_UPDATE_ONLY=1` + `IMPORT_UPDATE_SELLER_PHOTOS=1` (+ conferma). Con il merge da `buildSellerImportMetadata`,
- * ogni run aggiorna in place metadata (sito, regione, **taste_category_handles**, taste_region_by_handle, hero, gallery, …) senza “rifare” l’albero categorie.
+ * ogni run aggiorna in place metadata (sito, regione, **taste_category_handles**, taste_region_by_handle, hero, gallery, **tramelle_import_description_source**, …) senza “rifare” l’albero categorie.
  *
  * Test su uno o più slug: `IMPORT_SELLER_SLUGS=mieli-thun` (comma/spazio separati).
  */
@@ -756,18 +774,12 @@ export default async function importJsonCatalog({ container }: ExecArgs) {
         },
       })
 
-      const desc =
-        row.company_profile?.slice(0, 2000) ||
-        row.short_description?.slice(0, 2000) ||
-        row.name
-
       const phone = row.phone?.trim()
       const importMeta = buildSellerImportMetadata(row)
       await updateSellerWorkflow(container).run({
         input: {
           id: seller.id,
           handle,
-          description: desc,
           email,
           phone: phone || undefined,
           photo: row.logo_url || undefined,

@@ -14,6 +14,7 @@ import {
 import { useSearchParams } from "next/navigation"
 import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { HIDE_LISTING_FILTERS, PRODUCT_LIMIT } from "@/const"
+import { storefrontPathToAlgoliaSupportedCountry } from "@/lib/i18n/storefront-path-locale"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { useEffect, useState } from "react"
 import { fetchMedusaCatalogFallback, searchProducts } from "@/lib/data/products"
@@ -40,11 +41,12 @@ export const AlgoliaProductsListing = ({
   const query: string = searchParams.get("query") || ""
   const page: number = +(searchParams.get("page") || 1)
 
+  const algoliaCountry = storefrontPathToAlgoliaSupportedCountry(locale ?? "")
   const filters = `${
     seller_handle
       ? `NOT seller:null AND seller.handle:${seller_handle} AND `
       : "NOT seller:null AND "
-  }NOT seller.store_status:SUSPENDED AND supported_countries:${locale} AND variants.prices.currency_code:${currency_code} AND variants.prices.amount > 0${
+  }NOT seller.store_status:SUSPENDED AND supported_countries:${algoliaCountry} AND variants.prices.currency_code:${currency_code} AND variants.prices.amount > 0${
     category_id
       ? ` AND categories.id:${category_id}${
           collection_id !== undefined

@@ -15,6 +15,22 @@ export async function resolveStorefrontLocaleToMedusaCountry(
   code: string
 ): Promise<string> {
   const c = code.toLowerCase();
+  /** Lingua `ja` in URL come `fr`/`de`/`es`; Medusa usa il paese Giappone `jp`. */
+  if (c === 'ja') {
+    const regions = await listRegions();
+    const avail = new Set(
+      regions.flatMap(
+        r =>
+          r.countries
+            ?.map(co => co.iso_2?.toLowerCase())
+            .filter((x): x is string => Boolean(x)) ?? []
+      )
+    );
+    if (avail.has('jp')) return 'jp';
+    return (
+      process.env.NEXT_PUBLIC_JA_MARKET_COUNTRY || 'jp'
+    ).toLowerCase();
+  }
   if (c !== STOREFRONT_EN_URL_SEGMENT) return c;
 
   const regions = await listRegions();
@@ -41,7 +57,10 @@ export async function medusaCountryToStorefrontPathSegment(
     STOREFRONT_EN_URL_SEGMENT
   );
   const m = medusaIso.toLowerCase();
-  return m === canonicalEn ? STOREFRONT_EN_URL_SEGMENT : m;
+  if (m === canonicalEn) return STOREFRONT_EN_URL_SEGMENT;
+  /** Ordine/inventario Medusa `jp` → URL lingua `ja` (stesso schema `gb`→`en`). */
+  if (m === 'jp') return 'ja';
+  return m;
 }
 
 /**

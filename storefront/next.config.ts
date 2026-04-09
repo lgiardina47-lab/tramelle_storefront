@@ -7,6 +7,10 @@ const allowSearchIndexing =
   process.env.NEXT_PUBLIC_ALLOW_SEARCH_INDEXING === 'true';
 
 const nextConfig: NextConfig = {
+  /** Dev: HMR quando si apre il sito da 127.0.0.1 (non solo localhost). */
+  allowedDevOrigins: ['127.0.0.1', 'localhost'],
+  /** Spazio per alias next-intl se in futuro si torna a Turbopack in dev (cfr. issue next-intl / Next 16). */
+  turbopack: {},
   output: "standalone",
   trailingSlash: false,
   reactStrictMode: true,

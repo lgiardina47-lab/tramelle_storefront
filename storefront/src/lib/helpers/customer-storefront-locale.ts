@@ -6,7 +6,8 @@ import { routing } from "@/i18n/routing"
 export const TRAMELLE_CUSTOMER_STOREFRONT_COUNTRY_KEY =
   "tramelle_storefront_country"
 
-const allowed = new Set<string>(routing.locales)
+/** Segmenti URL validi per sync profilo: lingue UI + `jp` (regione Giappone Medusa). */
+const allowed = new Set<string>([...routing.locales, "jp"])
 
 export function getCustomerPreferredStorefrontCountry(
   customer: HttpTypes.StoreCustomer | null | undefined

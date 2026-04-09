@@ -1,0 +1,78 @@
+{
+  "Product": {
+    "notAvailableInRegion": "お住まいの地域ではご利用いただけません",
+    "addToCart": "カートに追加",
+    "outOfStock": "在庫切れ",
+    "notAvailableInRegionButton": "お住まいの地域では購入できません",
+    "addToCartErrorTitle": "カートに追加できませんでした",
+    "addToCartErrorDescription": "バリエーションによっては必要な在庫がないものがあります",
+    "wholesaleInvalidQtyTitle": "数量が正しくありません",
+    "wholesaleInvalidQtyDescription": "このB2B商品は {pieces} 個（1ケース）単位でご注文ください。"
+  },
+  "Nav": {
+    "utilityAria": "便利なリンク",
+    "producers": "生産者",
+    "recipes": "レシピ",
+    "giftCards": "ギフトカード",
+    "b2bServices": "法人向けサービス",
+    "howItWorks": "ご利用の流れ",
+    "contact": "お問い合わせ",
+    "languageSwitcherAria": "言語・国の設定"
+  },
+  "Account": {
+    "sectionTitle": "マイアカウント",
+    "orders": "ご注文",
+    "messages": "メッセージ",
+    "returns": "返品",
+    "addresses": "住所",
+    "reviews": "レビュー",
+    "wishlist": "ウィッシュリスト",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "login": "ログイン",
+    "register": "会員登録",
+    "profileLinkAria": "プロフィールへ移動"
+  },
+  "Header": {
+    "wishlist": "お気に入り",
+    "wishlistAria": "お気に入り",
+    "logoAlt": "Tramelle — グルメマーケットプレイス"
+  },
+  "Hero": {
+    "heading": "厳選グルメを、丁寧にお届け",
+    "paragraph": "小品生産の逸品から食卓を彩る名品まで。Tramelle（トラメッレ）でグルメマーケットプレイスを体感してください。",
+    "buyNow": "今すぐ購入",
+    "sellNow": "販売を始める"
+  },
+  "Home": {
+    "trending": "注目のラインナップ",
+    "shopByCategory": "カテゴリーから探す"
+  },
+  "Cart": {
+    "goToCartAria": "カートへ移動",
+    "title": "カート",
+    "items": "商品点数",
+    "delivery": "配送",
+    "tax": "税",
+    "total": "合計",
+    "goToCart": "カートを見る",
+    "emptyTitle": "カートに商品がありません",
+    "emptyHint": "気になるカテゴリーをのぞいてみませんか？",
+    "exploreCategories": "カテゴリーを見る"
+  },
+  "ProductSheet": {
+    "detailsHeading": "商品詳細",
+    "additionalAttributesHeading": "その他の属性",
+    "shippingHeading": "配送・返品",
+    "shippingPoint1": "配送方法、お届け目安・料金は販売者とお届け先により異なります。内容はご注文手続きの画面でご確認いただけます。",
+    "shippingPoint2": "クーリングオフ・返品は適用法令に従います（例：EUでは原則14日、食品や衛生上開封不可の商品など除外あり）。詳しくは販売者の条件をご確認ください。",
+    "sellerReviewsHeading": "販売者のレビュー",
+    "seeMore": "もっと見る",
+    "reviewsCount": "{count, plural, =0 {レビューはまだありません} one {# 件のレビュー} other {# 件のレビュー}}",
+    "viewSellerAria": "販売者 {name} を見る",
+    "moreFromSeller": "この販売者のほかの商品",
+    "postedPrefix": "投稿日:",
+    "reportListing": "商品を報告",
+    "reportListingModalHeading": "商品を報告"
+  }
+}

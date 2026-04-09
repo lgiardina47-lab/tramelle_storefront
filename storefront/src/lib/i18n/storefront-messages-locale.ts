@@ -6,6 +6,9 @@ const URL_SEGMENT_TO_UI: Partial<Record<string, StorefrontI18nLocale>> = {
   fr: "fr",
   de: "de",
   es: "es",
+  /** Mercato Giappone Medusa (`jp`) → messaggi giapponesi */
+  jp: "ja",
+  ja: "ja",
 }
 
 /**

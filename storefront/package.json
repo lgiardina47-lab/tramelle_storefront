@@ -3,8 +3,8 @@
   "version": "1.5.4",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -H 0.0.0.0 -p 3000",
-    "dev:clean": "rm -rf .next && next dev --turbopack -H 0.0.0.0 -p 3000",
+    "dev": "next dev --webpack -H 0.0.0.0 -p 3000",
+    "dev:clean": "rm -rf .next && next dev --webpack -H 0.0.0.0 -p 3000",
     "build": "next build --webpack && node scripts/sync-standalone-assets.mjs",
     "build:production": "NODE_ENV=production yarn build",
     "start": "next start -H 0.0.0.0 -p 3000",

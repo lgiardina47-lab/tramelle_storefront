@@ -52,6 +52,7 @@ export function countryCodeToContentLang(countryCode: string): string {
     c === "fr" ||
     c === "de" ||
     c === "es" ||
+    c === "ja" ||
     c === "nl"
   ) {
     return c

@@ -9,7 +9,8 @@ description: Dev storefront sulla 3000 senza build; tramelle.com solo dopo build
 - **Non** eseguire `yarn build` / `yarn build:production` a ogni modifica per “vedere il risultato”: usare **`yarn dev`** (hot reload).
 - **Porta:** sempre quella di progetto (**3000**, vedi [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs)). Se `EADDRINUSE` su 3000: **fermare il processo che occupa la porta e riavviare** (`scripts/dev-storefront.sh` o `fuser -k 3000/tcp` + `yarn dev`), **non** avviare Next su un’altra porta (es. 3001).
 - **Avvio comodo dalla root repo:** `bash scripts/dev-storefront.sh` — sospende chi occupa :3000 (`fuser -k`), poi avvia `yarn dev` in [`storefront`](storefront).
-- **Errore dev Turbopack** `ENOENT … .next/server/.../build-manifest.json`: cache corrotta; dalla cartella [`storefront`](storefront) eseguire `rm -rf .next` e riavviare, oppure `yarn dev:clean`, oppure `TRAMELLE_DEV_CLEAN_NEXT=1 bash scripts/dev-storefront.sh`.
+- **Dev e next-intl:** lo script [`yarn dev`](storefront/package.json) usa **`next dev --webpack`** (non Turbopack). Con **`--turbopack`**, `getMessages()` può fallire con *Couldn't find next-intl config file* → pagina bianca / 500 su `/it`, `/es`, ecc.; la **build** (`--webpack`) non ha quel problema.
+- **Errore dev** `ENOENT … .next/server/.../build-manifest.json`: cache corrotta; dalla cartella [`storefront`](storefront) eseguire `rm -rf .next` e riavviare, oppure `yarn dev:clean`, oppure `TRAMELLE_DEV_CLEAN_NEXT=1 bash scripts/dev-storefront.sh`.
 - **Nel browser in dev:** `http://localhost:3000` (o `http://<IP-VPS>:3000`) è **corretto** per anteprima locale.
 - **Build / deploy su tramelle.com** solo quando l’utente lo chiede esplicitamente (`yarn build:production`, script deploy, PM2).
 
@@ -22,6 +23,16 @@ description: Dev storefront sulla 3000 senza build; tramelle.com solo dopo build
 ## Solo storefront già attivo (VPS)
 
 - Dalla root repo sulla VPS: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh) — se `mercur-storefront` è già **online** e admin/vendor **fermi**, non fa restart; altrimenti esegue `pm2-work-one.sh storefront`. Porte: [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs).
+
+## Modifiche in tempo reale — obbligo
+
+- L’utente si aspetta di **vedere le modifiche subito** su UI storefront: usare sempre **`yarn dev`** (hot reload su **3000**), **mai** `yarn build` / PM2 **solo** per anteprima iterativa.
+- **`yarn build` + riavvio PM2** su tramelle.com solo quando l’utente chiede **esplicitamente** deploy / produzione / verifica sul dominio pubblico.
+
+## Non far attendere (agente)
+
+- **Vietato** usare come strategia predefinita attese lunghe (`Await` su build di minuti, catene di `sleep`, “aspetta che finisca”) quando l’obiettivo è **validare un cambio UI**: l’agente avvia o conferma **`yarn dev` in background**, applica il codice, indica **URL locale** (`http://127.0.0.1:3000/it/…` o simile). La build prod può restare in background **solo** se il deploy è stato richiesto.
+- Se serve liberare la **3000**: `fuser -k 3000/tcp` o `scripts/dev-storefront.sh` (come da contesto VPS vs Codespace), poi `yarn dev` — non spostare la porta.
 
 ## Agent
 

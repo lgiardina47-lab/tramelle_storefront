@@ -2,6 +2,10 @@
 export const TRAMELLE_SELLER_DESCRIPTION_I18N_KEY =
   "tramelle_description_i18n" as const
 
+/** Testo italiano grezzo da import Pitti — sorgente prima di revisione / traduzioni nelle tab. */
+export const TRAMELLE_IMPORT_DESCRIPTION_SOURCE_KEY =
+  "tramelle_import_description_source" as const
+
 export const TRAMELLE_DESCRIPTION_I18N_LOCALES = [
   "it",
   "en",

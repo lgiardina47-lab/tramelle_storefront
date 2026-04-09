@@ -90,7 +90,7 @@ export const Header = async ({ locale }: { locale: string }) => {
               </LocalizedClientLink>
             </div>
             <div
-              className="flex max-w-[min(100%,22rem)] shrink-0 flex-wrap items-center justify-end gap-1 sm:max-w-none sm:gap-2"
+              className="flex min-w-0 max-w-full shrink-0 flex-wrap items-center justify-end gap-1 sm:gap-2 md:max-w-[min(100%,36rem)] lg:max-w-none"
               data-testid="header-actions"
             >
               <LocalizedClientLink
