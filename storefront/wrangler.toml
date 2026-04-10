@@ -1,3 +1,6 @@
+# OpenNext bundle: `yarn build:cloudflare` genera `.open-next/worker.js` + assets.
+# Se il sito pubblico risponde "Hello world" (text/plain), su Cloudflare è attivo un altro Worker o un Pages
+# vuoto: collega qui il dominio (Workers → tramelle-storefront → Custom domains) e rimuovi la route al worker tutorial.
 name = "tramelle-storefront"
 main = ".open-next/worker.js"
 compatibility_date = "2026-03-31"
