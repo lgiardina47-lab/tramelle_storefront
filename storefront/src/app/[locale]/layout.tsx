@@ -6,7 +6,7 @@ import { DocumentHtmlLangFromLocale } from "@/i18n/document-html-lang"
 import { countryCodeToStorefrontMessagesLocale } from "@/lib/i18n/storefront-messages-locale"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 /**
  * Provider next-intl per `/[locale]/…`: messaggi da `messages/{it|en}.json`.

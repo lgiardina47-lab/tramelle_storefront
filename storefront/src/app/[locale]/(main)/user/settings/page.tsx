@@ -4,7 +4,7 @@ import { ProfilePassword } from "@/components/molecules/ProfileDetails/ProfilePa
 import { retrieveCustomer } from "@/lib/data/customer"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function ReviewsPage() {
   const user = await retrieveCustomer()

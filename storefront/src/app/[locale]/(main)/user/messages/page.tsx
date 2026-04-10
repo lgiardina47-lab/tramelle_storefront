@@ -4,7 +4,7 @@ import { UserMessagesSection } from "@/components/sections/UserMessagesSection/U
 import { retrieveCustomer } from "@/lib/data/customer"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function MessagesPage() {
   const user = await retrieveCustomer()

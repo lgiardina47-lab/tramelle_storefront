@@ -4,7 +4,7 @@ import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 type Props = {
   params: Promise<{ id: string }>

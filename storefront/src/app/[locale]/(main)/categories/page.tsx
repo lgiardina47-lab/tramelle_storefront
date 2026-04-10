@@ -19,7 +19,7 @@ import {
 } from "@/lib/constants/site"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export const revalidate = 60
 

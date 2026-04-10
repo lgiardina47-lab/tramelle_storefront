@@ -14,7 +14,7 @@ import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { listCartPaymentMethods } from '@/lib/data/payment';
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export const metadata: Metadata = {
   title: 'Checkout',

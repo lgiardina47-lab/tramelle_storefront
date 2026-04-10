@@ -3,7 +3,7 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function RequestSuccessPage({
   params,

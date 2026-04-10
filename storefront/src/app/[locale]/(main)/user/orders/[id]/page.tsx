@@ -9,7 +9,7 @@ import { retrieveOrderSet } from "@/lib/data/orders"
 import { OrderDetailsSection } from "@/components/sections/OrderDetailsSection/OrderDetailsSection"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function UserPage({
   params,

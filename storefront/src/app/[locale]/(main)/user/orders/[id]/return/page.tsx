@@ -6,7 +6,7 @@ import {
 } from "@/lib/data/orders"
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function ReturnOrderPage({
   params,

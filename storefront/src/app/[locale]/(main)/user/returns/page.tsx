@@ -4,7 +4,7 @@ import { retrieveCustomer } from '@/lib/data/customer';
 import { getReturns, retrieveReturnReasons } from '@/lib/data/orders';
 
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function ReturnsPage({
   searchParams
