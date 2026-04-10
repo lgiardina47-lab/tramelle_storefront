@@ -10,7 +10,7 @@ alwaysApply: true
 **All’apertura di ogni conversazione e prima di operare**, l’agente deve considerare applicate **integralmente** tutte le regole del progetto in [`.cursor/rules/`](.cursor/rules/), in particolare:
 
 - [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc) — non delegare comandi, build, verifiche HTTP, PM2, ecc. all’utente se sono eseguibili da qui.
-- [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc) — porte fisse (3000 / 9000 / 7000 / 5173), script, contesto Medusa/Mercur.
+- [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc) — porte fisse (3000 / 9000 / 7000 / 5173), script, contesto Medusa/Mercur; **repo GitHub storefront / Cloudflare: `lgiardina47-lab/tramelle_storefront`** (non il flusso “marketplace” per quel deploy).
 - [`storefront-live-preview.mdc`](storefront-live-preview.mdc) — **UI storefront in tempo reale** con `yarn dev`; **no attese** su build prod per anteprima; deploy solo su richiesta esplicita.
 - [`docker-hetzner-execution.mdc`](docker-hetzner-execution.mdc) — **deve lavorare il server** (Remote SSH su `/var/www/tramelle`); PC solo client; build/DB/Docker sul server; modello “VPS separata” deprecato.
 

@@ -7,6 +7,12 @@ alwaysApply: true
 
 Monorepo **MercurJS** su **Medusa v2** + plugin `@mercurjs/*`: sostituisce lo stack marketplace legacy documentato in [`README.md`](README.md).
 
+## Storefront su GitHub e Cloudflare Pages
+
+- Il codice Next.js dello shop è in **[`storefront/`](storefront)** (nel monorepo sul server resta sotto `/var/www/tramelle/storefront`).
+- Il repository GitHub collegato al **deploy automatico Cloudflare Pages dello storefront** è **`lgiardina47-lab/tramelle_storefront`** — URL pubblico: `https://github.com/lgiardina47-lab/tramelle_storefront`. **Non** confonderlo con altri repo (es. un monorepo `marketplace` usato per il resto della piattaforma): per **CI/CD e integrazione GitHub→Cloudflare dello storefront** la fonte di verità è **tramelle_storefront**.
+- **Mai** inserire in regole, commit o URL del remote **token o password** GitHub (`ghp_…` ecc.). Usare **SSH** (`git@github.com:lgiardina47-lab/tramelle_storefront.git`) o HTTPS **senza** credenziali nella stringa; autenticazione via credential helper / chiavi. Se un PAT è stato esposto, **revocarlo** subito su GitHub.
+
 **Infrastruttura:** non esiste più una “VPS” distinta dalla produzione — **un solo server Hetzner** ospita Tramelle (e/o Docker). Le vecchie regole scritte per “VPS piccola vs altro” **non valgono** salvo dove resta il vincolo generico “macchina con poche RAM”.
 
 **DNS Cloudflare (stato attuale):** i record in dashboard Cloudflare **puntano ancora alla vecchia VPS**, **non** al **tunnel** Cloudflare. Finché non si aggiornano i record (o non si passa il traffico al tunnel), hostname pubblici tipo `tramelle.com` / `api.tramelle.com` possono risolvere e servire **l’ambiente vecchio**, non necessariamente l’Hetzner o lo stack Docker/PM2 corrente. Verifiche su “cosa vede il mondo” vanno interpretate alla luce di questo disallineamento.
