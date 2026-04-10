@@ -4,6 +4,8 @@ import { retrieveCustomer } from "@/lib/data/customer"
 import { getRegion } from "@/lib/data/regions"
 import { getSellerByHandle } from "@/lib/data/seller"
 
+export const runtime = "edge";
+
 export default async function SellerReviewsPage({
   params,
 }: {

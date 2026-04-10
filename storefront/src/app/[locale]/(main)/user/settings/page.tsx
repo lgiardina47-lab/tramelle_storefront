@@ -3,6 +3,8 @@ import { UserNavigation } from "@/components/molecules"
 import { ProfilePassword } from "@/components/molecules/ProfileDetails/ProfilePassword"
 import { retrieveCustomer } from "@/lib/data/customer"
 
+export const runtime = "edge";
+
 export default async function ReviewsPage() {
   const user = await retrieveCustomer()
 

@@ -14,12 +14,14 @@ import Script from "next/script"
 import { getTranslations } from "next-intl/server"
 import { listRegions } from "@/lib/data/regions"
 import { toHreflang } from "@/lib/helpers/hreflang"
+import { requestShowsComingSoonHome } from "@/lib/constants/coming-soon-public-home"
 import {
   getIndexingRobots,
   publicSiteOrigin,
   resolvedSiteName,
-  shouldUseProductionComingSoonHome,
 } from "@/lib/constants/site"
+
+export const runtime = "edge";
 
 export async function generateMetadata({
   params,
@@ -30,9 +32,8 @@ export async function generateMetadata({
 
   const baseUrl = publicSiteOrigin()
 
-  const showComingSoon = shouldUseProductionComingSoonHome(
-    (await headers()).get("host")
-  )
+  const h = await headers()
+  const showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
 
   if (showComingSoon) {
     const title = "Source Gourmet Marketplace"
@@ -140,9 +141,8 @@ export default async function Home({
 
   const siteName = resolvedSiteName()
 
-  const showComingSoon = shouldUseProductionComingSoonHome(
-    (await headers()).get("host")
-  )
+  const h = await headers()
+  const showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
 
   if (showComingSoon) {
     return (

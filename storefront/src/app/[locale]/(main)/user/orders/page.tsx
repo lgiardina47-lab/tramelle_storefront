@@ -5,6 +5,8 @@ import { OrdersPagination } from '@/components/sections';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listOrders } from '@/lib/data/orders';
 
+export const runtime = "edge";
+
 const LIMIT = 10;
 
 export default async function UserPage({

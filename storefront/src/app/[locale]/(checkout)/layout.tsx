@@ -1,6 +1,8 @@
 import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { CollapseIcon } from "@/icons"
+export const runtime = "edge";
+
 export default async function RootLayout({
   children,
 }: Readonly<{

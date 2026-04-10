@@ -6,12 +6,15 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const allowSearchIndexing =
   process.env.NEXT_PUBLIC_ALLOW_SEARCH_INDEXING === 'true';
 
+/** Su Cloudflare Pages, @cloudflare/next-on-pages richiede output Next standard (no `standalone`). */
+const isCloudflarePages = process.env.CF_PAGES === '1';
+
 const nextConfig: NextConfig = {
   /** Dev: HMR quando si apre il sito da 127.0.0.1 (non solo localhost). */
   allowedDevOrigins: ['127.0.0.1', 'localhost'],
   /** Spazio per alias next-intl se in futuro si torna a Turbopack in dev (cfr. issue next-intl / Next 16). */
   turbopack: {},
-  output: "standalone",
+  ...(isCloudflarePages ? {} : { output: 'standalone' as const }),
   trailingSlash: false,
   reactStrictMode: true,
   logging: {

@@ -19,6 +19,8 @@ import {
   resolvedSiteName,
 } from '@/lib/constants/site';
 
+export const runtime = "edge";
+
 function safeMetadataBase(): URL {
   try {
     return new URL(publicSiteOrigin());

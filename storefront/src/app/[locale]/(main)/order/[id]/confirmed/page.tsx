@@ -3,6 +3,8 @@ import { retrieveOrder } from "@/lib/data/orders"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
+export const runtime = "edge";
+
 type Props = {
   params: Promise<{ id: string }>
 }

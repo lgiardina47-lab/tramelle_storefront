@@ -3,6 +3,8 @@ import { listProducts } from "@/lib/data/products"
 import { generateProductMetadata } from "@/lib/helpers/seo"
 import type { Metadata } from "next"
 
+export const runtime = "edge";
+
 export async function generateMetadata({
   params,
 }: {

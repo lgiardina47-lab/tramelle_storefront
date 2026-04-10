@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack -H 0.0.0.0 -p 3000",
     "dev:clean": "rm -rf .next && next dev --webpack -H 0.0.0.0 -p 3000",
-    "build": "next build --webpack && node scripts/sync-standalone-assets.mjs",
+    "build": "node scripts/verify-coming-soon-invariants.cjs && next build --webpack && node scripts/post-next-build.mjs",
     "build:production": "NODE_ENV=production yarn build",
     "start": "next start -H 0.0.0.0 -p 3000",
     "preview": "yarn build && next start -H 0.0.0.0 -p 3000",
