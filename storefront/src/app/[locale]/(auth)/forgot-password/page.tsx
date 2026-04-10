@@ -1,7 +1,8 @@
 import { ForgotPasswordForm } from "@/components/molecules/ForgotPasswordForm/ForgotPasswordForm"
 import { Metadata } from "next"
 
-export const runtime = 'edge';
+
+export const runtime = "edge";
 
 export const metadata: Metadata = {
   title: "Password dimenticata",

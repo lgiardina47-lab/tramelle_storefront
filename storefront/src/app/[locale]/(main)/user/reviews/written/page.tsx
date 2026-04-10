@@ -4,7 +4,8 @@ import { retrieveCustomer } from "@/lib/data/customer"
 import { listOrders } from "@/lib/data/orders"
 import { getReviews } from "@/lib/data/reviews"
 
-export const runtime = 'edge';
+
+export const runtime = "edge";
 
 export default async function Page() {
   const user = await retrieveCustomer()

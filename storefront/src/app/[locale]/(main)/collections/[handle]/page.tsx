@@ -9,7 +9,8 @@ import { preferBackendProductSearchListing } from "@/lib/constants/site"
 import { headers } from "next/headers"
 import { Suspense } from "react"
 
-export const runtime = 'edge';
+
+export const runtime = "edge";
 
 const SingleCollectionsPage = async ({
   params,

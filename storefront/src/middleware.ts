@@ -11,6 +11,9 @@ import {
 } from './lib/i18n/storefront-path-locale';
 import { requestShowsComingSoonHome } from './lib/constants/coming-soon-public-home';
 
+/** Richiesto da Cloudflare Pages / tooling che valida l’Edge Runtime sul middleware. */
+export const runtime = "edge";
+
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || 'us';

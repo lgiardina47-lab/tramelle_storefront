@@ -10,7 +10,8 @@ import { retrieveCustomer } from '@/lib/data/customer';
 import { getUserWishlists } from '@/lib/data/wishlist';
 import { Wishlist as WishlistType } from '@/types/wishlist';
 
-export const runtime = 'edge';
+
+export const runtime = "edge";
 
 export default async function Wishlist({ params }: { params: Promise<{ locale: string }> }) {
   const user = await retrieveCustomer();
