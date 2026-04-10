@@ -1,9 +1,11 @@
+import { TRAMELLE_PRODUCTION_MEDUSA_ORIGIN } from '@/lib/medusa-backend-url'
+
 function trimTrailingSlash(s: string) {
   return s.replace(/\/$/, '')
 }
 
 /** Origine API raggiungibile dal browser per `/static/*` (Medusa serializza spesso `http://localhost:9000/...`). */
-const TRAMELLE_FALLBACK_PUBLIC_API_ORIGIN = "https://api.tramelle.com"
+const TRAMELLE_FALLBACK_PUBLIC_API_ORIGIN = TRAMELLE_PRODUCTION_MEDUSA_ORIGIN
 
 function isLoopbackOrUnusableForBrowserMedusaOrigin(raw: string): boolean {
   try {

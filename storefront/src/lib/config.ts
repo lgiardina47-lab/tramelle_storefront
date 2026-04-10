@@ -1,11 +1,8 @@
 import Medusa from "@medusajs/js-sdk"
 
-// Build produzione: `.env.production` imposta l’API; fallback se manca la variabile.
-const MEDUSA_BACKEND_URL =
-  process.env.MEDUSA_BACKEND_URL ||
-  (process.env.NODE_ENV === "production"
-    ? "https://api.tramelle.com"
-    : "http://localhost:9000")
+import { MEDUSA_BACKEND_URL } from "./medusa-backend-url"
+
+export { MEDUSA_BACKEND_URL }
 
 export const sdk = new Medusa({
   baseUrl: MEDUSA_BACKEND_URL,

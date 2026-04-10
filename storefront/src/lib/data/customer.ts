@@ -5,6 +5,7 @@ import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { sdk } from '../config';
+import { MEDUSA_BACKEND_URL } from '../medusa-backend-url';
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -23,7 +24,7 @@ async function syncTramelleRegistrationViaApi(
   formData: FormData,
   bearerToken: string
 ): Promise<void> {
-  const base = (process.env.MEDUSA_BACKEND_URL || '').replace(/\/$/, '');
+  const base = MEDUSA_BACKEND_URL.replace(/\/$/, '');
   const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY?.trim();
   if (!base || !pk || !bearerToken?.trim()) return;
 
@@ -70,7 +71,7 @@ async function syncTramelleRegistrationViaApi(
 async function assignCustomerToB2bProGroupImmediate(customerId: string): Promise<void> {
   const groupId = process.env.TRAMELLE_B2B_PRO_GROUP_ID?.trim();
   const adminKey = process.env.MEDUSA_ADMIN_API_KEY?.trim();
-  const base = (process.env.MEDUSA_BACKEND_URL || '').replace(/\/$/, '');
+  const base = MEDUSA_BACKEND_URL.replace(/\/$/, '');
   if (!groupId || !adminKey || !base) {
     return;
   }
@@ -350,7 +351,7 @@ export const updateCustomerAddress = async (formData: FormData): Promise<any> =>
 };
 
 export const updateCustomerPassword = async (password: string, token: string): Promise<any> => {
-  const res = await fetch(`${process.env.MEDUSA_BACKEND_URL}/auth/customer/emailpass/update`, {
+  const res = await fetch(`${MEDUSA_BACKEND_URL}/auth/customer/emailpass/update`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

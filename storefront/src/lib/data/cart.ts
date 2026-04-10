@@ -8,6 +8,7 @@ import medusaError from '@/lib/helpers/medusa-error';
 import { parseVariantIdsFromError } from '@/lib/helpers/parse-variant-error';
 
 import { fetchQuery, sdk } from '../config';
+import { MEDUSA_BACKEND_URL } from '../medusa-backend-url';
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -312,7 +313,7 @@ export async function removeShippingMethod(shippingMethodId: string) {
     'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string
   };
 
-  return fetch(`${process.env.MEDUSA_BACKEND_URL}/store/carts/${cartId}/shipping-methods`, {
+  return fetch(`${MEDUSA_BACKEND_URL}/store/carts/${cartId}/shipping-methods`, {
     method: 'DELETE',
     body: JSON.stringify({ shipping_method_ids: [shippingMethodId] }),
     headers
@@ -336,7 +337,7 @@ export async function deletePromotionCode(promoId: string) {
     'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string
   };
 
-  return fetch(`${process.env.MEDUSA_BACKEND_URL}/store/carts/${cartId}/promotions`, {
+  return fetch(`${MEDUSA_BACKEND_URL}/store/carts/${cartId}/promotions`, {
     method: 'DELETE',
     body: JSON.stringify({ promo_codes: [promoId] }),
     headers

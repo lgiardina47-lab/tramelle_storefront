@@ -10,8 +10,9 @@ import {
   isStorefrontPermissiveLocalePath,
 } from './lib/i18n/storefront-path-locale';
 import { requestShowsComingSoonHome } from './lib/constants/coming-soon-public-home';
+import { MEDUSA_BACKEND_URL } from './lib/medusa-backend-url';
 
-const BACKEND_URL = process.env.MEDUSA_BACKEND_URL;
+const BACKEND_URL = MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || 'us';
 
@@ -45,12 +46,6 @@ const regionMapCache: {
 
 async function getRegionMap(_cacheId: string) {
   const { regionMap, regionMapUpdated } = regionMapCache;
-
-  if (!BACKEND_URL) {
-    throw new Error(
-      'Middleware.ts: Error fetching regions. Did you set up regions in Tramelle admin and define a MEDUSA_BACKEND_URL environment variable? Note that the variable is no longer named NEXT_PUBLIC_MEDUSA_BACKEND_URL.'
-    );
-  }
 
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
     if (!PUBLISHABLE_API_KEY) {

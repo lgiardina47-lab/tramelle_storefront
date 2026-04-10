@@ -5,6 +5,7 @@ import { HttpTypes } from '@medusajs/types';
 import { SellerProps } from '@/types/seller';
 
 import { sdk } from '../config';
+import { MEDUSA_BACKEND_URL } from '../medusa-backend-url';
 import medusaError from '../helpers/medusa-error';
 import { getAuthHeaders, getCacheOptions } from './cookies';
 
@@ -54,7 +55,7 @@ export const createReturnRequest = async (data: any) => {
     'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string
   };
 
-  const response = await fetch(`${process.env.MEDUSA_BACKEND_URL}/store/return-request`, {
+  const response = await fetch(`${MEDUSA_BACKEND_URL}/store/return-request`, {
     method: 'POST',
     headers,
     body: JSON.stringify(data)
