@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Avvia TUTTI i servizi Mercur in PM2: API + storefront + admin + vendor (porte da monorepo).
-# Usa quando ti servono tramelle.com + manage + vendor insieme (VPS più capiente o accetti il carico).
-# Per una VPS piccola resta disponibile: scripts/pm2-work-one.sh (un solo front).
+# Usa quando ti servono tramelle.com + manage + vendor insieme (server più capiente o accetti il carico).
+# Con poche risorse resta disponibile: scripts/pm2-work-one.sh (un solo front).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

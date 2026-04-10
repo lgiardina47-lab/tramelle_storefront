@@ -1,0 +1,145 @@
+# Stack sviluppo con HMR: volumi sul monorepo, `yarn dev` / `medusa develop`.
+# Porte fisse: 3000 / 9000 / 7000 / 5173 / 6379 (deploy/monorepo-default-ports.cjs).
+# Tunnel SSH dal PC: mappa le stesse porte su localhost; Vite HMR (admin/vendor) usa ws → localhost.
+#
+# Avvio: docker compose up -d
+# Log:   docker compose logs -f backend
+# Stop:  docker compose down
+
+name: tramelle
+
+services:
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  backend:
+    image: node:20-bookworm-slim
+    working_dir: /workspace/backend
+    restart: always
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/workspace
+      - backend_node_modules:/workspace/backend/node_modules
+    env_file:
+      - ./backend/.env
+    environment:
+      PORT: "9000"
+      NODE_ENV: development
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+    command:
+      - bash
+      - -lc
+      - |
+        set -e
+        apt-get update -qq && apt-get install -y -qq python3 make g++ git >/dev/null
+        corepack enable
+        yarn install
+        yarn dev
+
+  storefront:
+    image: node:20-bookworm-slim
+    working_dir: /workspace/storefront
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - storefront_node_modules:/workspace/storefront/node_modules
+    env_file:
+      - ./storefront/.env
+    environment:
+      NODE_ENV: development
+      DOCKER: "1"
+      # SSR: API nel network Docker. URL pubblici immagini: da `storefront/.env` (es. https://api.tramelle.com);
+      # non forzare localhost qui — il browser spesso non ha :9000 (thumbnail API sono `http://localhost:9000/static/...`).
+      MEDUSA_BACKEND_URL: http://backend:9000
+      # Allineato a .env.production: su `next build` / tramelle.com resta la splash finché non si mette "false".
+      NEXT_PUBLIC_COMING_SOON_HOME: "true"
+      # `true` = splash anche su localhost in dev; `false` = shop completo in dev (splash solo host pubblico in prod build).
+      NEXT_PUBLIC_COMING_SOON_DEV_PREVIEW: "false"
+    depends_on:
+      - backend
+    command:
+      - bash
+      - -lc
+      - |
+        set -e
+        apt-get update -qq && apt-get install -y -qq git >/dev/null
+        corepack enable
+        yarn install
+        yarn dev
+
+  vendor-panel:
+    image: node:20-bookworm-slim
+    working_dir: /workspace/vendor-panel
+    restart: always
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/workspace
+      - vendor_node_modules:/workspace/vendor-panel/node_modules
+    env_file:
+      - ./vendor-panel/.env
+    environment:
+      NODE_ENV: development
+      DOCKER: "1"
+      PORT: "5173"
+      VITE_MEDUSA_PROJECT: /workspace/backend
+      VITE_MEDUSA_BACKEND_URL: http://localhost:9000
+      VITE_MEDUSA_STOREFRONT_URL: http://localhost:3000
+    depends_on:
+      - backend
+    command:
+      - bash
+      - -lc
+      - |
+        set -e
+        apt-get update -qq && apt-get install -y -qq git >/dev/null
+        corepack enable
+        yarn install
+        yarn dev
+
+  tramelle-admin:
+    image: node:20-bookworm-slim
+    working_dir: /workspace/admin-panel
+    restart: always
+    ports:
+      - "7000:7000"
+    volumes:
+      - .:/workspace
+      - admin_node_modules:/workspace/admin-panel/node_modules
+    env_file:
+      - ./admin-panel/.env
+    environment:
+      NODE_ENV: development
+      DOCKER: "1"
+      PORT: "7000"
+      VITE_MEDUSA_BACKEND_URL: http://localhost:9000
+      VITE_MEDUSA_STOREFRONT_URL: http://localhost:3000
+    depends_on:
+      - backend
+    command:
+      - bash
+      - -lc
+      - |
+        set -e
+        apt-get update -qq && apt-get install -y -qq git >/dev/null
+        corepack enable
+        yarn install
+        yarn dev
+
+volumes:
+  redis-data:
+  backend_node_modules:
+  storefront_node_modules:
+  admin_node_modules:
+  vendor_node_modules:

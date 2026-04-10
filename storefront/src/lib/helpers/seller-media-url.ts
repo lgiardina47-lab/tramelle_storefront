@@ -5,13 +5,10 @@
 
 import { sellerStorytellingGalleryUrls } from "@/components/molecules/SellerStorytellingGallery/seller-storytelling-gallery-urls"
 import type { StoreSellerListItem } from "@/types/seller"
+import { medusaImageRewriteBase } from "@/lib/helpers/get-image-url"
 
 export function medusaPublicBase(): string {
-  const raw =
-    process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ||
-    process.env.MEDUSA_BACKEND_URL ||
-    "http://127.0.0.1:9000"
-  return raw.replace(/\/$/, "")
+  return medusaImageRewriteBase()
 }
 
 export function tramelleCdnBase(): string {

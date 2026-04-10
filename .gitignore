@@ -1,6 +1,8 @@
 # Chiavi SSH per il client: mai in git
 ssh-client-download/
 
+# Compose: interpolazione build args per storefront/vendor (stessi valori di storefront/.env se preferisci copiare)
+.env
 backend/.env
 storefront/.env.local
 storefront/.env.production.local

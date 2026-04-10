@@ -1,18 +1,59 @@
 {
-    "remote.autoForwardPorts": true,
-    "remote.autoForwardPortsSource": "hybrid",
-    "remote.SSH.defaultForwardedPorts": [3000, 7000, 9000, 5173],
-    "remote.portsAttributes": {
-        "3000": { "label": "Tramelle storefront", "onAutoForward": "notify" },
-        "7000": { "label": "Tramelle admin", "onAutoForward": "notify" },
-        "9000": { "label": "Medusa API", "onAutoForward": "notify" },
-        "5173": { "label": "Tramelle vendor", "onAutoForward": "notify" }
-    },
-    "remote.SSH.configFile": "C:\\Users\\Master\\.ssh\\config",
-    "remote.SSH.useLocalServer": false,
-    "remote.SSH.path": "ssh",
-    "remote.SSH.localServerDownload": "always",
-    "css.lint.unknownAtRules": "ignore",
-    "scss.lint.unknownAtRules": "ignore",
-    "less.lint.unknownAtRules": "ignore"
+  "remote.autoForwardPorts": true,
+  "remote.autoForwardPortsSource": "hybrid",
+  "remote.SSH.defaultForwardedPorts": [3000, 7000, 9000, 5173],
+  "remote.portsAttributes": {
+    "3000": { "label": "Tramelle storefront", "onAutoForward": "notify" },
+    "7000": { "label": "Tramelle admin", "onAutoForward": "notify" },
+    "9000": { "label": "Medusa API", "onAutoForward": "notify" },
+    "5173": { "label": "Tramelle vendor", "onAutoForward": "notify" }
+  },
+  "remote.SSH.configFile": "C:\\Users\\Master\\.ssh\\config",
+  "remote.SSH.useLocalServer": false,
+  "remote.SSH.path": "ssh",
+  "remote.SSH.localServerDownload": "always",
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore",
+  "less.lint.unknownAtRules": "ignore",
+
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/dist/**": true,
+    "**/.medusa/**": true,
+    "**/coverage/**": true,
+    "**/.turbo/**": true,
+    "**/.cache/**": true,
+    "**/dati_ecommerce/**": true,
+    "**/dati_venditori_nuova/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.next": true,
+    "**/dist": true,
+    "**/.medusa": true,
+    "**/coverage": true,
+    "**/dati_ecommerce": true,
+    "**/dati_venditori_nuova": true,
+    "**/*.min.js": true,
+    "**/*.map": true
+  },
+  "search.followSymlinks": false,
+  "search.maxResults": 8000,
+
+  "git.autorefresh": false,
+  "git.decorations.enabled": true,
+
+  "editor.minimap.enabled": false,
+  "editor.renderWhitespace": "selection",
+  "workbench.reduceMotion": "on",
+
+  "extensions.ignoreRecommendations": true,
+
+  "telemetry.telemetryLevel": "off",
+
+  "cursor.worktreeMaxCount": 5,
+  "cursor.worktreeCleanupIntervalHours": 4
 }

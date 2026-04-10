@@ -2,7 +2,7 @@ import { Button } from "@/components/atoms/Button/Button"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function RequestSuccessPage({
   params,

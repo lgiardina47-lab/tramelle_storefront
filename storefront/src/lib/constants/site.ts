@@ -1,47 +1,13 @@
 import type { Metadata } from "next"
 
-/** Canonical / Open Graph / JSON-LD origin when `NEXT_PUBLIC_BASE_URL` is unset (local dev on localhost still shows Tramelle URLs). */
-export const DEFAULT_PUBLIC_SITE_ORIGIN = "https://tramelle.com"
+export { DEFAULT_PUBLIC_SITE_ORIGIN, publicSiteOrigin } from "./site-url"
 
-/** Trimmed origin without trailing slash. Env wins; otherwise {@link DEFAULT_PUBLIC_SITE_ORIGIN}. */
-export function publicSiteOrigin(): string {
-  const raw = process.env.NEXT_PUBLIC_BASE_URL?.trim()
-  if (raw) return raw.replace(/\/$/, "")
-  return DEFAULT_PUBLIC_SITE_ORIGIN
-}
-
-function hostWithoutPort(hostHeader: string): string {
-  const h = hostHeader.trim().toLowerCase()
-  if (h.startsWith("[")) {
-    const end = h.indexOf("]")
-    if (end !== -1) return h.slice(1, end)
-  }
-  return h.split(":")[0] ?? h
-}
-
-/**
- * Home “Coming Soon” in produzione: **solo** host pubblico Tramelle (`tramelle.com` / `www`),
- * così `next start` su localhost resta shop completo. Forza tramite `NEXT_PUBLIC_COMING_SOON_HOME=true`;
- * disattiva ovunque con `NEXT_PUBLIC_COMING_SOON_HOME=false`.
- */
-export function shouldUseProductionComingSoonHome(
-  hostHeader: string | null | undefined
-): boolean {
-  if (process.env.NODE_ENV !== "production") return false
-  if (process.env.NEXT_PUBLIC_COMING_SOON_HOME === "false") return false
-  if (!hostHeader?.trim()) return false
-
-  const host = hostWithoutPort(hostHeader)
-  if (!host) return false
-
-  if (host === "localhost" || host === "127.0.0.1" || host === "::1") {
-    return false
-  }
-
-  if (process.env.NEXT_PUBLIC_COMING_SOON_HOME === "true") return true
-
-  return host === "tramelle.com" || host === "www.tramelle.com"
-}
+export {
+  TRAMELLE_COMING_SOON_CANONICAL_HOSTS,
+  effectiveRequestHostFromHeaders,
+  requestShowsComingSoonHome,
+  shouldUseProductionComingSoonHome,
+} from "./coming-soon-public-home"
 
 /** Default branding when env vars are unset (must match .env.local.example). */
 export const DEFAULT_SITE_NAME = "Tramelle - Gourmet Marketplace"

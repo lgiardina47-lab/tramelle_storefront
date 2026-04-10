@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Esegue SSH sul VPS usando PASSWORD_SSH da backend/.env (scripts/ssh-with-backend-password.sh).
-# Opzionale in backend/.env: VPS_SSH_HOST, VPS_SSH_USER (default root).
+# Esegue SSH sul server Hetzner usando PASSWORD_SSH da backend/.env (scripts/ssh-with-backend-password.sh).
+# Opzionale in backend/.env: VPS_SSH_HOST, VPS_SSH_USER (nomi storici; indicano l’host SSH, non una "VPS" separata).
 # Esempio: bash scripts/vps.sh 'pm2 status'
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

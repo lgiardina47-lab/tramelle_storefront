@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { Addresses } from "@/components/organisms"
 import { listRegions } from "@/lib/data/regions"
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function Page() {
   const user = await retrieveCustomer()

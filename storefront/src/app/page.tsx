@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 /**
  * La root `/` non è sotto `[locale]`: senza questa pagina Next risponde 404.

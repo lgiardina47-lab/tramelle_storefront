@@ -8,7 +8,7 @@ import { retrieveCustomer } from '@/lib/data/customer';
 import { checkRegion } from '@/lib/helpers/check-region';
 import { getCustomerPreferredStorefrontCountry } from '@/lib/helpers/customer-storefront-locale';
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function RootLayout({
   children,

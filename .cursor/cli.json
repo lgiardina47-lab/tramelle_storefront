@@ -1,0 +1,7 @@
+{
+  "approvalMode": "unrestricted",
+  "permissions": {
+    "allow": ["**"],
+    "deny": []
+  }
+}

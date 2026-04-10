@@ -2,7 +2,7 @@
 # Codespace / dev locale: API + storefront + admin + vendor (porte dal monorepo).
 # Avvio in ordine: prima il backend (Medusa), poi gli altri — così il middleware Next non fa fetch a vuoto
 # e si riduce il picco RAM/esbuild che fa crashare l’admin se tutto parte insieme.
-# Sul VPS in produzione: scripts/pm2-work-one.sh
+# Sul server Hetzner in produzione: scripts/pm2-work-one.sh
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
@@ -12,6 +12,16 @@ read -r P_STORE P_API P_ADMIN P_VENDOR < <(
 
 # Senza Postgres/Redis il backend muore subito: riallinea i container dev se spenti (es. dopo restart Docker).
 ensure_dev_db() {
+  # Sul server con Supabase + Redis già esposto su 127.0.0.1:6379 (es. tramelle-redis): niente secondo Redis su :6379.
+  if command -v redis-cli >/dev/null 2>&1 \
+    && redis-cli -h 127.0.0.1 -p 6379 ping 2>/dev/null | grep -q PONG; then
+    echo "Redis su 127.0.0.1:6379 già attivo (usa REDIS_URL=redis://127.0.0.1:6379 per yarn dev sul host)."
+    return 0
+  fi
+  if timeout 1 bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/6379' 2>/dev/null; then
+    echo "Porta 6379 raggiungibile su 127.0.0.1 (redis-cli assente): salto docker-compose.dev-db per Redis."
+    return 0
+  fi
   if ! command -v docker >/dev/null 2>&1 || ! docker info >/dev/null 2>&1; then
     echo "Docker non disponibile: verifica REDIS_URL e DATABASE_URL nel backend/.env" >&2
     return 0

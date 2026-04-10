@@ -1,7 +1,14 @@
-# Cursor: riduce contesto e evita segreti su frontend (storefront), backend e pannelli.
+# Cursor: riduce contesto, CPU indicizzazione e evita segreti su frontend, backend e pannelli.
+
+# ----- Dataset e VCS (pesanti; ignora completamente per l'AI) -----
+dati_ecommerce/
+dati_venditori_nuova/
+.git/
+**/.git/
 
 # ----- Dipendenze -----
 **/node_modules/
+node_modules/
 
 # ----- Build / output -----
 **/.next/
@@ -13,6 +20,11 @@
 **/coverage/
 **/.turbo/
 **/.vercel/
+**/storybook-static/
+**/.vite/
+**/.nuxt/
+tmp/
+**/tmp/
 dati_venditori/*.json
 !/root/marketplace/dati_ecommerce/output/alpemagna-catalog-enriched.json
 

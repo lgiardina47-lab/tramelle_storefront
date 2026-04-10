@@ -2,7 +2,7 @@ import { Cart } from '@/components/sections';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export const metadata: Metadata = {
   title: 'Carrello',

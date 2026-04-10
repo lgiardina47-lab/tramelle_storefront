@@ -1,0 +1,32 @@
+---
+description: Indicizzazione Cursor sul server Hetzner (Remote SSH); build/DB/log su Docker; niente carico pesante sul PC locale.
+alwaysApply: true
+---
+
+# Esecuzione su server (Hetzner / Docker)
+
+## Deve lavorare il server
+
+Il **carico di lavoro** (terminale, comandi shell, build, DB, Docker, PM2, log lunghi, indicizzazione del codice utile all’AI) deve essere sul **server Hetzner**, non sul PC Windows.
+
+- **Setup utente:** aprire il progetto solo con **Cursor → Connect to Host… (Remote SSH)** e cartella **`/var/www/tramelle`** sul server. Evitare di aprire un clone completo del monorepo **solo in locale** per lavoro quotidiano: il terminale dell’agente e gli strumenti girerebbero sul PC.
+- **Agente:** eseguire comandi **nel workspace attuale**; se il workspace **è** quello remoto sul server, tutto ciò che l’agent lancia resta sul server. Se l’utente è in locale senza SSH, **non** trattare quel contesto come luogo predefinito per build DB pesanti: indicare che il flusso corretto è **Remote SSH** sul server, poi ripetere l’operazione lì.
+
+## Deprecazione “VPS”
+
+Non si usa più il modello di una **VPS separata** da altro hosting: **produzione e deploy = server Hetzner** (unico host per Tramelle). Eventuali menzioni legacy “VPS” in variabili (`VPS_SSH_*`) o nel nome `scripts/vps.sh` sono solo **nomi storici**; non implicano un secondo server.
+
+## Principio
+
+Operazioni **pesanti** — **build di produzione**, **install massiccia di dipendenze**, **migrazioni/seeding database**, **log lunghi** — devono essere eseguite sul **server Hetzner** (workspace `/var/www/tramelle` o equivalente), tipicamente tramite **`docker compose`** o shell SSH su quell’host, **non** sul terminale integrato del laptop come flusso predefinito.
+
+## Comportamento richiesto all’agente
+
+- **Non proporre** di lanciare `yarn build`, `next build`, `medusa db:*`, seed massivi o tail di log enormi **sul PC locale** quando il contesto di lavoro è sviluppo da macchina personale collegata al repo remoto.
+- **Preferire**: comandi sul server (SSH già nel workspace, Docker Compose, PM2 sul server) — come da [`docker-compose.yml`](docker-compose.yml) e regole in [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc).
+- **Indicizzazione Cursor**: deve avvenire **sul server**, non sul PC — aprire il workspace con **Remote - SSH** su Hetzner (`/var/www/tramelle`). [`.cursorignore`](.cursorignore) riduce il contesto su qualunque host; non sposta da solo l’indice sul server se la cartella è aperta in locale.
+
+## Eccezioni
+
+- Piccole verifiche locali esplicitamente richieste dall’utente (es. `tsc` su un file, lint mirato) restano ammissibili.
+- Se il workspace **è** già il server Hetzner (path tipo `/var/www/tramelle` su quell’host), eseguire Docker/compose sul server è la norma e non contraddice questa regola.

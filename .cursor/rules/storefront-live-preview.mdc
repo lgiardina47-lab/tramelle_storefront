@@ -11,18 +11,18 @@ description: Dev storefront sulla 3000 senza build; tramelle.com solo dopo build
 - **Avvio comodo dalla root repo:** `bash scripts/dev-storefront.sh` — sospende chi occupa :3000 (`fuser -k`), poi avvia `yarn dev` in [`storefront`](storefront).
 - **Dev e next-intl:** lo script [`yarn dev`](storefront/package.json) usa **`next dev --webpack`** (non Turbopack). Con **`--turbopack`**, `getMessages()` può fallire con *Couldn't find next-intl config file* → pagina bianca / 500 su `/it`, `/es`, ecc.; la **build** (`--webpack`) non ha quel problema.
 - **Errore dev** `ENOENT … .next/server/.../build-manifest.json`: cache corrotta; dalla cartella [`storefront`](storefront) eseguire `rm -rf .next` e riavviare, oppure `yarn dev:clean`, oppure `TRAMELLE_DEV_CLEAN_NEXT=1 bash scripts/dev-storefront.sh`.
-- **Nel browser in dev:** `http://localhost:3000` (o `http://<IP-VPS>:3000`) è **corretto** per anteprima locale.
+- **Nel browser in dev:** `http://localhost:3000` (o `http://<IP-server-Hetzner>:3000`) è **corretto** per anteprima locale.
 - **Build / deploy su tramelle.com** solo quando l’utente lo chiede esplicitamente (`yarn build:production`, script deploy, PM2).
 
 ## Produzione (tramelle.com)
 
-- Verifica sul **dominio pubblico:** **https://tramelle.com** (es. `/it`). `localhost` sulla VPS è solo dove nginx fa proxy verso Node.
+- Verifica sul **dominio pubblico:** **https://tramelle.com** (es. `/it`). `localhost` sul server Hetzner è solo dove nginx fa proxy verso Node.
 - **Build storefront:** [`yarn build:production`](storefront/package.json) (include sync standalone), poi [`bash scripts/pm2-work-one.sh storefront`](scripts/pm2-work-one.sh) (o `pm2 restart mercur-storefront` se già in modalità “solo shop”).
-- **VPS: obbligatorio tenere acceso un solo front tra shop / admin / vendor** (altrimenti la VPS va in saturazione). [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) ferma gli altri due e libera le porte; **non** avviare tutto l’ecosystem PM2 insieme.
+- **Server Hetzner (PM2):** su macchina con risorse limitate, tenere acceso **un solo front** tra shop / admin / vendor (altrimenti si va in saturazione). [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) ferma gli altri due e libera le porte; **non** avviare tutto l’ecosystem PM2 insieme senza esigenza reale.
 
-## Solo storefront già attivo (VPS)
+## Solo storefront già attivo (server Hetzner)
 
-- Dalla root repo sulla VPS: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh) — se `mercur-storefront` è già **online** e admin/vendor **fermi**, non fa restart; altrimenti esegue `pm2-work-one.sh storefront`. Porte: [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs).
+- Dalla root repo sul server: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh) — se `mercur-storefront` è già **online** e admin/vendor **fermi**, non fa restart; altrimenti esegue `pm2-work-one.sh storefront`. Porte: [`deploy/monorepo-default-ports.cjs`](deploy/monorepo-default-ports.cjs).
 
 ## Modifiche in tempo reale — obbligo
 
@@ -32,7 +32,7 @@ description: Dev storefront sulla 3000 senza build; tramelle.com solo dopo build
 ## Non far attendere (agente)
 
 - **Vietato** usare come strategia predefinita attese lunghe (`Await` su build di minuti, catene di `sleep`, “aspetta che finisca”) quando l’obiettivo è **validare un cambio UI**: l’agente avvia o conferma **`yarn dev` in background**, applica il codice, indica **URL locale** (`http://127.0.0.1:3000/it/…` o simile). La build prod può restare in background **solo** se il deploy è stato richiesto.
-- Se serve liberare la **3000**: `fuser -k 3000/tcp` o `scripts/dev-storefront.sh` (come da contesto VPS vs Codespace), poi `yarn dev` — non spostare la porta.
+- Se serve liberare la **3000**: `fuser -k 3000/tcp` o `scripts/dev-storefront.sh` (come da contesto server Hetzner vs Codespace), poi `yarn dev` — non spostare la porta.
 
 ## Agent
 

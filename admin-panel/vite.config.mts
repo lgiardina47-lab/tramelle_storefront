@@ -30,6 +30,9 @@ export default defineConfig(({ mode }) => {
     env.VITE_MEDUSA_PROJECT || path.resolve(__dirname, '../backend');
   const sources = [MEDUSA_PROJECT];
 
+  const isDocker = process.env.DOCKER === '1';
+  const devPort = Number(process.env.PORT) || ADMIN_PORT;
+
   return {
     plugins: [
       inspect(),
@@ -60,10 +63,26 @@ export default defineConfig(({ mode }) => {
       __TALK_JS_APP_ID__: JSON.stringify(TALK_JS_APP_ID)
     },
     server: {
-      open: true,
-      port: Number(process.env.PORT) || ADMIN_PORT,
+      // In Docker / CI non c’è xdg-open: evita crash (spawn ENOENT).
+      open:
+        process.env.CI === 'true' || process.env.DOCKER === '1'
+          ? false
+          : true,
+      port: devPort,
       strictPort: true,
       host: '0.0.0.0',
+      // HMR via tunnel SSH: il browser è su localhost → WebSocket sulla stessa porta mappata.
+      ...(isDocker
+        ? {
+            watch: { usePolling: true, interval: 300 },
+            hmr: {
+              protocol: 'ws',
+              host: 'localhost',
+              port: devPort,
+              clientPort: devPort,
+            },
+          }
+        : {}),
       allowedHosts: [
         'manage.tramelle.com',
         'www.manage.tramelle.com',

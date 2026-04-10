@@ -1,7 +1,7 @@
 /**
  * PM2 — definizione app (porte: deploy/monorepo-default-ports.cjs).
  *
- * NON avviare tutto insieme: storefront + admin + vendor saturano la VPS.
+ * NON avviare tutto insieme: storefront + admin + vendor saturano il server (Hetzner).
  * Usa un solo front alla volta + backend se serve:
  *
  *   bash scripts/pm2-work-one.sh storefront   # solo shop (tramelle.com)
@@ -9,7 +9,7 @@
  *   bash scripts/pm2-work-one.sh vendor       # solo vendor
  *   bash scripts/pm2-work-one.sh backend      # solo API (ferma i tre front)
  *
- * Tutti i front + API insieme (VPS capiente): `bash scripts/pm2-work-all-fronts.sh`
+ * Tutti i front + API insieme (server con RAM adeguata): `bash scripts/pm2-work-all-fronts.sh`
  * Oppure: `pm2 start ecosystem.config.cjs` (stesso effetto, senza attesa health API).
  */
 const path = require('path')

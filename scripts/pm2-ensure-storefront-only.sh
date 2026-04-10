@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# VPS: tra shop / admin / vendor resta attivo solo storefront. Se gia cosi, niente restart.
+# Server (es. Hetzner): tra shop / admin / vendor resta attivo solo storefront. Se già così, niente restart.
 # Altrimenti: pm2-work-one.sh storefront (ferma admin+vendor, libera porta 3000, riavvia shop).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

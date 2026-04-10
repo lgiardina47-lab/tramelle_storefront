@@ -1,6 +1,6 @@
 #!/bin/bash
 # Re-apply reverse proxy snippets if Plesk regenerates nginx.conf (e.g. httpdmng --reconfigure-domain).
-# Run as root on the VPS.
+# Run as root on the server (es. Hetzner).
 
 set -euo pipefail
 

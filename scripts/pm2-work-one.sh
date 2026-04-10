@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Avvia UN SOLO servizio “pesante” alla volta (storefront / admin / vendor / backend).
-# Gli altri due front (tra storefront, admin, vendor) vengono fermati → evita di piantare la VPS.
+# Gli altri due front (tra storefront, admin, vendor) vengono fermati → evita di saturare il server.
 # Se porta ancora occupata: fuser -k sulla porta di default del progetto.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

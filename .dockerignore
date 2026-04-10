@@ -1,0 +1,8 @@
+# Contesto root (es. build vendor-panel): riduce il contesto inviato al daemon.
+**/node_modules
+**/.git
+**/.next
+**/.medusa
+**/.cache
+*.deb
+cloudflared-linux-amd64.deb

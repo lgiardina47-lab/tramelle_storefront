@@ -9,7 +9,7 @@ import {
   STOREFRONT_EN_URL_SEGMENT,
   isStorefrontPermissiveLocalePath,
 } from './lib/i18n/storefront-path-locale';
-import { shouldUseProductionComingSoonHome } from './lib/constants/site';
+import { requestShowsComingSoonHome } from './lib/constants/coming-soon-public-home';
 
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
@@ -178,7 +178,7 @@ function isLocaleOnlyHomePath(pathname: string): boolean {
 }
 
 /**
- * Home `/[locale]`: header per layout senza Header/Footer solo dove vale la splash (vedi {@link shouldUseProductionComingSoonHome}).
+ * Home `/[locale]`: header per layout senza Header/Footer solo dove vale la splash (vedi {@link requestShowsComingSoonHome}).
  */
 function withProdMinimalHomeHeader(
   request: NextRequest,
@@ -186,7 +186,7 @@ function withProdMinimalHomeHeader(
 ): NextResponse {
   if (
     !isLocaleOnlyHomePath(request.nextUrl.pathname) ||
-    !shouldUseProductionComingSoonHome(request.headers.get('host'))
+    !requestShowsComingSoonHome((name) => request.headers.get(name))
   ) {
     return response;
   }

@@ -2,7 +2,7 @@ import { UserNavigation } from "@/components/molecules"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function UserPage() {
   const user = await retrieveCustomer()

@@ -3,7 +3,18 @@ import type { VendorSeller } from "@custom-types/seller"
 const DEFAULT_CDN_BASE = "https://cdn.tramelle.com"
 
 function tramelleCdnBase(): string {
-  return DEFAULT_CDN_BASE
+  const raw = (
+    import.meta.env.VITE_TRAMELLE_CDN_PUBLIC_BASE as string | undefined
+  )?.trim()
+  return (raw?.replace(/\/$/, "") || DEFAULT_CDN_BASE).trim()
+}
+
+function tramelleCdnHostname(): string {
+  try {
+    return new URL(tramelleCdnBase()).hostname
+  } catch {
+    return "cdn.tramelle.com"
+  }
 }
 
 function stripForAsciiToken(s: string): string {
@@ -36,17 +47,18 @@ function partnerFolderSlug(seller: Pick<VendorSeller, "handle" | "email">): stri
 }
 
 function inferTramellePartnerCoverUrl(
-  seller: Pick<VendorSeller, "name" | "handle" | "email">
+  seller: Pick<VendorSeller, "name" | "handle" | "email">,
+  ext: "jpg" | "webp" = "jpg"
 ): string | null {
   const folder = partnerFolderSlug(seller)
   if (!folder) return null
   const token = brandFileToken(seller.name || "", folder)
-  return `${tramelleCdnBase()}/partner/${folder}/cover_${token}.jpg`
+  return `${tramelleCdnBase()}/partner/${folder}/cover_${token}.${ext}`
 }
 
 function inferTramellePartnerLogoUrl(
   seller: Pick<VendorSeller, "name" | "handle" | "email">,
-  ext: "jpg" | "png" = "jpg"
+  ext: "jpg" | "png" | "webp" = "jpg"
 ): string | null {
   const folder = partnerFolderSlug(seller)
   if (!folder) return null
@@ -164,7 +176,7 @@ function looksLikeExternalWebsiteUrl(t: string): boolean {
   if (/\.(jpe?g|png|gif|webp|svg)(\?|$)/i.test(s)) {
     return false
   }
-  if (s.includes("cdn.tramelle.com")) {
+  if (s.includes(tramelleCdnHostname())) {
     return false
   }
   try {
@@ -284,6 +296,7 @@ export function getAdminSellerLogoCandidates(seller: VendorSeller): string[] {
   }
   pushUnique(out, inferTramellePartnerLogoUrl(seller, "png"))
   pushUnique(out, inferTramellePartnerLogoUrl(seller, "jpg"))
+  pushUnique(out, inferTramellePartnerLogoUrl(seller, "webp"))
   return out
 }
 
@@ -369,12 +382,22 @@ export function getAdminSellerSdi(seller: VendorSeller): string | null {
   ])
 }
 
-export function getAdminSellerBannerUrl(seller: VendorSeller): string | null {
+/**
+ * Candidati banner (come il logo): metadata, poi CDN cover `.jpg` e `.webp` (pipeline sync spesso in webp).
+ */
+export function getAdminSellerBannerCandidates(seller: VendorSeller): string[] {
+  const out: string[] = []
   const metaHero = normalizedMetadata(seller)?.hero_image_url
   if (typeof metaHero === "string" && metaHero.trim().length > 0) {
-    return metaHero.trim()
+    pushUnique(out, metaHero.trim())
   }
-  return inferTramellePartnerCoverUrl(seller)
+  pushUnique(out, inferTramellePartnerCoverUrl(seller, "jpg"))
+  pushUnique(out, inferTramellePartnerCoverUrl(seller, "webp"))
+  return out
+}
+
+export function getAdminSellerBannerUrl(seller: VendorSeller): string | null {
+  return getAdminSellerBannerCandidates(seller)[0] ?? null
 }
 
 /** Gallery storytelling: metadata o convenzione file `storytelling_*` sul CDN. */
@@ -384,8 +407,10 @@ export function getAdminSellerGalleryUrls(seller: VendorSeller): string[] {
   if (fromMeta.length) {
     return fromMeta
   }
-  const hero = getAdminSellerBannerUrl(seller)
-  if (hero?.includes("/partner/")) {
+  const hero =
+    getAdminSellerBannerCandidates(seller).find((u) => u.includes("/partner/")) ??
+    null
+  if (hero) {
     return inferStorytellingUrlsFromPartnerHero(hero)
   }
   return []

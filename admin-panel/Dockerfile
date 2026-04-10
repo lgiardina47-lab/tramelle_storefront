@@ -1,37 +1,35 @@
-# BUILD STAGE
+# Admin panel — build con Vite, serve statico con `serve` sulla porta 8000 (host: 7000→8000).
+# Contesto = root monorepo (docker-compose) per `../deploy` e `../backend` in vite.config.mts.
 FROM node:24-alpine AS build
-WORKDIR /build
+RUN apk add --no-cache libc6-compat
+WORKDIR /srv
 
-# Build arguments - automatically populated from .env via docker-compose
-ARG VITE_MEDUSA_BASE
-ARG VITE_MEDUSA_BACKEND_URL
-ARG VITE_MEDUSA_STOREFRONT_URL
-ARG VITE_MEDUSA_B2B_PANEL
+COPY deploy/monorepo-default-ports.cjs deploy/monorepo-default-ports.cjs
+COPY backend ./backend
+COPY admin-panel/package.json admin-panel/yarn.lock ./admin-panel/
 
-# Copy package files
-COPY package.json yarn.lock ./
-
-# Install dependencies
+WORKDIR /srv/admin-panel
 RUN yarn install --frozen-lockfile
 
-# Copy source code (includes .env which will be used for build)
-COPY . .
+COPY admin-panel/ .
 
-# Build the application
+ARG VITE_MEDUSA_BASE=/
+ARG VITE_MEDUSA_BACKEND_URL=https://api.tramelle.com
+ARG VITE_MEDUSA_STOREFRONT_URL=https://tramelle.com
+ARG VITE_MEDUSA_B2B_PANEL=true
+ARG VITE_TRAMELLE_CDN_PUBLIC_BASE=https://cdn.tramelle.com
+
+ENV VITE_MEDUSA_BASE=$VITE_MEDUSA_BASE \
+    VITE_MEDUSA_BACKEND_URL=$VITE_MEDUSA_BACKEND_URL \
+    VITE_MEDUSA_STOREFRONT_URL=$VITE_MEDUSA_STOREFRONT_URL \
+    VITE_MEDUSA_B2B_PANEL=$VITE_MEDUSA_B2B_PANEL \
+    VITE_TRAMELLE_CDN_PUBLIC_BASE=$VITE_TRAMELLE_CDN_PUBLIC_BASE
+
 RUN yarn build:preview
 
-# RUNTIME STAGE
 FROM node:24-alpine AS runtime
-
-# Install serve globally
 RUN npm install -g serve
-
-# Copy built files
-COPY --from=build /build/dist /app
-
+COPY --from=build /srv/admin-panel/dist /app
 WORKDIR /app
-
 EXPOSE 8000
-
-# Serve static files
 CMD ["serve", "-s", ".", "-l", "8000"]

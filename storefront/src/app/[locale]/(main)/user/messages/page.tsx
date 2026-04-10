@@ -3,7 +3,7 @@ import { UserNavigation } from "@/components/molecules/UserNavigation/UserNaviga
 import { UserMessagesSection } from "@/components/sections/UserMessagesSection/UserMessagesSection"
 import { retrieveCustomer } from "@/lib/data/customer"
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function MessagesPage() {
   const user = await retrieveCustomer()

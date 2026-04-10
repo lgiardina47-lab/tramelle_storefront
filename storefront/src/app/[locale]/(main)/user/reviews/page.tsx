@@ -3,7 +3,7 @@ import { ReviewsToWrite } from "@/components/organisms"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { listOrders } from "@/lib/data/orders"
 
-export const runtime = "edge";
+export const runtime = 'edge';
 
 export default async function Page() {
   const user = await retrieveCustomer()

@@ -29,6 +29,9 @@ export default defineConfig(({ mode }) => {
   const MEDUSA_PROJECT = env.VITE_MEDUSA_PROJECT || null
   const sources = MEDUSA_PROJECT ? [MEDUSA_PROJECT] : []
 
+  const isDocker = process.env.DOCKER === "1"
+  const devPort = Number(process.env.PORT) || VENDOR_PORT
+
   return {
     plugins: [
       inspect(),
@@ -49,9 +52,20 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       host: "0.0.0.0",
-      port: Number(process.env.PORT) || VENDOR_PORT,
+      port: devPort,
       strictPort: true,
       open: false,
+      ...(isDocker
+        ? {
+            watch: { usePolling: true, interval: 300 },
+            hmr: {
+              protocol: "ws",
+              host: "localhost",
+              port: devPort,
+              clientPort: devPort,
+            },
+          }
+        : {}),
       allowedHosts: [
         'vendor.tramelle.com',
         'www.vendor.tramelle.com',

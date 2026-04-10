@@ -13,7 +13,7 @@ import { SellerStatusBadge } from "@components/common/seller-status-badge";
 import { useProductCategories } from "@hooks/api/categories";
 import { useUpdateSeller } from "@hooks/api/sellers";
 import {
-  getAdminSellerBannerUrl,
+  getAdminSellerBannerCandidates,
   getAdminSellerGalleryUrls,
   getAdminSellerLogoCandidates,
   getAdminSellerPartitaIva,
@@ -80,16 +80,23 @@ function LogoCandidatesPreview({ seller }: { seller: VendorSeller }) {
   );
 }
 
-function MediaImagePreview({ url, label }: { url: string | null; label: string }) {
-  const [broken, setBroken] = useState(false);
+function BannerCandidatesPreview({ seller }: { seller: VendorSeller }) {
+  const candidates = useMemo(() => getAdminSellerBannerCandidates(seller), [seller]);
+  const [index, setIndex] = useState(0);
 
-  if (!url || broken) {
+  useEffect(() => {
+    setIndex(0);
+  }, [seller.id, candidates.join("|")]);
+
+  if (!candidates.length || index >= candidates.length) {
     return (
-      <Text size="small" className="text-ui-fg-muted" data-testid={`seller-media-${label}-empty`}>
+      <Text size="small" className="text-ui-fg-muted" data-testid="seller-media-banner-empty">
         —
       </Text>
     );
   }
+
+  const url = candidates[index]!;
 
   return (
     <div className="max-w-md overflow-hidden rounded-md border border-ui-border-base">
@@ -97,8 +104,8 @@ function MediaImagePreview({ url, label }: { url: string | null; label: string }
         src={url}
         alt=""
         className="max-h-40 w-full object-cover"
-        onError={() => setBroken(true)}
-        data-testid={`seller-media-${label}-img`}
+        onError={() => setIndex((i) => i + 1)}
+        data-testid="seller-media-banner-img"
       />
     </div>
   );
@@ -156,7 +163,6 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
 
   const websiteRaw = getAdminSellerWebsiteUrl(seller);
   const websiteHref = websiteRaw ? hrefForWebsiteDisplay(websiteRaw) : null;
-  const bannerUrl = getAdminSellerBannerUrl(seller);
   const galleryUrls = getAdminSellerGalleryUrls(seller);
   const region = getAdminSellerRegion(seller);
   const tasteHandles = useMemo(
@@ -341,7 +347,7 @@ export const SellerGeneralSection = ({ seller }: { seller: VendorSeller }) => {
                 Banner
               </Text>
               <div className="w-1/2">
-                <MediaImagePreview url={bannerUrl} label="banner" />
+                <BannerCandidatesPreview seller={seller} />
               </div>
             </div>
             <Divider />

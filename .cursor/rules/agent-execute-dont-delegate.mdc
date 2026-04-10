@@ -17,6 +17,12 @@ alwaysApply: true
 
 **Eccezione solo se oggettivamente impossibile da qui** (nessun accesso, credenziali mancanti nell’ambiente, vincolo di sicurezza): in quel caso riportare **tentativo fatto** + **errore o limite concreto** + cosa resta fuori — non una procedura generica al posto del tentativo.
 
+### Approvazioni Cursor (tool / terminale)
+
+- **Prima** di dire all’utente cosa cliccare o copiare: usare ciò che è già versionato nel repo (`.cursor/cli.json`, `.cursor/permissions.json`) e, su sessione **Remote SSH**, la home **remota** `~/.cursor/` (es. `cli-config.json`, `permissions.json`) — l’agent può crearli/aggiornarli nel workspace o nella home del server.
+- **Vietato** chiudere con «copia questo sul PC», «apri Impostazioni e…», «incolla in %USERPROFILE%» come sostituto dell’azione quando si può ancora scrivere file nel repo o sul server collegato al workspace.
+- Se qualcosa è **davvero** fuori dal workspace e da ogni host raggiungibile (es. solo app desktop locale senza filesystem condiviso): **una** frase sul limite tecnico, **senza** checklist o compiti operativi per l’utente.
+
 ## Verifica sito pubblico (es. Tramelle)
 
 - Per questioni sullo storefront in **produzione** ([`https://tramelle.com/it`](https://tramelle.com/it) e sottopagine), l’**agent** deve usare **fetch MCP / browser MCP** (o equivalente) per ispezionare risposta, titolo, redirect, asset, **senza** demandare all’utente il controllo manuale come sostituto di quella verifica.
@@ -25,10 +31,10 @@ alwaysApply: true
 ## Comportamento richiesto
 
 - **Porte Tramelle fisse (3000 / 9000 / 7000 / 5173):** non cambiarle; se occupate, **terminare il processo sulla TCP e riavviare** lo stesso servizio sulla stessa porta (mai `-p 3001` o altre porte “di comodo” senza richiesta esplicita). Dettaglio e script in [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc).
-- **VPS / PM2 — default: un solo front “pesante” alla volta** con [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) `storefront` | `admin` | `vendor` | `backend` (evita saturazione VPS piccola).
-- **VPS / PM2 — tutti i pannelli + API insieme:** se l’utente vuole shop + manage + vendor contemporaneamente, usare [`scripts/pm2-work-all-fronts.sh`](scripts/pm2-work-all-fronts.sh) (attende `/health`, poi avvia i quattro processi). Richiede RAM/CPU adeguate; in alternativa upgrade VPS o tenere `pm2-work-one.sh`.
+- **Server Hetzner / PM2 — default: un solo front “pesante” alla volta** con [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh) `storefront` | `admin` | `vendor` | `backend` (evita saturazione su macchina con poche risorse).
+- **Server Hetzner / PM2 — tutti i pannelli + API insieme:** se l’utente vuole shop + manage + vendor contemporaneamente, usare [`scripts/pm2-work-all-fronts.sh`](scripts/pm2-work-all-fronts.sh) (attende `/health`, poi avvia i quattro processi). Richiede RAM/CPU adeguate; in alternativa upgrade piano Hetzner o tenere `pm2-work-one.sh`.
 - Solo shop già ok senza restart: [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh).
-- **Codespace / dev locale — tutti i front insieme:** porte separate (3000 / 9000 / 7000 / 5173). Con macchina **Codespace grande** (es. 16 GB RAM, 4 vCPU) è **normale** tenere API + storefront + admin + vendor accesi: **non** liquidare i problemi con «va in crash / poca RAM» senza aver guardato log e porte (`/tmp/tramelle-dev/*.log`, `ss`, `curl`). Usare [`scripts/dev-all-fronts-codespace.sh`](scripts/dev-all-fronts-codespace.sh). Il vincolo «un solo front» vale per la **VPS di produzione piccola**, non come scusa generica sul Codespace attrezzato.
+- **Codespace / dev locale — tutti i front insieme:** porte separate (3000 / 9000 / 7000 / 5173). Con macchina **Codespace grande** (es. 16 GB RAM, 4 vCPU) è **normale** tenere API + storefront + admin + vendor accesi: **non** liquidare i problemi con «va in crash / poca RAM» senza aver guardato log e porte (`/tmp/tramelle-dev/*.log`, `ss`, `curl`). Usare [`scripts/dev-all-fronts-codespace.sh`](scripts/dev-all-fronts-codespace.sh). Il vincolo «un solo front» vale per il **server Hetzner in produzione** quando le risorse sono limitate, non come scusa generica sul Codespace attrezzato.
 - **Storefront in sviluppo (workspace locale):** per anteprima UI **in tempo reale** usare **`yarn dev`** o [`scripts/dev-storefront.sh`](scripts/dev-storefront.sh) (porta **3000**, kill port se occupata). **Non** far attendere l’utente con build prod come prerequisito per vedere un cambio UI; dettaglio in [`storefront-live-preview.mdc`](storefront-live-preview.mdc). La **build di produzione** e il deploy su **tramelle.com** solo se l’utente lo chiede esplicitamente.
 - **Comandi e script** (DB, seed Medusa, build quando richiesta, test, script in `deploy/`, ecc.): eseguirli **direttamente** quando env, rete e permessi lo consentono; non limitarsi a incollare istruzioni.
 - **Fix di codice**: implementare **e** verificare (build/typecheck coerente con il progetto), non solo proposte di snippet.
