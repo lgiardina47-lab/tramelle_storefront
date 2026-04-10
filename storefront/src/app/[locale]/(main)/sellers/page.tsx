@@ -5,10 +5,6 @@ import { toHreflang } from "@/lib/helpers/hreflang"
 import { listRegions } from "@/lib/data/regions"
 import type { Metadata } from "next"
 import Link from "next/link"
-
-
-export const runtime = 'edge';
-
 const PAGE_SIZE = 24
 
 export const revalidate = 120

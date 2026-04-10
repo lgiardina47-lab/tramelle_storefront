@@ -1,9 +1,6 @@
 import { MetadataRoute } from "next"
 
 import { allowSearchIndexing, publicSiteOrigin } from "@/lib/constants/site"
-
-export const runtime = 'edge';
-
 export default function robots(): MetadataRoute.Robots {
   if (!allowSearchIndexing()) {
     return {

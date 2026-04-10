@@ -20,10 +20,6 @@ import {
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
-
-
-export const runtime = 'edge';
-
 export async function generateMetadata({
   params,
 }: {

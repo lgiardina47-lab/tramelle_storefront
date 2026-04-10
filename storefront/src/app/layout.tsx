@@ -3,8 +3,7 @@ import { Funnel_Display } from 'next/font/google';
 
 import './globals.css';
 
-import { Toaster } from '@medusajs/ui';
-
+import { MedusaToaster } from '@/components/MedusaToaster';
 import { retrieveCart } from '@/lib/data/cart';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { isWholesaleCustomer } from '@/lib/helpers/wholesale-customer';
@@ -18,10 +17,6 @@ import {
   resolvedSiteDescription,
   resolvedSiteName,
 } from '@/lib/constants/site';
-
-
-export const runtime = 'edge';
-
 function safeMetadataBase(): URL {
   try {
     return new URL(publicSiteOrigin());
@@ -85,7 +80,7 @@ export default async function RootLayout({
     <html lang={htmlLang} className="">
       <body className={`${funnelDisplay.className} relative bg-primary text-secondary antialiased`}>
         <Providers cart={cart} wholesaleBuyer={wholesaleBuyer}>{children}</Providers>
-        <Toaster position="top-right" />
+        <MedusaToaster />
       </body>
     </html>
   );

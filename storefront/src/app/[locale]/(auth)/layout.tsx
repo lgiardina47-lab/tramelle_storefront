@@ -1,10 +1,6 @@
 import { Footer, Header } from "@/components/organisms"
 import { checkRegion } from "@/lib/helpers/check-region"
 import { redirect } from "next/navigation"
-
-
-export const runtime = 'edge';
-
 export default async function AuthLayout({
   children,
   params,

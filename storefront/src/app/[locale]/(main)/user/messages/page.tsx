@@ -2,10 +2,6 @@ import { LoginForm } from "@/components/molecules/LoginForm/LoginForm"
 import { UserNavigation } from "@/components/molecules/UserNavigation/UserNavigation"
 import { UserMessagesSection } from "@/components/sections/UserMessagesSection/UserMessagesSection"
 import { retrieveCustomer } from "@/lib/data/customer"
-
-
-export const runtime = 'edge';
-
 export default async function MessagesPage() {
   const user = await retrieveCustomer()
 

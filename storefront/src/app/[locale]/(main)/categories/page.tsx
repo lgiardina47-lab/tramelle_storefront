@@ -17,10 +17,6 @@ import {
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
-
-
-export const runtime = 'edge';
-
 export const revalidate = 60
 
 export async function generateMetadata({

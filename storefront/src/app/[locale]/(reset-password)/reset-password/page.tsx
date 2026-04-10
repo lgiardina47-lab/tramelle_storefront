@@ -1,9 +1,5 @@
 import { Card } from "@/components/atoms"
 import { ProfilePasswordForm } from "@/components/molecules/ProfilePasswordForm/ProfilePasswordForm"
-
-
-export const runtime = 'edge';
-
 export default async function ResetPasswordPage({
   searchParams,
 }: {

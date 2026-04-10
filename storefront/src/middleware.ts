@@ -11,9 +11,6 @@ import {
 } from './lib/i18n/storefront-path-locale';
 import { requestShowsComingSoonHome } from './lib/constants/coming-soon-public-home';
 
-/** Next.js 16: il segment runtime per il middleware non è più `'edge'` ma `'experimental-edge'`. */
-export const runtime = 'experimental-edge';
-
 const BACKEND_URL = process.env.MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
 const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || 'us';

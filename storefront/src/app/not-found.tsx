@@ -1,9 +1,6 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowUpIcon } from "@/icons"
 import { Metadata } from "next"
-
-export const runtime = 'edge';
-
 export const metadata: Metadata = {
   title: "Pagina non trovata",
   description: "La pagina richiesta non esiste su Tramelle.",

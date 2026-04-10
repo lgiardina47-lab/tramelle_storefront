@@ -1,8 +1,4 @@
 import { redirect } from "next/navigation"
-
-
-export const runtime = 'edge';
-
 /**
  * La root `/` non è sotto `[locale]`: senza questa pagina Next risponde 404.
  * La splash "Coming Soon" è su `/{locale}` (es. `/it`) quando l'host è tramelle.com.

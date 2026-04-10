@@ -3,9 +3,9 @@
   "version": "1.5.4",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack -H 0.0.0.0 -p 3000",
-    "dev:clean": "rm -rf .next && next dev --webpack -H 0.0.0.0 -p 3000",
-    "build": "node scripts/verify-coming-soon-invariants.cjs && next build --webpack && node scripts/post-next-build.mjs",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
+    "dev:clean": "rm -rf .next && next dev -H 0.0.0.0 -p 3000",
+    "build": "node scripts/verify-coming-soon-invariants.cjs && next build && node scripts/post-next-build.mjs",
     "build:production": "NODE_ENV=production yarn build",
     "start": "next start -H 0.0.0.0 -p 3000",
     "preview": "yarn build && next start -H 0.0.0.0 -p 3000",
@@ -28,11 +28,11 @@
     "i18next-browser-languagedetector": "^8.1.0",
     "js-cookie": "^3.0.5",
     "lodash": "^4.17.21",
-    "next": "16.2.2",
+    "next": "15.5.13",
     "next-intl": "^3.26.3",
-    "react": "^19.2.1",
+    "react": "^18.3.1",
     "react-country-flag": "^3.1.0",
-    "react-dom": "^19.0.0",
+    "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
     "react-i18next": "^15.5.2",
     "tailwind-merge": "^2.6.0",
@@ -53,10 +53,10 @@
     "@storybook/test": "^8.4.7",
     "@types/lodash": "^4.17.15",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "eslint": "^9",
-    "eslint-config-next": "16.2.2",
+    "eslint-config-next": "15.5.13",
     "eslint-plugin-storybook": "^0.11.2",
     "postcss": "^8",
     "prettier": "^3.5.3",
@@ -71,5 +71,9 @@
       "plugin:storybook/recommended"
     ]
   },
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "yarn@1.22.22",
+  "resolutions": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
 }
