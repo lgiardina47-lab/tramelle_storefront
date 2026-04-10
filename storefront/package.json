@@ -7,6 +7,7 @@
     "dev:clean": "rm -rf .next && next dev -H 0.0.0.0 -p 3000",
     "build": "node scripts/verify-coming-soon-invariants.cjs && next build && node scripts/post-next-build.mjs",
     "build:cloudflare": "opennextjs-cloudflare build",
+    "pages:build": "opennextjs-cloudflare build",
     "preview:cloudflare": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "build:production": "NODE_ENV=production yarn build",
     "start": "next start -H 0.0.0.0 -p 3000",
