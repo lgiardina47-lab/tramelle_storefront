@@ -40,6 +40,9 @@ yarn-error.log*
 # OpenNext (Cloudflare)
 .open-next
 
+# Wrangler dev / cache locale
+.wrangler
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
