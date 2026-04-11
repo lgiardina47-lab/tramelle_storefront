@@ -24,7 +24,7 @@ export default async function RootLayout({
                 src="/tramelle.svg"
                 width={200}
                 height={40}
-                alt="Tramelle - Gourmet Marketplace"
+                alt="Tramelle Source Gourmet"
                 className="h-8 w-auto max-h-10 md:max-h-[40px]"
                 decoding="async"
                 fetchPriority="high"

@@ -18,7 +18,7 @@ export const SellerInfo = ({
   bottomBorder?: boolean
 }) => {
   const t = useTranslations("ProductSheet")
-  const { photo, name, reviews } = seller
+  const { name, reviews } = seller
 
   const reviewCount = reviews
     ? reviews?.filter((rev) => rev !== null).length
@@ -39,7 +39,7 @@ export const SellerInfo = ({
           aria-label={t("viewSellerAria", { name })}
         >
           <SellerInfoHeader
-            photo={photo}
+            seller={seller}
             name={name}
             rating={rating}
             reviewCount={reviewCount}
@@ -49,7 +49,7 @@ export const SellerInfo = ({
         </LocalizedClientLink>
       ) : (
         <SellerInfoHeader
-          photo={photo}
+          seller={seller}
           name={name}
           rating={rating}
           reviewCount={reviewCount}

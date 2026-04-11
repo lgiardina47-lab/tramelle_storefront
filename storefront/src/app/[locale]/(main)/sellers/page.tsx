@@ -101,8 +101,8 @@ export default async function SellersDirectoryPage({
       ) : sellers.length === 0 ? (
         <p className="text-sm text-neutral-600">
           {locale === "it"
-            ? "Nessun produttore con descrizione in italiano al momento."
-            : "No producers with a description in this language yet."}
+            ? "Nessun produttore pubblico con testo o immagini (logo/banner) in elenco al momento."
+            : "No public producers with text or listing images in this language yet."}
         </p>
       ) : (
         <>

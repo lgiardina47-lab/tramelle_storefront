@@ -1,7 +1,8 @@
 import { Carousel } from "@/components/cells"
-import { ProductCard } from "../ProductCard/ProductCard"
+import { storefrontHomeCarouselProductFields } from "@/lib/helpers/product-list-fields"
 import { listProducts } from "@/lib/data/products"
 import { Product } from "@/types/product"
+import { ProductCard } from "../ProductCard/ProductCard"
 
 export const HomeProductsCarousel = async ({
   locale,
@@ -16,6 +17,7 @@ export const HomeProductsCarousel = async ({
     response: { products },
   } = await listProducts({
     countryCode: locale,
+    productFields: home ? storefrontHomeCarouselProductFields() : undefined,
     queryParams: {
       limit: home ? 4 : undefined,
       order: "created_at",

@@ -10,10 +10,10 @@ export {
 } from "./coming-soon-public-home"
 
 /** Default branding when env vars are unset (must match .env.local.example). */
-export const DEFAULT_SITE_NAME = "Tramelle - Gourmet Marketplace"
+export const DEFAULT_SITE_NAME = "Tramelle Source Gourmet"
 
 export const DEFAULT_SITE_DESCRIPTION =
-  "Tramelle — il marketplace gourmet: specialità alimentari, produttori e gusti selezionati per te."
+  "Tramelle Source Gourmet: specialità alimentari, produttori e gusti selezionati per te."
 
 /** Valori tipici del template Mercur/Fleek ancora presenti in `.env` di produzione: usare branding Tramelle. */
 const LEGACY_PLACEHOLDER_SITE_NAMES = new Set([

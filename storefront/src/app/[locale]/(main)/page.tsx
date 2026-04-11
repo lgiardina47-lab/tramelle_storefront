@@ -33,7 +33,7 @@ export async function generateMetadata({
   const showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
 
   if (showComingSoon) {
-    const title = "Source Gourmet Marketplace"
+    const title = "Tramelle Source Gourmet"
     const description =
       "Tramelle.com: l'eccellenza non ha più confini. La vetrina globale per i maestri del Gourmet — B2C e B2B, 6 lingue, un'unica piattaforma."
     const canonical = `${baseUrl}/${locale}`

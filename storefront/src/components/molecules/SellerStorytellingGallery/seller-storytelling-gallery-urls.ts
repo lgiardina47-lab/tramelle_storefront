@@ -2,6 +2,16 @@
  * Pure helpers for seller storytelling gallery URLs (safe for Server Components).
  */
 
+import { maybeExpandCfImgRef } from "@/lib/helpers/cloudflare-images"
+
+function expandGalleryItem(raw: string): string {
+  const t = raw.trim()
+  if (!t) {
+    return t
+  }
+  return maybeExpandCfImgRef(t) ?? t
+}
+
 function coerceStringArray(raw: unknown): string[] {
   if (Array.isArray(raw)) {
     return raw.filter((x): x is string => typeof x === "string" && x.trim().length > 0)
@@ -50,11 +60,14 @@ function parseGalleryUrls(metadata: unknown): string[] {
     "product_image_urls",
   ] as const) {
     const arr = coerceStringArray(meta[k])
-    if (arr.length) return arr
+    if (arr.length) {
+      return arr.map(expandGalleryItem)
+    }
   }
-  const hero =
+  const heroRaw =
     typeof meta.hero_image_url === "string" ? meta.hero_image_url.trim() : ""
-  if (hero) {
+  if (heroRaw) {
+    const hero = expandGalleryItem(heroRaw)
     return inferStorytellingFromPartnerHero(hero)
   }
   return []

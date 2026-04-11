@@ -10,3 +10,13 @@ export function storefrontListingProductFields(_includeVariantInventory?: boolea
     "*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute"
   )
 }
+
+/**
+ * Payload ridotto per caroselli home (pochi prodotti): niente reviews annidate, attributi o catalogo seller.
+ * Riduce il tempo di risposta `/store/products` rispetto a {@link storefrontListingProductFields}.
+ */
+export function storefrontHomeCarouselProductFields(): string {
+  return (
+    "*variants.calculated_price,+variants.inventory_quantity,+variants.metadata,+metadata,*variants,*seller"
+  )
+}

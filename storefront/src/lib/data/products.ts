@@ -24,7 +24,8 @@ export const listProducts = async ({
   regionId,
   category_id,
   collection_id,
-  forceCache = false
+  forceCache = false,
+  productFields
 }: {
   pageParam?: number;
   queryParams?: HttpTypes.FindParams &
@@ -36,6 +37,8 @@ export const listProducts = async ({
   countryCode?: string;
   regionId?: string;
   forceCache?: boolean;
+  /** Override campi Medusa (es. carosello home leggero). */
+  productFields?: string;
 }): Promise<{
   response: {
     products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -73,7 +76,7 @@ export const listProducts = async ({
     ...(await getAuthHeaders())
   };
 
-  const listingFields = storefrontListingProductFields();
+  const listingFields = productFields ?? storefrontListingProductFields();
 
   const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
 
@@ -94,7 +97,7 @@ export const listProducts = async ({
         fields: listingFields
       },
       headers,
-      next: useCached ? { revalidate: 60 } : undefined,
+      next: useCached ? { revalidate: 120 } : undefined,
       cache: useCached ? 'force-cache' : 'no-cache'
     })
     .then(({ products: productsRaw, count }) => {
@@ -104,7 +107,7 @@ export const listProducts = async ({
 
       const response = products.filter(prod => {
         // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-        const reviews = prod.seller?.reviews.filter(item => !!item) ?? [];
+        const reviews = prod.seller?.reviews?.filter(item => !!item) ?? [];
         return (
           // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
           prod?.seller && {

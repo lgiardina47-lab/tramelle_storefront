@@ -2,6 +2,7 @@ import { Divider } from "@/components/atoms"
 import { SingleProductSeller } from "@/types/product"
 import { format } from "date-fns"
 import { SellerAvatar } from "../SellerAvatar/SellerAvatar"
+import { sellerPrimaryLogoOrPhotoUrl } from "@/lib/helpers/seller-media-url"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 
 export const CartItemsHeader = ({
@@ -9,10 +10,16 @@ export const CartItemsHeader = ({
 }: {
   seller: SingleProductSeller
 }) => {
+  const avatarSrc = sellerPrimaryLogoOrPhotoUrl({
+    handle: seller.handle,
+    name: seller.name,
+    photo: seller.photo,
+    metadata: null,
+  })
   return (
     <LocalizedClientLink href={`/sellers/${seller.handle}`}>
       <div className="border rounded-sm p-4 flex gap-4 items-center">
-        <SellerAvatar photo={seller.photo} size={32} alt={seller.name} />
+        <SellerAvatar photo={avatarSrc} size={32} alt={seller.name} />
 
         <div className="lg:flex gap-2">
           <p className="uppercase heading-xs">{seller.name}</p>

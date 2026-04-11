@@ -1,19 +1,45 @@
 /**
- * Risolve URL assoluti per foto seller (Medusa relative, //, CDN Tramelle).
- * Allineato alla logica vendor-panel `trammelle-partner-media.ts`.
+ * Risolve URL assoluti per foto seller (Medusa relative, //, cfimg, CDN partner opzionale da env).
+ * Allineato alla logica vendor-panel `tramelle-partner-media.ts`.
  */
 
 import { sellerStorytellingGalleryUrls } from "@/components/molecules/SellerStorytellingGallery/seller-storytelling-gallery-urls"
 import type { StoreSellerListItem } from "@/types/seller"
+import { maybeExpandCfImgRef } from "@/lib/helpers/cloudflare-images"
 import { medusaImageRewriteBase } from "@/lib/helpers/get-image-url"
 
 export function medusaPublicBase(): string {
   return medusaImageRewriteBase()
 }
 
+/** Base CDN partner legacy: solo se impostata in env; niente default (CDN partner non più usato). */
 export function tramelleCdnBase(): string {
   const raw = process.env.NEXT_PUBLIC_TRAMELLE_CDN_PUBLIC_BASE?.trim()
-  return (raw?.replace(/\/$/, "") || "https://cdn.tramelle.com").trim()
+  return (raw?.replace(/\/$/, "") ?? "").trim()
+}
+
+function isDeprecatedTramellePartnerCdnHost(hostname: string): boolean {
+  return hostname.toLowerCase() === "cdn.tramelle.com"
+}
+
+/**
+ * Base per URL convenzione `partner/{handle}/cover_*`: ignora sempre `cdn.tramelle.com`
+ * (non servito →404 in UI anche se resta in `.env` / Pages).
+ */
+function partnerConventionalMediaBase(): string {
+  const raw = tramelleCdnBase()
+  if (!raw) {
+    return ""
+  }
+  try {
+    const u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
+    if (isDeprecatedTramellePartnerCdnHost(u.hostname)) {
+      return ""
+    }
+  } catch {
+    return ""
+  }
+  return raw
 }
 
 function stripForAsciiToken(s: string): string {
@@ -44,26 +70,34 @@ function partnerFolderSlug(seller: Pick<StoreSellerListItem, "handle">): string 
 export function inferTramellePartnerCoverUrl(
   seller: Pick<StoreSellerListItem, "name" | "handle">
 ): string | null {
+  const base = partnerConventionalMediaBase()
+  if (!base) return null
   const folder = partnerFolderSlug(seller)
   if (!folder) return null
   const token = brandFileToken(seller.name || "", folder)
-  return `${tramelleCdnBase()}/partner/${folder}/cover_${token}.jpg`
+  return `${base}/partner/${folder}/cover_${token}.jpg`
 }
 
 export function inferTramellePartnerLogoUrl(
   seller: Pick<StoreSellerListItem, "name" | "handle">,
   ext: "jpg" | "png" = "jpg"
 ): string | null {
+  const base = partnerConventionalMediaBase()
+  if (!base) return null
   const folder = partnerFolderSlug(seller)
   if (!folder) return null
   const token = brandFileToken(seller.name || "", folder)
-  return `${tramelleCdnBase()}/partner/${folder}/logo_${token}.${ext}`
+  return `${base}/partner/${folder}/logo_${token}.${ext}`
 }
 
 /** Trasforma URL API Medusa / CDN in assoluti (necessario per `<img>` e browser). */
 export function normalizeSellerImageUrl(raw: string): string | null {
   const u = raw.trim()
   if (!u) return null
+  const cf = maybeExpandCfImgRef(u)
+  if (cf) {
+    return cf
+  }
   if (u.startsWith("//")) {
     return `https:${u}`
   }
@@ -71,16 +105,43 @@ export function normalizeSellerImageUrl(raw: string): string | null {
     return `${medusaPublicBase()}${u}`
   }
   if (/^https?:\/\//i.test(u)) {
+    try {
+      if (isDeprecatedTramellePartnerCdnHost(new URL(u).hostname)) {
+        return null
+      }
+    } catch {
+      return null
+    }
     return u
   }
   return null
 }
 
+/** CDN archivio Taste/Pitti: non servire più in UI (partner su Cloudflare / cfimg). */
+function isPittiArchiveCdnUrl(absoluteUrl: string): boolean {
+  try {
+    return new URL(absoluteUrl).hostname.toLowerCase() === "media.pittimmagine.com"
+  } catch {
+    return false
+  }
+}
+
 function pushUnique(out: string[], url: string | null | undefined) {
   const n = url ? normalizeSellerImageUrl(url) : null
-  if (n && !out.includes(n)) {
-    out.push(n)
+  if (!n || out.includes(n)) {
+    return
   }
+  if (isPittiArchiveCdnUrl(n)) {
+    return
+  }
+  try {
+    if (isDeprecatedTramellePartnerCdnHost(new URL(n).hostname)) {
+      return
+    }
+  } catch {
+    return
+  }
+  out.push(n)
 }
 
 /**
@@ -126,4 +187,12 @@ export function sellerLogoImageCandidates(seller: StoreSellerListItem): string[]
 
   const heroFirst = sellerHeroImageCandidates(seller)[0]
   return out.filter((u) => !heroFirst || u !== heroFirst)
+}
+
+/** Foto badge/avatar: stesso ordine della directory (logo metadata → photo → CDN legacy), senza Pitti. */
+export function sellerPrimaryLogoOrPhotoUrl(
+  seller: Pick<StoreSellerListItem, "metadata" | "photo" | "handle" | "name">
+): string {
+  const c = sellerLogoImageCandidates(seller)
+  return c[0] ?? ""
 }

@@ -23,8 +23,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   logging: {
     fetches: {
-      fullUrl: true
-    }
+      fullUrl: process.env.NODE_ENV !== 'production',
+    },
   },
   images: {
     remotePatterns: [
@@ -52,10 +52,6 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'api.tramelle.com'
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.tramelle.com'
       },
       {
         protocol: 'https',
