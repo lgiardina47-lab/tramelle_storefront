@@ -1,0 +1,14 @@
+{
+  "label": "official",
+  "description": "Snapshot export approvato (Tor batch → sellers JSON + import Medusa).",
+  "created_utc": "2026-04-11T00:05:50Z",
+  "source_files": {
+    "marketplace_sellers_official.json": "copy of output/marketplace_sellers_tor_requests_20260409T120917Z.json",
+    "marketplace_sellers_official_import.json": "copy of dati_venditori_nuova/marketplace_sellers_all_10_import.json"
+  },
+  "sha256": {
+    "marketplace_sellers_official.json": "a38085bbf5390343924736bf2d682fd68444faf2cdadb5c2697ea34ed2ac6439",
+    "marketplace_sellers_official_import.json": "8df72a880a1e82dc9944c644c894bb8b3427e89a6b2322bea5a29b23de7679a1"
+  },
+  "seller_count": 1037
+}

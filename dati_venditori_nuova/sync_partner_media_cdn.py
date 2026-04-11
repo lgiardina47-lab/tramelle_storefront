@@ -19,6 +19,10 @@ Import Medusa (password/email vendor): `tramelle_import_defaults.py` e `backend/
 Esempi:
   python3 sync_partner_media_cdn.py export.json --storytelling --storytelling-max 6 --limit 10 \
     --write-import-json output/test_import.json --slice-import 10
+
+  # Un solo partner (sempre via Tor, non curl):
+  python3 sync_partner_media_cdn.py export.json --slug acetaia-ducale-estense --storytelling
+  python3 sync_partner_media_cdn.py export.json --seller-index 5 --storytelling
 """
 
 from __future__ import annotations
@@ -42,7 +46,9 @@ from tor_session import (  # noqa: E402
 from tor_proxy import session_must_use_tor  # noqa: E402
 
 _DATI_ROOT = Path(__file__).resolve().parent
-_DEFAULT_JSON = _DATI_ROOT / "marketplace_sellers_all_10.json"
+_OFFICIAL_DIR = _DATI_ROOT / "output" / "official"
+_DEFAULT_JSON = _OFFICIAL_DIR / "marketplace_sellers_official.json"
+_DEFAULT_IMPORT_JSON = _OFFICIAL_DIR / "marketplace_sellers_official_import.json"
 _DEFAULT_OUT = _DATI_ROOT / "partner_media_out"
 
 
@@ -225,6 +231,19 @@ def main() -> int:
         help="Directory output (default: dati_venditori/partner_media_out)",
     )
     p.add_argument("--limit", type=int, default=0, help="Solo primi N seller (0 = tutti)")
+    p.add_argument(
+        "--slug",
+        type=str,
+        default="",
+        help="Scarica un solo seller con questo slug (es. acetaia-ducale-estense).",
+    )
+    p.add_argument(
+        "--seller-index",
+        type=int,
+        default=0,
+        metavar="N",
+        help="Scarica solo sellers[N-1] dal JSON (1-based). Ignorato se --slug è impostato.",
+    )
     p.add_argument("--dry-run", action="store_true", help="Solo log, nessun download")
     p.add_argument(
         "--rsync",
@@ -258,9 +277,9 @@ def main() -> int:
     p.add_argument(
         "--write-import-json",
         type=str,
-        default=str(_DATI_ROOT / "marketplace_sellers_all_10_import.json"),
+        default=str(_DEFAULT_IMPORT_JSON),
         metavar="PATH",
-        help="JSON per Medusa import: logo_url puntano al CDN (default: .../marketplace_sellers_all_10_import.json)",
+        help="JSON per Medusa import (default: output/official/marketplace_sellers_official_import.json)",
     )
     p.add_argument(
         "--no-import-json",
@@ -283,6 +302,37 @@ def main() -> int:
         data = json.load(f)
 
     sellers = data.get("sellers") or []
+    if not isinstance(sellers, list):
+        print("JSON senza sellers[]", file=sys.stderr)
+        return 1
+
+    slug_f = (args.slug or "").strip()
+    if slug_f and int(args.seller_index or 0) > 0:
+        print("Usa solo --slug oppure solo --seller-index, non entrambi.", file=sys.stderr)
+        return 1
+    if slug_f:
+        sellers = [
+            s
+            for s in sellers
+            if isinstance(s, dict) and str(s.get("slug", "")).strip() == slug_f
+        ]
+        if not sellers:
+            print(f"Slug {slug_f!r} non trovato in {raw_path}", file=sys.stderr)
+            return 1
+    elif int(args.seller_index or 0) > 0:
+        idx = int(args.seller_index) - 1
+        if idx < 0 or idx >= len(sellers):
+            print(
+                f"--seller-index {args.seller_index} fuori range (1…{len(sellers)})",
+                file=sys.stderr,
+            )
+            return 1
+        row = sellers[idx]
+        if not isinstance(row, dict):
+            print("Elemento sellers[] non è un oggetto", file=sys.stderr)
+            return 1
+        sellers = [row]
+
     if args.limit and args.limit > 0:
         sellers = sellers[: args.limit]
 
