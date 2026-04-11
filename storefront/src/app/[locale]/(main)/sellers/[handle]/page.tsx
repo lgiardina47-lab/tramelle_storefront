@@ -3,6 +3,8 @@ import { SellerPageHeader } from "@/components/sections"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { getRegion } from "@/lib/data/regions"
 import { getSellerByHandle } from "@/lib/data/seller"
+import { notFound } from "next/navigation"
+
 export default async function SellerPage({
   params,
 }: {
@@ -19,7 +21,7 @@ export default async function SellerPage({
   const tab = "products"
 
   if (!seller) {
-    return null
+    notFound()
   }
 
   return (

@@ -1,9 +1,5 @@
 import { SellerInfo } from "@/components/molecules"
 import { SellerDescriptionTabsHtml } from "@/components/molecules/SellerDescriptionTabs/SellerDescriptionTabs"
-import { SellerPageHeroCover } from "@/components/molecules/SellerPageHeroCover/SellerPageHeroCover"
-import {
-  sellerHeroImageCandidates,
-} from "@/lib/helpers/seller-media-url"
 import { sellerDescriptionsMapForUi } from "@/lib/helpers/tramelle-seller-description-i18n"
 import { SellerProps } from "@/types/seller"
 import { Chat } from "../Chat/Chat"
@@ -25,19 +21,8 @@ export const SellerHeading = ({
     seller.metadata ?? undefined
   )
 
-  const heroCandidates = sellerHeroImageCandidates(seller)
-  const showHeroDebug = process.env.NODE_ENV === "development"
-
   return (
     <div className="border-b">
-      {header && heroCandidates.length > 0 ? (
-        <SellerPageHeroCover
-          heroCandidates={heroCandidates}
-          name={seller.name}
-          showDebugUrls={showHeroDebug}
-          className="rounded-t-sm overflow-hidden"
-        />
-      ) : null}
       <div className="flex flex-col md:flex-row justify-between">
         <div>
           <SellerInfo header={header} seller={seller} />
