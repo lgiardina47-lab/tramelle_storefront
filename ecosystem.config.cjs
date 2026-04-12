@@ -43,7 +43,7 @@ module.exports = {
         PORT: String(STOREFRONT),
         HOSTNAME: '0.0.0.0',
         NODE_ENV: 'production',
-        NEXT_PUBLIC_COMING_SOON_HOME: 'true',
+        NEXT_PUBLIC_COMING_SOON_HOME: 'false',
       },
       autorestart: true,
       max_restarts: 30,

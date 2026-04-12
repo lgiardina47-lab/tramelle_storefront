@@ -17,6 +17,18 @@ alwaysApply: true
 
 **Eccezione solo se oggettivamente impossibile da qui** (nessun accesso, credenziali mancanti nell’ambiente, vincolo di sicurezza): in quel caso riportare **tentativo fatto** + **errore o limite concreto** + cosa resta fuori — non una procedura generica al posto del tentativo.
 
+### Env e storefront
+
+**Non** proporre come soluzione principale «modifica il tuo `.env` / `.env.local`» se il comportamento atteso è già (o può essere) definito nel repo — es. [`storefront/.env.development`](storefront/.env.development) versionato per `next dev`. Il `.env` gitignored resta per segreti (`pk_`, token); **non** trasformare aggiustamenti operativi in carico manuale sull’utente quando si può committare il default.
+
+### Chiusura delle risposte (anti-delega)
+
+È **vietato** chiudere con compiti per l’utente quando l’azione è eseguibile da qui. In particolare **non** usare come chiusura sostitutiva dell’azione:
+
+- «Riavvia tu» / «fai `yarn dev`» / «hard refresh» / «svuota cache» / «verifica nel browser» / «controlla tu sul sito»
+
+Dopo cambi a **`.env*`**, **config** o **codice** che richiede effetto a runtime, l’agente **esegue** ciò che serve (es. `curl` su `localhost:3000` o URL pubblico, `docker compose restart <servizio>`, kill porta + avvio script in `scripts/`, lettura log). Se il tentativo fallisce o non è applicabile, si riporta **comando eseguito + output/errore**, non una procedura generica.
+
 ### Approvazioni Cursor (tool / terminale)
 
 - **Prima** di dire all’utente cosa cliccare o copiare: usare ciò che è già versionato nel repo (`.cursor/cli.json`, `.cursor/permissions.json`) e, su sessione **Remote SSH**, la home **remota** `~/.cursor/` (es. `cli-config.json`, `permissions.json`) — l’agent può crearli/aggiornarli nel workspace o nella home del server.

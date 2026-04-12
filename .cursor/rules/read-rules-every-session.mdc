@@ -9,10 +9,11 @@ alwaysApply: true
 
 **All’apertura di ogni conversazione e prima di operare**, l’agente deve considerare applicate **integralmente** tutte le regole del progetto in [`.cursor/rules/`](.cursor/rules/), in particolare:
 
-- [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc) — non delegare comandi, build, verifiche HTTP, PM2, ecc. all’utente se sono eseguibili da qui.
-- [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc) — porte fisse (3000 / 9000 / 7000 / 5173), script, contesto Medusa/Mercur; **repo GitHub storefront / Cloudflare: `lgiardina47-lab/tramelle_storefront`** (non il flusso “marketplace” per quel deploy).
+- [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc) — non delegare comandi, build, verifiche HTTP, PM2, ecc.; **vietata chiusura con «riavvia tu» / «verifica nel browser»** se l’agente può eseguire curl/restart/log.
+- [`tramelle-mercur-context.mdc`](tramelle-mercur-context.mdc) — porte fisse (3000 / 9000 / 7000 / 5173), script, contesto Medusa/Mercur; **repo GitHub storefront / Cloudflare: `lgiardina47-lab/tramelle_storefront`** (non il flusso “marketplace” per quel deploy); **commit senza scope esplicito = solo `storefront/`** (deploy Cloudflare), non tutto il monorepo.
 - [`storefront-live-preview.mdc`](storefront-live-preview.mdc) — **UI storefront in tempo reale** con `yarn dev`; **no attese** su build prod per anteprima; deploy solo su richiesta esplicita.
 - [`docker-hetzner-execution.mdc`](docker-hetzner-execution.mdc) — **deve lavorare il server** (Remote SSH su `/var/www/tramelle`); PC solo client; build/DB/Docker sul server; modello “VPS separata” deprecato.
+- [`server-resource-hygiene.mdc`](server-resource-hygiene.mdc) — **ottimizzazione sul server**: non lasciare processi/job inutili accesi; chiudere o terminare ciò che non serve più al task (RAM/CPU condivise).
 
 Non assumere di “ricordare” a memoria: se il contesto della chat non include ancora il testo di una regola, **leggere il file** con gli strumenti (`Read`) quando serve per essere coerenti.
 

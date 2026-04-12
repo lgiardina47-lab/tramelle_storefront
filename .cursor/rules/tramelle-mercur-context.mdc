@@ -16,6 +16,12 @@ Monorepo **MercurJS** su **Medusa v2** + plugin `@mercurjs/*`: sostituisce lo st
 - **Push non interattivo da server:** in **`.env` root (gitignored)** impostare `GITHUB_TOKEN` (PAT scope `repo`), poi eseguire [`scripts/git-push-with-token-from-env.sh`](scripts/git-push-with-token-from-env.sh) — non salvare il token nell’URL del remote.
 - **Build Cloudflare (directory progetto = `storefront`):** comando tipico **`yarn install && yarn build:cloudflare`** (`opennextjs-cloudflare build` dopo `next build`). **Non** usare install solo production (servono devDependencies `@opennextjs/cloudflare` e `wrangler`). Config: [`storefront/wrangler.toml`](storefront/wrangler.toml), [`storefront/open-next.config.ts`](storefront/open-next.config.ts). `@cloudflare/next-on-pages` è deprecato.
 
+### Commit Git quando l’utente chiede «un commit» (default)
+
+- **Senza scope esplicito** (es. l’utente dice solo «fai un commit», «committa», «commit del frontend» senza elencare cartelle): l’agente fa **`git add` e `git commit` solo su [`storefront/`](storefront)** — è lì che sta il codice che va sul **deploy Cloudflare** (`tramelle_storefront` / CI).
+- **Non** includere per default `admin-panel/`, `vendor-panel/`, `backend/` o altre radici del monorepo salvo che l’utente lo chieda **esplicitamente** (es. «commit backend», «tutto il monorepo», «anche admin»).
+- Se il commit richiesto deve coinvolgere più parti, l’utente deve dirlo chiaramente; in dubbio, **chiedere** o limitarsi a **`storefront/`**.
+
 **Infrastruttura:** non esiste più una “VPS” distinta dalla produzione — **un solo server Hetzner** ospita Tramelle (e/o Docker). Le vecchie regole scritte per “VPS piccola vs altro” **non valgono** salvo dove resta il vincolo generico “macchina con poche RAM”.
 
 **DNS Cloudflare (stato attuale):** i record in dashboard Cloudflare **puntano ancora alla vecchia VPS**, **non** al **tunnel** Cloudflare. Finché non si aggiornano i record (o non si passa il traffico al tunnel), hostname pubblici tipo `tramelle.com` / `api.tramelle.com` possono risolvere e servire **l’ambiente vecchio**, non necessariamente l’Hetzner o lo stack Docker/PM2 corrente. Verifiche su “cosa vede il mondo” vanno interpretate alla luce di questo disallineamento.
@@ -39,7 +45,7 @@ Monorepo **MercurJS** su **Medusa v2** + plugin `@mercurjs/*`: sostituisce lo st
 
 ## Variabili d’ambiente (punti d’ingresso)
 
-- Backend: [`backend/.env`](backend/.env) / `backend/.env.example` — Stripe obbligatorio per avvio; Algolia/Resend/TalkJS opzionali o con fallback.
+- Backend: [`backend/.env`](backend/.env) / `backend/.env.example` — Stripe obbligatorio per avvio; Meilisearch (ricerca listing), Resend, TalkJS opzionali o con fallback.
 - Storefront: `storefront/.env.local` da [`storefront/.env.local.example`](storefront/.env.local.example) — publishable key `pk_...` dal seed Medusa.
 - Pannelli: `admin-panel/.env`, `vendor-panel/.env` (es. TalkJS `VITE_*`, publishable key vendor dove richiesto).
 
@@ -47,7 +53,7 @@ Monorepo **MercurJS** su **Medusa v2** + plugin `@mercurjs/*`: sostituisce lo st
 
 - **Server Hetzner / PM2:** [`scripts/pm2-work-one.sh`](scripts/pm2-work-one.sh), [`scripts/pm2-work-all-fronts.sh`](scripts/pm2-work-all-fronts.sh), [`scripts/pm2-ensure-storefront-only.sh`](scripts/pm2-ensure-storefront-only.sh) — dettagli e vincoli RAM in [`agent-execute-dont-delegate.mdc`](agent-execute-dont-delegate.mdc).
 - **Dev locale / Codespace:** [`scripts/dev-storefront.sh`](scripts/dev-storefront.sh), [`scripts/dev-all-fronts-codespace.sh`](scripts/dev-all-fronts-codespace.sh).
-- **Algolia:** [`scripts/push-algolia-index-settings.mjs`](scripts/push-algolia-index-settings.mjs) quando l’indice è attivo.
+- **Meilisearch (listing):** da `/backend` → `yarn meilisearch:sync` quando `MEILISEARCH_HOST` e `MEILI_MASTER_KEY` sono configurati.
 
 Storefront: in iterazione UI usare **`yarn dev`** / `dev-storefront.sh`, non build di produzione a ogni modifica — vedi [`storefront-live-preview.mdc`](storefront-live-preview.mdc).
 

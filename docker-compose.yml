@@ -1,6 +1,10 @@
 # Stack sviluppo con HMR: volumi sul monorepo, `yarn dev` / `medusa develop`.
-# Porte fisse: 3000 / 9000 / 7000 / 5173 / 6379 (deploy/monorepo-default-ports.cjs).
+# Porte fisse: 3000 / 9000 / 7000 / 5173 / 6379 (deploy/monorepo-default-ports.cjs); Meilisearch 7700.
 # Tunnel SSH dal PC: mappa le stesse porte su localhost; Vite HMR (admin/vendor) usa ws → localhost.
+# Se apri admin/vendor dal browser su IP pubblico (es. http://SERVER:7000), imposta nel file `.env` alla root:
+#   VITE_MEDUSA_BROWSER_BACKEND_URL=http://SERVER:9000
+#   VITE_MEDUSA_BROWSER_STOREFRONT_URL=http://SERVER:3000
+# (altrimenti il bundle usa localhost e le API vanno al PC, non al server).
 #
 # Avvio: docker compose up -d
 # Log:   docker compose logs -f backend
@@ -9,6 +13,18 @@
 name: tramelle
 
 services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    restart: always
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_ENV: development
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-tramelle_dev_meili_master}
+    volumes:
+      - meilisearch-data:/meili_data
+
   redis:
     image: redis:alpine
     restart: always
@@ -33,8 +49,11 @@ services:
       PORT: "9000"
       NODE_ENV: development
       REDIS_URL: redis://redis:6379
+      MEILISEARCH_HOST: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-tramelle_dev_meili_master}
     depends_on:
       - redis
+      - meilisearch
     command:
       - bash
       - -lc
@@ -59,12 +78,9 @@ services:
     environment:
       NODE_ENV: development
       DOCKER: "1"
-      # SSR: API nel network Docker. URL pubblici immagini: da `storefront/.env` (es. https://api.tramelle.com);
-      # non forzare localhost qui — il browser spesso non ha :9000 (thumbnail API sono `http://localhost:9000/static/...`).
-      MEDUSA_BACKEND_URL: http://backend:9000
-      # Allineato a .env.production: su `next build` / tramelle.com resta la splash finché non si mette "false".
-      NEXT_PUBLIC_COMING_SOON_HOME: "true"
-      # `true` = splash anche su localhost in dev; `false` = shop completo in dev (splash solo host pubblico in prod build).
+      # Parità con deploy Cloudflare: niente override di MEDUSA_* — tutto da `storefront/.env` (tipicamente https://api.tramelle.com).
+      # Prima era forzato `backend:9000` e splash home: menu/catalogo diversi dalla produzione.
+      NEXT_PUBLIC_COMING_SOON_HOME: "false"
       NEXT_PUBLIC_COMING_SOON_DEV_PREVIEW: "false"
     depends_on:
       - backend
@@ -94,8 +110,8 @@ services:
       DOCKER: "1"
       PORT: "5173"
       VITE_MEDUSA_PROJECT: /workspace/backend
-      VITE_MEDUSA_BACKEND_URL: http://localhost:9000
-      VITE_MEDUSA_STOREFRONT_URL: http://localhost:3000
+      VITE_MEDUSA_BACKEND_URL: ${VITE_MEDUSA_BROWSER_BACKEND_URL:-http://localhost:9000}
+      VITE_MEDUSA_STOREFRONT_URL: ${VITE_MEDUSA_BROWSER_STOREFRONT_URL:-http://localhost:3000}
     depends_on:
       - backend
     command:
@@ -123,8 +139,8 @@ services:
       NODE_ENV: development
       DOCKER: "1"
       PORT: "7000"
-      VITE_MEDUSA_BACKEND_URL: http://localhost:9000
-      VITE_MEDUSA_STOREFRONT_URL: http://localhost:3000
+      VITE_MEDUSA_BACKEND_URL: ${VITE_MEDUSA_BROWSER_BACKEND_URL:-http://localhost:9000}
+      VITE_MEDUSA_STOREFRONT_URL: ${VITE_MEDUSA_BROWSER_STOREFRONT_URL:-http://localhost:3000}
     depends_on:
       - backend
     command:
@@ -138,6 +154,7 @@ services:
         yarn dev
 
 volumes:
+  meilisearch-data:
   redis-data:
   backend_node_modules:
   storefront_node_modules:
