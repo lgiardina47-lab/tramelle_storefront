@@ -2,6 +2,7 @@
 
 import { HttpTypes } from '@medusajs/types'
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink'
+import { categoryPublicHref } from '@/lib/helpers/category-public-url'
 
 interface Props {
   categories: HttpTypes.StoreProductCategory[]
@@ -20,7 +21,7 @@ export const ChildCategories = ({ categories, onLinkClick, title }: Props) => {
       {categories.map((category) => (
         <LocalizedClientLink
           key={category.id}
-          href={`/categories/${category.handle}`}
+          href={categoryPublicHref(category.handle)}
           onClick={onLinkClick}
           className="label-md text-primary hover:text-action transition-colors py-1"
         >

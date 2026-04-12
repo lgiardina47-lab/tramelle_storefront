@@ -4,10 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { HttpTypes } from '@medusajs/types';
 
-import { IconButton } from '@/components/atoms';
 import { HeaderCategoryNavbar } from '@/components/molecules';
 import { LanguageSwitcher } from '@/components/molecules/LanguageSwitcher/LanguageSwitcher';
-import { CloseIcon, HamburgerMenuIcon } from '@/icons';
 import type { LanguageSwitcherOption } from '@/lib/helpers/language-switcher-options';
 
 import { MobileCategoryNavbar } from './components';
@@ -46,12 +44,14 @@ export const MobileNavbar = ({
       className="lg:hidden"
       data-testid="mobile-navbar"
     >
-      <div
+      <button
+        type="button"
         onClick={() => setIsOpen(true)}
         data-testid="mobile-menu-toggle"
+        className="text-sm font-semibold uppercase text-cortilia underline-offset-2 hover:underline"
       >
-        <HamburgerMenuIcon />
-      </div>
+        Menu
+      </button>
       {isOpen && (
         <div
           className="fixed left-0 top-0 z-20 h-full w-full bg-primary"
@@ -62,13 +62,14 @@ export const MobileNavbar = ({
             data-testid="mobile-menu-header"
           >
             <h2 className="heading-md uppercase text-primary">Menu</h2>
-            <IconButton
-              icon={<CloseIcon size={20} />}
+            <button
+              type="button"
               onClick={() => closeMenuHandler()}
-              variant="icon"
-              size="small"
               data-testid="mobile-menu-close-button"
-            />
+              className="text-sm font-semibold uppercase text-primary underline-offset-2 hover:underline"
+            >
+              Chiudi
+            </button>
           </div>
           <div className="">
             <HeaderCategoryNavbar

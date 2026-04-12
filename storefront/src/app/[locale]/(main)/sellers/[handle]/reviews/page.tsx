@@ -23,20 +23,22 @@ export default async function SellerReviewsPage({
   }
 
   return (
-    <main className="container">
+    <main className="w-full max-w-[100vw] overflow-x-hidden">
       <SellerPageHeader
         header
         seller={seller}
         user={user}
         urlLocale={locale}
       />
-      <SellerTabs
-        tab={tab}
-        seller_id={seller.id}
-        seller_handle={seller.handle}
-        locale={locale}
-        currency_code={currency_code}
-      />
+      <div className="container">
+        <SellerTabs
+          tab={tab}
+          seller_id={seller.id}
+          seller_handle={seller.handle}
+          locale={locale}
+          currency_code={currency_code}
+        />
+      </div>
     </main>
   )
 }

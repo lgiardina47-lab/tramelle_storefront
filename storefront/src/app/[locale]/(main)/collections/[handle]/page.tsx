@@ -1,7 +1,7 @@
 import NotFound from "@/app/not-found"
 import { Breadcrumbs } from "@/components/atoms"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
+import { CatalogSearchListing, ProductListing } from "@/components/sections"
 import { getCollectionByHandle } from "@/lib/data/collections"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
@@ -44,7 +44,7 @@ const SingleCollectionsPage = async ({
         {bot || !preferBackendProductSearchListing() ? (
           <ProductListing collection_id={collection.id} locale={locale} />
         ) : (
-          <AlgoliaProductsListing
+          <CatalogSearchListing
             collection_id={collection.id}
             locale={locale}
             currency_code={currency_code}

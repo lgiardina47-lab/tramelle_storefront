@@ -7,7 +7,8 @@
     "addToCartErrorTitle": "カートに追加できませんでした",
     "addToCartErrorDescription": "バリエーションによっては必要な在庫がないものがあります",
     "wholesaleInvalidQtyTitle": "数量が正しくありません",
-    "wholesaleInvalidQtyDescription": "このB2B商品は {pieces} 個（1ケース）単位でご注文ください。"
+    "wholesaleInvalidQtyDescription": "このB2B商品は {pieces} 個（1ケース）単位でご注文ください。",
+    "inStockCount": "在庫 {count} 点"
   },
   "Nav": {
     "utilityAria": "便利なリンク",
@@ -36,7 +37,27 @@
   "Header": {
     "wishlist": "お気に入り",
     "wishlistAria": "お気に入り",
-    "logoAlt": "Tramelle Source Gourmet"
+    "logoAlt": "Tramelle Source Gourmet",
+    "gourmet": {
+      "tagline": "Source Gourmet",
+      "searchPlaceholder": "商品・生産者・地域を検索…",
+      "consumer": "Consumer",
+      "chefPro": "Chef Pro",
+      "consumerHint": "コンシューマ向けカタログ",
+      "chefProHint": "Chef Proアカウント（B2B価格・数量）",
+      "categoriesHeading": "カテゴリー",
+      "selectionsHeading": "セレクション",
+      "producersHeading": "生産者",
+      "seeAll": "すべて見る",
+      "seeAllProducers": "すべて見る",
+      "allCategories": "すべて",
+      "shippingEu": "ヨーロッパへ配送",
+      "news": "新着",
+      "becomeProducer": "生産者になる",
+      "categoryNavAria": "カテゴリーナビ",
+      "exploreProducersInCategory": "{name}の生産者を見る",
+      "browseAllCollections": "すべてのコレクション"
+    }
   },
   "Hero": {
     "heading": "厳選グルメを、丁寧にお届け",

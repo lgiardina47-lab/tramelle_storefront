@@ -15,7 +15,10 @@ export const ReviewCard = ({ review }: { review: Review }) => {
           <Image
             alt="Seller photo"
             src={review.seller.photo}
-            className="size-8 border border-base-primary rounded-xs"
+            width={32}
+            height={32}
+            unoptimized
+            className="size-8 border border-base-primary rounded-xs object-cover"
           />
         ) : null}
         <p className="label-md text-primary">{review.seller.name}</p>

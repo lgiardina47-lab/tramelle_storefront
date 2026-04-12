@@ -2,10 +2,10 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/atoms"
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 
 export const HeaderCategoryNavbar = ({
   parentCategories,
@@ -33,7 +33,7 @@ export const HeaderCategoryNavbar = ({
         return (
           <LocalizedClientLink
             key={id}
-            href={`/categories/${handle}`}
+            href={categoryPublicHref(handle)}
             title={name}
             onClick={() => (onClose ? onClose(false) : null)}
             className={cn(

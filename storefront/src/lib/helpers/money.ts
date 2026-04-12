@@ -9,8 +9,8 @@ type ConvertToLocaleParams = {
 }
 
 /**
- * Medusa usa l'unità minima (centesimi per EUR/USD). Intl con style currency
- * si aspetta unità principali (es. 23.00 €, non 2300).
+ * Converte importi nell'unità minima (es. centesimi) nell'unità principale per Intl.
+ * Usare solo se la sorgente è davvero in minor units (es. legacy o line item raw).
  */
 export function minorUnitsToMajor(
   amount: number,
@@ -29,6 +29,19 @@ export function minorUnitsToMajor(
     fractionDigits = 2
   }
   return amount / 10 ** fractionDigits
+}
+
+/**
+ * Importi da `StoreProductVariant.calculated_price` / `prices` (Medusa v2 store):
+ * già in unità principali (es. 7.9 EUR), non in centesimi.
+ */
+export function medusaStoreAmountAsMajor(
+  amount: number | string | null | undefined
+): number {
+  if (amount == null || amount === "") return 0
+  const n =
+    typeof amount === "number" ? amount : Number.parseFloat(String(amount))
+  return Number.isFinite(n) ? n : 0
 }
 
 export const convertToLocale = ({

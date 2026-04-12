@@ -7,7 +7,8 @@
     "addToCartErrorTitle": "Errore aggiunta al carrello",
     "addToCartErrorDescription": "Una variante non ha la disponibilità richiesta",
     "wholesaleInvalidQtyTitle": "Quantità non valida",
-    "wholesaleInvalidQtyDescription": "Per questo prodotto B2B ordina multipli di {pieces} pezzi (cartone)."
+    "wholesaleInvalidQtyDescription": "Per questo prodotto B2B ordina multipli di {pieces} pezzi (cartone).",
+    "inStockCount": "{count} pezzi disponibili"
   },
   "Nav": {
     "utilityAria": "Link utili",
@@ -36,7 +37,27 @@
   "Header": {
     "wishlist": "Preferiti",
     "wishlistAria": "Preferiti",
-    "logoAlt": "Tramelle Source Gourmet"
+    "logoAlt": "Tramelle Source Gourmet",
+    "gourmet": {
+      "tagline": "Source Gourmet",
+      "searchPlaceholder": "Cerca prodotti, produttori, regioni…",
+      "consumer": "Consumer",
+      "chefPro": "Chef Pro",
+      "consumerHint": "Catalogo consumer",
+      "chefProHint": "Account Chef Pro attivo (prezzi e quantità B2B)",
+      "categoriesHeading": "Categorie",
+      "selectionsHeading": "Selezioni",
+      "producersHeading": "Produttori",
+      "seeAll": "Vedi tutto",
+      "seeAllProducers": "Vedi tutti",
+      "allCategories": "Tutto",
+      "shippingEu": "Spedizioni in Europa",
+      "news": "Novità",
+      "becomeProducer": "Diventa produttore",
+      "categoryNavAria": "Navigazione categorie",
+      "exploreProducersInCategory": "Esplora i produttori in {name}",
+      "browseAllCollections": "Tutte le collezioni"
+    }
   },
   "Hero": {
     "heading": "Scoperte gourmet, consegnate con cura",

@@ -3,6 +3,10 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
+import {
+  categoryHandleMatchesUrlSegment,
+  categoryPublicHref,
+} from "@/lib/helpers/category-public-url"
 
 type SubcategoryRibbonProps = {
   parentLabel: string
@@ -34,7 +38,7 @@ export function SubcategoryRibbon({
           In {parentLabel}
         </span>
         <LocalizedClientLink
-          href={`/categories/${parentHandle}`}
+          href={categoryPublicHref(parentHandle)}
           onClick={onNavigate}
           className="text-[10px] font-medium uppercase tracking-wide text-primary underline-offset-2 hover:underline"
         >
@@ -43,11 +47,13 @@ export function SubcategoryRibbon({
       </div>
       <div className="flex flex-wrap gap-1.5 gap-y-2 px-0.5 pb-0.5">
         {subcategories.map((child) => {
-          const isActive = child.handle === activeChildHandle
+          const isActive =
+            activeChildHandle != null &&
+            categoryHandleMatchesUrlSegment(child.handle, activeChildHandle)
           return (
             <LocalizedClientLink
               key={child.id}
-              href={`/categories/${child.handle}`}
+              href={categoryPublicHref(child.handle)}
               onClick={onNavigate}
               title={child.name}
               className={cn(

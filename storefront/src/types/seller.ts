@@ -25,6 +25,8 @@ export type SellerProps = SellerAddress & {
   id: string
   name: string
   handle: string
+  /** Provincia / stato (es. sigla o nome per UI). */
+  state?: string
   description: string
   photo: string
   tax_id: string

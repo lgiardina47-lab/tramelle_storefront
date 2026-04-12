@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 
 import { ForwardIcon } from "@/icons"
-import { usePathname } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
 
 interface BreadcrumbsProps {
   items: { label: string; path: string }[]
@@ -13,12 +13,16 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items, className, "data-testid": dataTestId }: BreadcrumbsProps) {
   const pathname = usePathname()
+  const params = useParams()
+  const locale =
+    typeof params?.locale === "string" ? params.locale : pathname?.split("/")[1] || "en"
 
   return (
     <nav className={cn("flex", className)} aria-label="Breadcrumb" data-testid="breadcrumbs">
       <ol className="inline-flex items-center gap-2">
         {items.map(({ path, label }, index) => {
-          const isActive = pathname === path
+          const hrefForLocale = path.startsWith("/") ? path : `/${path}`
+          const isActive = pathname === `/${locale}${hrefForLocale}`
           return (
             <li key={path} className="inline-flex items-center" data-testid={`breadcrumb-item-${index}`}>
               {index > 0 && <ForwardIcon size={16} />}

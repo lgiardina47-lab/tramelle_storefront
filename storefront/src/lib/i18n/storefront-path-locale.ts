@@ -17,11 +17,17 @@ export function isStorefrontPermissiveLocalePath(segment: string): boolean {
 }
 
 /**
- * Indice Algolia `supported_countries`: ISO paese (es. `jp`), non il segmento UI `ja`.
- * Allineato a {@link resolveStorefrontLocaleToMedusaCountry} per i casi sync in client.
+ * Filtro `supported_countries` su POST /store/products/search (Meilisearch).
+ * ISO paese presente nei documenti indice (geo zone stock), non il segmento UI.
  */
-export function storefrontPathToAlgoliaSupportedCountry(segment: string): string {
+export function storefrontPathToSearchSupportedCountry(segment: string): string {
   const s = segment.toLowerCase()
   if (s === "ja") return "jp"
+  if (s === STOREFRONT_EN_URL_SEGMENT) {
+    const override =
+      process.env.NEXT_PUBLIC_EN_SEARCH_SUPPORTED_COUNTRY?.trim().toLowerCase()
+    if (override) return override
+    return "it"
+  }
   return s
 }

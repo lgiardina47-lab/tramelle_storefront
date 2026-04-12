@@ -11,11 +11,13 @@ export const SellerAvatar = ({
 }) => {
   return photo ? (
     <Image
-      src={decodeURIComponent(photo)}
+      src={photo}
       alt={alt}
       width={size}
       height={size}
-      className="shrink-0"
+      sizes={`${size}px`}
+      unoptimized
+      className="shrink-0 object-cover rounded-sm"
       style={{ maxWidth: size, maxHeight: size }}
     />
   ) : (

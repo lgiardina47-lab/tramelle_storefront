@@ -39,6 +39,7 @@ export const SellerStorytellingGallery = ({
                 alt={`${name} — ${i + 1}`}
                 width={800}
                 height={600}
+                unoptimized
                 className="h-full w-full object-cover transition-opacity hover:opacity-95"
                 sizes="(max-width: 768px) 50vw, 33vw"
                 onError={() =>

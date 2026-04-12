@@ -7,7 +7,8 @@
     "addToCartErrorTitle": "Error adding to cart",
     "addToCartErrorDescription": "Some variant does not have the required inventory",
     "wholesaleInvalidQtyTitle": "Invalid quantity",
-    "wholesaleInvalidQtyDescription": "For this B2B product order multiples of {pieces} pieces (carton)."
+    "wholesaleInvalidQtyDescription": "For this B2B product order multiples of {pieces} pieces (carton).",
+    "inStockCount": "{count} in stock"
   },
   "Nav": {
     "utilityAria": "Utility links",
@@ -36,7 +37,27 @@
   "Header": {
     "wishlist": "Wishlist",
     "wishlistAria": "Wishlist",
-    "logoAlt": "Tramelle Source Gourmet"
+    "logoAlt": "Tramelle Source Gourmet",
+    "gourmet": {
+      "tagline": "Source Gourmet",
+      "searchPlaceholder": "Search products, producers, regions…",
+      "consumer": "Consumer",
+      "chefPro": "Chef Pro",
+      "consumerHint": "Consumer catalog",
+      "chefProHint": "Chef Pro account active (B2B pricing and quantities)",
+      "categoriesHeading": "Categories",
+      "selectionsHeading": "Selections",
+      "producersHeading": "Producers",
+      "seeAll": "See all",
+      "seeAllProducers": "See all",
+      "allCategories": "All",
+      "shippingEu": "Shipping across Europe",
+      "news": "New in",
+      "becomeProducer": "Become a producer",
+      "categoryNavAria": "Category navigation",
+      "exploreProducersInCategory": "Explore producers in {name}",
+      "browseAllCollections": "All collections"
+    }
   },
   "Hero": {
     "heading": "Gourmet finds, delivered with care",

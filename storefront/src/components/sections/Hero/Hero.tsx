@@ -13,19 +13,21 @@ type HeroProps = {
 
 export const Hero = ({ image, heading, paragraph, buttons }: HeroProps) => {
   return (
-    <section className="w-full flex container mt-5 flex-col lg:flex-row text-primary">
-      <Image
-        src={decodeURIComponent(image)}
-        width={700}
-        height={600}
-        alt={`Hero banner - ${heading}`}
-        className="w-full order-2 lg:order-1"
-        priority
-        fetchPriority="high"
-        quality={50}
-        sizes="(min-width: 1024px) 50vw, 100vw"
-      />
-      <div className="w-full lg:order-2">
+    <section className="container mt-5 flex w-full max-w-full min-w-0 flex-col overflow-x-hidden text-primary lg:flex-row lg:items-stretch lg:gap-6">
+      <div className="order-2 flex w-full min-w-0 max-w-full flex-[1_1_50%] justify-center lg:order-1">
+        <Image
+          src={decodeURIComponent(image)}
+          width={700}
+          height={600}
+          alt={`Hero banner - ${heading}`}
+          className="h-auto w-full max-h-[min(42vh,420px)] max-w-full object-contain object-left lg:max-h-[min(48vh,480px)]"
+          priority
+          fetchPriority="high"
+          quality={50}
+          sizes="(min-width: 1024px) 42vw, 92vw"
+        />
+      </div>
+      <div className="flex w-full min-w-0 flex-[1_1_50%] flex-col lg:order-2">
         <div className="border rounded-sm w-full px-6 flex items-end h-[calc(100%-144px)]">
           <div>
             <h2 className="font-bold mb-6 uppercase display-md max-w-[652px] text-4xl md:text-5xl leading-tight">

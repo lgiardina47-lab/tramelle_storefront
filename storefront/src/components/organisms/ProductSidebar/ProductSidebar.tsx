@@ -76,7 +76,7 @@ export const ProductSidebar = () => {
         </div>
       </div>
       <div className="heading-md absolute top-4 z-10 w-full rounded-lg bg-primary p-8 text-center shadow-md">
-        Set your Algolia ID and configure filters to enable product filtering
+        Configure product search indexing to enable filtering on this view
       </div>
     </aside>
   );

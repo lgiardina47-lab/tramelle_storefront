@@ -48,7 +48,8 @@ function buildCategoryTreeFromFlat(
 }
 
 export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
-  const limit = query?.limit || 100;
+  /** Header mega-menu + albero: serve l’elenco completo sotto ogni macro (tassonomia Tramelle). */
+  const limit = query?.limit ?? 2000;
 
   let allCategories: HttpTypes.StoreProductCategory[] = [];
   try {
@@ -80,7 +81,9 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
 
   return {
     parentCategories,
-    categories
+    categories,
+    /** Lista piatta API (fallback se il nesting sul parent è incompleto). */
+    allCategoriesFlat: allCategories,
   };
 };
 
@@ -96,4 +99,23 @@ export const getCategoryByHandle = async (categoryHandle: string) => {
     })
     .then(({ product_categories }) => product_categories[0])
     .catch(() => undefined);
+};
+
+/**
+ * Risolve la categoria dal segmento URL (slug pubblico senza `tramelle-` o handle Medusa completo).
+ */
+export const getCategoryByPageParam = async (rawParam: string) => {
+  const decoded = decodeURIComponent((rawParam || '').trim());
+  if (!decoded) return undefined;
+
+  const direct = await getCategoryByHandle(decoded);
+  if (direct) return direct;
+
+  const lower = decoded.toLowerCase();
+  if (!lower.startsWith('tramelle-')) {
+    const prefixed = await getCategoryByHandle(`tramelle-${decoded}`);
+    if (prefixed) return prefixed;
+  }
+
+  return undefined;
 };

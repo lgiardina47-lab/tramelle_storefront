@@ -7,7 +7,8 @@
     "addToCartErrorTitle": "Erreur lors de l’ajout au panier",
     "addToCartErrorDescription": "Une variante n’a pas le stock suffisant",
     "wholesaleInvalidQtyTitle": "Quantité non valide",
-    "wholesaleInvalidQtyDescription": "Pour ce produit B2B, commandez des multiples de {pieces} pièces (carton)."
+    "wholesaleInvalidQtyDescription": "Pour ce produit B2B, commandez des multiples de {pieces} pièces (carton).",
+    "inStockCount": "{count} pièces disponibles"
   },
   "Nav": {
     "utilityAria": "Liens utiles",
@@ -36,7 +37,27 @@
   "Header": {
     "wishlist": "Favoris",
     "wishlistAria": "Favoris",
-    "logoAlt": "Tramelle Source Gourmet"
+    "logoAlt": "Tramelle Source Gourmet",
+    "gourmet": {
+      "tagline": "Source Gourmet",
+      "searchPlaceholder": "Rechercher produits, producteurs, régions…",
+      "consumer": "Consumer",
+      "chefPro": "Chef Pro",
+      "consumerHint": "Catalogue consumer",
+      "chefProHint": "Compte Chef Pro actif (prix et quantités B2B)",
+      "categoriesHeading": "Catégories",
+      "selectionsHeading": "Sélections",
+      "producersHeading": "Producteurs",
+      "seeAll": "Tout voir",
+      "seeAllProducers": "Tout voir",
+      "allCategories": "Tout",
+      "shippingEu": "Livraisons en Europe",
+      "news": "Nouveautés",
+      "becomeProducer": "Devenir producteur",
+      "categoryNavAria": "Navigation par catégories",
+      "exploreProducersInCategory": "Découvrir les producteurs dans {name}",
+      "browseAllCollections": "Toutes les collections"
+    }
   },
   "Hero": {
     "heading": "Trésors gourmets, livrés avec soin",

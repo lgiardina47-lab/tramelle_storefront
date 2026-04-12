@@ -1,4 +1,4 @@
-import { convertToLocale, minorUnitsToMajor } from "./money"
+import { convertToLocale, medusaStoreAmountAsMajor } from "./money"
 
 export const getPricesForVariant = (variant: any) => {
   if (!variant?.prices[0]?.amount) {
@@ -6,7 +6,7 @@ export const getPricesForVariant = (variant: any) => {
   }
 
   const cc = variant.prices[0].currency_code
-  const major = minorUnitsToMajor(variant.prices[0].amount, cc)
+  const major = medusaStoreAmountAsMajor(variant.prices[0].amount)
 
   return {
     calculated_price_number: major,

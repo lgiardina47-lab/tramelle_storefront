@@ -1,13 +1,14 @@
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { getCategoryByHandle } from "@/lib/data/categories"
+import { getCategoryByPageParam } from "@/lib/data/categories"
+import { categorySlugForStorefrontUrl, categoryPublicHref } from "@/lib/helpers/category-public-url"
 import { Suspense } from "react"
 
 import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
 import { SubcategoryRibbon } from "@/components/molecules/CategoryNavbar/components/SubcategoryRibbon"
 import { CategoryBanner } from "@/components/molecules/CategoryBanner/CategoryBanner"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
-import { notFound } from "next/navigation"
+import { CatalogSearchListing, ProductListing } from "@/components/sections"
+import { notFound, redirect } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
 import Script from "next/script"
@@ -27,13 +28,15 @@ export async function generateMetadata({
 }: {
   params: Promise<{ category: string; locale: string }>
 }): Promise<Metadata> {
-  const { category: categoryHandle, locale } = await params
+  const { category: categoryParam, locale } = await params
   const baseUrl = publicSiteOrigin()
 
-  const cat = await getCategoryByHandle(categoryHandle)
+  const cat = await getCategoryByPageParam(categoryParam)
   if (!cat) {
     return {}
   }
+
+  const publicSlug = categorySlugForStorefrontUrl(cat.handle)
 
   let languages: Record<string, string> = {}
   try {
@@ -44,18 +47,18 @@ export async function generateMetadata({
       )
     ) as string[]
     languages = locales.reduce<Record<string, string>>((acc, code) => {
-      acc[toHreflang(code)] = `${baseUrl}/${code}/categories/${categoryHandle}`
+      acc[toHreflang(code)] = `${baseUrl}/${code}/categories/${publicSlug}`
       return acc
     }, {})
   } catch {
     languages = {
-      [toHreflang(locale)]: `${baseUrl}/${locale}/categories/${categoryHandle}`,
+      [toHreflang(locale)]: `${baseUrl}/${locale}/categories/${publicSlug}`,
     }
   }
 
   const title = `${cat.name} Category`
   const description = `${cat.name} Category - ${resolvedSiteName()}`
-  const canonical = `${baseUrl}/${locale}/categories/${categoryHandle}`
+  const canonical = `${baseUrl}/${locale}/categories/${publicSlug}`
 
   return {
     title,
@@ -64,7 +67,7 @@ export async function generateMetadata({
       canonical,
       languages: {
         ...languages,
-        "x-default": `${baseUrl}/categories/${categoryHandle}`,
+        "x-default": `${baseUrl}/categories/${publicSlug}`,
       },
     },
     robots: getIndexingRobots(),
@@ -80,19 +83,38 @@ export async function generateMetadata({
 
 async function Category({
   params,
+  searchParams,
 }: {
   params: Promise<{
     category: string
     locale: string
   }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const { category: categoryHandle, locale } = await params
+  const { category: categoryParam, locale } = await params
+  const sp = await searchParams
 
-  const category = await getCategoryByHandle(categoryHandle)
+  /**
+   * `/categories/search` non è una categoria: spesso confuso con la ricerca.
+   * La listing con filtri è `/categories?query=…`.
+   */
+  if (categoryParam.toLowerCase() === "search") {
+    const raw = sp.query ?? sp.q
+    const q = Array.isArray(raw) ? raw[0] : raw
+    const qs =
+      q && typeof q === "string" && q.trim()
+        ? `?query=${encodeURIComponent(q.trim())}`
+        : ""
+    redirect(`/${locale}/categories${qs}`)
+  }
+
+  const category = await getCategoryByPageParam(categoryParam)
 
   if (!category) {
     return notFound()
   }
+
+  const categoryPath = categoryPublicHref(category.handle)
   const region = await getRegion(locale)
   const currency_code = region?.currency_code || "usd"
   const region_id = region?.id
@@ -101,7 +123,7 @@ async function Category({
 
   const breadcrumbsItems = [
     {
-      path: categoryHandle,
+      path: categoryPath,
       label: category.name,
     },
   ]
@@ -137,7 +159,7 @@ async function Category({
                 "@type": "ListItem",
                 position: 1,
                 name: category.name,
-                item: `${baseUrl}/${locale}/categories/${categoryHandle}`,
+                item: `${baseUrl}/${locale}${categoryPath}`,
               },
             ],
           }),
@@ -187,7 +209,7 @@ async function Category({
         {bot || !preferBackendProductSearchListing() ? (
           <ProductListing category_id={category.id} locale={locale} />
         ) : (
-          <AlgoliaProductsListing
+          <CatalogSearchListing
             category_id={category.id}
             locale={locale}
             currency_code={currency_code}

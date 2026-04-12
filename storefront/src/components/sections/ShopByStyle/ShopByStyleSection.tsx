@@ -1,49 +1,28 @@
 import Image from "next/image"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowRightIcon } from "@/icons"
-import { Style } from "@/types/styles"
+import { listCollections } from "@/lib/data/collections"
 
-export const styles: Style[] = [
-  {
-    id: 1,
-    name: "LUXURY",
-    href: "/collections/luxury",
-  },
-  {
-    id: 2,
-    name: "VINTAGE",
-    href: "/collections/vintage",
-  },
-  {
-    id: 3,
-    name: "CASUAL",
-    href: "/collections/casual",
-  },
-  {
-    id: 4,
-    name: "STREETWEAR",
-    href: "/collections/streetwear",
-  },
-  {
-    id: 5,
-    name: "Y2K",
-    href: "/collections/y2k",
-  },
-]
+export async function ShopByStyleSection() {
+  const { collections } = await listCollections({ limit: "24", offset: "0" })
+  if (!collections.length) {
+    return null
+  }
 
-export function ShopByStyleSection() {
   return (
     <section className="bg-primary container">
-      <h2 className="heading-lg text-primary mb-12">SHOP BY STYLE</h2>
+      <h2 className="heading-lg text-primary mb-12">SHOP BY COLLECTION</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
         <div className="py-[52px] px-[58px] h-full border rounded-sm">
-          {styles.map((style) => (
+          {collections.map((c) => (
             <LocalizedClientLink
-              key={style.id}
-              href={style.href}
+              key={c.id}
+              href={`/collections/${c.handle}`}
               className="group flex items-center gap-4 text-primary hover:text-action transition-colors border-b border-transparent hover:border-primary w-fit pb-2 mb-8"
             >
-              <span className="heading-lg">{style.name}</span>
+              <span className="heading-lg uppercase">
+                {(c.title ?? c.handle).replace(/-/g, " ")}
+              </span>
               <ArrowRightIcon className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
             </LocalizedClientLink>
           ))}
@@ -53,7 +32,7 @@ export function ShopByStyleSection() {
             loading="lazy"
             fetchPriority="high"
             src="/images/shop-by-styles/Image.jpg"
-            alt="Models showcasing luxury fashion styles"
+            alt=""
             width={700}
             height={600}
             className="object-cover rounded-sm w-full h-auto"

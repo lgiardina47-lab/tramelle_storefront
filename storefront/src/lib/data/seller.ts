@@ -70,3 +70,30 @@ export async function listStoreSellers(params?: {
     return null
   }
 }
+
+/**
+ * Seller con macro Tramelle dichiarata in `taste_category_handles` (listing).
+ * Usato per mega-menu header (prima dei produttori da catalogo).
+ */
+export async function listStoreSellersForParentCategory(params: {
+  parentCategoryHandle: string
+  limit?: number
+  offset?: number
+}): Promise<StoreSellersListResponse | null> {
+  const handle = params.parentCategoryHandle.trim()
+  if (!handle) return null
+  const limit = params.limit ?? 48
+  const offset = params.offset ?? 0
+  try {
+    return await sdk.client.fetch<StoreSellersListResponse>(`/store/sellers`, {
+      query: {
+        limit,
+        offset,
+        parent_category_handle: handle,
+      },
+      cache: "no-store",
+    })
+  } catch {
+    return null
+  }
+}

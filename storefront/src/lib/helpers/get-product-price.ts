@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { getPercentageDiff } from "./get-precentage-diff"
-import { convertToLocale, minorUnitsToMajor } from "./money"
+import { convertToLocale, medusaStoreAmountAsMajor } from "./money"
 import { isOrphanStoreVariant } from "./product-orphan-variants"
 import { isVariantVisibleB2c } from "./tramelle-variant-metadata"
 
@@ -30,15 +30,15 @@ export const getPricesForVariant = (variant: any) => {
   const cc = variant.calculated_price.currency_code
 
   if (!variant?.calculated_price?.calculated_amount_with_tax) {
-    const calc = minorUnitsToMajor(
-      variant.calculated_price.calculated_amount,
-      cc
+    const calc = medusaStoreAmountAsMajor(
+      variant.calculated_price.calculated_amount
     )
-    const wot = minorUnitsToMajor(
-      variant.calculated_price.calculated_amount_without_tax,
-      cc
+    const wot = medusaStoreAmountAsMajor(
+      variant.calculated_price.calculated_amount_without_tax
     )
-    const orig = minorUnitsToMajor(variant.calculated_price.original_amount, cc)
+    const orig = medusaStoreAmountAsMajor(
+      variant.calculated_price.original_amount
+    )
     return {
       calculated_price_number: calc,
       calculated_price: convertToLocale({
@@ -64,17 +64,14 @@ export const getPricesForVariant = (variant: any) => {
     }
   }
 
-  const withTax = minorUnitsToMajor(
-    variant.calculated_price.calculated_amount_with_tax,
-    cc
+  const withTax = medusaStoreAmountAsMajor(
+    variant.calculated_price.calculated_amount_with_tax
   )
-  const withoutTax = minorUnitsToMajor(
-    variant.calculated_price.calculated_amount_without_tax,
-    cc
+  const withoutTax = medusaStoreAmountAsMajor(
+    variant.calculated_price.calculated_amount_without_tax
   )
-  const origWithTax = minorUnitsToMajor(
-    variant.calculated_price.original_amount_with_tax,
-    cc
+  const origWithTax = medusaStoreAmountAsMajor(
+    variant.calculated_price.original_amount_with_tax
   )
 
   return {

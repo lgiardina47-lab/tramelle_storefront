@@ -7,6 +7,7 @@ import {
   collectDepartmentCategories,
   collectSubcategoryLeavesForParent,
 } from "@/lib/helpers/category-utils"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 import { CategoryDropdownContainer } from "./CategoryDropdownContainer"
 import { CategoryDropdownContent } from "./CategoryDropdownContent"
 import { FeaturedCategory } from "./FeaturedCategory"
@@ -76,7 +77,7 @@ export const CategoryDropdownMenu = ({
                 Categorie
               </h3>
               <LocalizedClientLink
-                href={`/categories/${parentCategory.handle}`}
+                href={categoryPublicHref(parentCategory.handle)}
                 onClick={onLinkClick}
                 className="text-sm font-medium text-cortilia underline underline-offset-2"
               >
@@ -87,7 +88,7 @@ export const CategoryDropdownMenu = ({
               {col1Items.map((c) => (
                 <li key={c.id}>
                   <LocalizedClientLink
-                    href={`/categories/${c.handle}`}
+                    href={categoryPublicHref(c.handle)}
                     onClick={onLinkClick}
                     className={linkClass}
                   >
@@ -105,7 +106,7 @@ export const CategoryDropdownMenu = ({
                 {vetrineItems.slice(0, 8).map((c) => (
                   <li key={c.id}>
                     <LocalizedClientLink
-                      href={`/categories/${c.handle}`}
+                      href={categoryPublicHref(c.handle)}
                       onClick={onLinkClick}
                       className={linkClass}
                     >
@@ -137,7 +138,7 @@ export const CategoryDropdownMenu = ({
               ) : (
                 <li>
                   <LocalizedClientLink
-                    href={`/categories/${parentCategory.handle}`}
+                    href={categoryPublicHref(parentCategory.handle)}
                     onClick={onLinkClick}
                     className={linkClass}
                   >

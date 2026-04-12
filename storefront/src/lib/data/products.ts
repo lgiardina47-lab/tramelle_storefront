@@ -7,7 +7,8 @@ import { SortOptions } from '@/types/product';
 import { SellerProps } from '@/types/seller';
 
 import { sdk } from '../config';
-import { ALGOLIA_LISTING_FACET_ATTRIBUTES } from '../helpers/algolia-facets';
+import { LISTING_SEARCH_FACET_ATTRIBUTES } from '../helpers/search-listing-facets';
+import { storefrontProductSearchFilters } from '../helpers/storefront-search-filters';
 import { storefrontListingProductFields } from '../helpers/product-list-fields';
 import { getAuthHeaders } from './cookies';
 import { retrieveCustomer } from './customer';
@@ -105,21 +106,32 @@ export const listProducts = async ({
 
       const nextPage = count > offset + limit ? pageParam + 1 : null;
 
-      const response = products.filter(prod => {
+      /** Scheda prodotto: GET con handle + limit 1. Senza seller in payload il vecchio filtro svuotava l’array → 404. */
+      const isSingleProductByHandle =
+        limit === 1 &&
+        Array.isArray(queryParams?.handle) &&
+        queryParams.handle.length === 1 &&
+        Boolean(queryParams.handle[0]);
+
+      const normalized = products.map(prod => {
         // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
         const reviews = prod.seller?.reviews?.filter(item => !!item) ?? [];
-        return (
-          // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-          prod?.seller && {
+        if (prod?.seller) {
+          return {
             ...prod,
             seller: {
               // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
               ...prod.seller,
               reviews
             }
-          }
-        );
+          };
+        }
+        return prod;
       });
+
+      const response = isSingleProductByHandle
+        ? normalized
+        : normalized.filter(prod => Boolean(prod?.seller));
 
       return {
         response: {
@@ -303,7 +315,7 @@ export const searchProducts = async (params: {
   let facets = params.facets;
 
   if (!facets) {
-    facets = [...ALGOLIA_LISTING_FACET_ATTRIBUTES];
+    facets = [...LISTING_SEARCH_FACET_ATTRIBUTES];
   }
 
   const { countryCode, ...bodyParams } = params;
@@ -347,6 +359,43 @@ export const searchProducts = async (params: {
       };
     });
 };
+
+/**
+ * Anteprima ricerca (header): pochi hit, senza facet, debounce lato client.
+ */
+export async function instantSearchProducts(params: {
+  query: string;
+  locale: string;
+  currency_code: string;
+}): Promise<{
+  products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
+}> {
+  const q = params.query.trim();
+  if (q.length < 2) {
+    return { products: [] };
+  }
+
+  const region = await getRegion(params.locale);
+  if (!region) {
+    return { products: [] };
+  }
+
+  try {
+    const result = await searchProducts({
+      query: q,
+      page: 0,
+      hitsPerPage: 8,
+      filters: storefrontProductSearchFilters(params.locale, params.currency_code),
+      facets: [],
+      maxValuesPerFacet: 1,
+      currency_code: params.currency_code,
+      countryCode: params.locale
+    });
+    return { products: result.products ?? [] };
+  } catch {
+    return { products: [] };
+  }
+}
 
 /** Fallback catalogo (client listing) con cookie di sessione e campi coerenti con listProducts. */
 export async function fetchMedusaCatalogFallback(params: {

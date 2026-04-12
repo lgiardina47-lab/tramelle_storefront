@@ -6,6 +6,7 @@ import {
 } from "@/lib/constants/site"
 import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
 import { Metadata } from "next"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 
 const siteLabel = () => resolvedSiteName()
 
@@ -81,16 +82,17 @@ export const generateCategoryMetadata = async (
   const base = publicSiteOrigin()
   const name = siteLabel()
 
+  const catPath = categoryPublicHref(category.handle)
   return {
     robots: getIndexingRobots(),
-    metadataBase: new URL(`${base}/categories/${category.handle}`),
+    metadataBase: new URL(`${base}${catPath}`),
     title: `${category.name} Category`,
     description: `${category.name} Category - ${name}`,
 
     openGraph: {
       title: category.name,
       description: `${category.name} Category - ${name}`,
-      url: `${base}/categories/${category.handle}`,
+      url: `${base}${catPath}`,
       siteName: name,
       images: [
         {

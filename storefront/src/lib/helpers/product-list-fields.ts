@@ -6,6 +6,8 @@
  */
 export function storefrontListingProductFields(_includeVariantInventory?: boolean): string {
   return (
+    // No `*brand`: su stack Mercur/Medusa locale il Product module non espone `brand` → 500 su `/store/products` e PDP in404.
+    // Nome produttore/marca: `getLocalizedProductContentForCountry` / `productProducerName` usano `seller` come fallback.
     "*variants.calculated_price,+variants.inventory_quantity,+metadata,*seller,*variants,*seller.products," +
     "*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute"
   )

@@ -50,13 +50,11 @@ export function allowSearchIndexing(): boolean {
 }
 
 /**
- * Listing prodotti con ricerca/facet: lo storefront usa `POST /store/products/search` sul Medusa (plugin Algolia).
- * Le credenziali Algolia restano nel backend (`ALGOLIA_APP_ID` / `ALGOLIA_API_KEY`); **non** servono
- * `NEXT_PUBLIC_ALGOLIA_ID` né `NEXT_PUBLIC_ALGOLIA_SEARCH_KEY` per abilitare questa UI.
- * Per forzare il catalogo statico Medusa (`ProductListing`), imposta `NEXT_PUBLIC_DISABLE_ALGOLIA_LISTING=true`.
+ * Listing con ricerca/facet: `POST /store/products/search` (Meilisearch sul backend).
+ * Solo griglia Medusa: `NEXT_PUBLIC_DISABLE_CATALOG_SEARCH_LISTING=true`.
  */
 export function preferBackendProductSearchListing(): boolean {
-  return process.env.NEXT_PUBLIC_DISABLE_ALGOLIA_LISTING !== "true"
+  return process.env.NEXT_PUBLIC_DISABLE_CATALOG_SEARCH_LISTING !== "true"
 }
 
 export function getIndexingRobots(options?: {

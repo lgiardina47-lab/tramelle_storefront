@@ -185,7 +185,7 @@ export default async function Home({
         as="image"
         href="/images/hero/Image.jpg"
         imageSrcSet="/images/hero/Image.jpg 700w"
-        imageSizes="(min-width: 1024px) 50vw, 100vw"
+        imageSizes="(min-width: 1024px) 42vw, 92vw"
       />
       {/* Organization JSON-LD */}
       <Script

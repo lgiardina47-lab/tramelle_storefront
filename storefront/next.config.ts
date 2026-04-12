@@ -3,7 +3,16 @@ import type { NextConfig } from 'next';
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
 import createNextIntlPlugin from 'next-intl/plugin';
 
-if (process.env.NODE_ENV !== 'production') {
+/**
+ * `initOpenNextCloudflareForDev` monkey-patcha `vm` e può rompere `next dev` (500 su tutte le route).
+ * Lo stack Docker (`docker-compose.yml`) imposta `DOCKER=1`: lì serve solo Medusa su HTTP, non Wrangler.
+ * Per lavorare con preview Cloudflare in locale: avvia `next dev` senza `DOCKER=1` (o imposta `OPENNEXT_CLOUDFLARE_DEV=1`).
+ */
+const openNextCloudflareDev =
+  process.env.NODE_ENV !== 'production' &&
+  process.env.OPENNEXT_CLOUDFLARE_DEV === 'true';
+
+if (openNextCloudflareDev) {
   void initOpenNextCloudflareForDev();
 }
 

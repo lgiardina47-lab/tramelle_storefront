@@ -1,9 +1,9 @@
 import { ReadonlyURLSearchParams } from "next/navigation"
 
 import {
-  LISTING_FACET_PARAM_TO_ALGOLIA,
-  escapeAlgoliaFilterValue,
-} from "./algolia-facets"
+  LISTING_FACET_PARAM_TO_INDEX,
+  escapeListingFilterValue,
+} from "./search-listing-facets"
 
 const RESERVED_KEYS = new Set([
   "min_price",
@@ -50,7 +50,7 @@ export const getFacedFilters = (filters: ReadonlyURLSearchParams): string => {
     }
     if (RESERVED_KEYS.has(key)) continue
 
-    const attr = LISTING_FACET_PARAM_TO_ALGOLIA[key]
+    const attr = LISTING_FACET_PARAM_TO_INDEX[key]
     if (!attr) continue
 
     const parts = value
@@ -60,10 +60,10 @@ export const getFacedFilters = (filters: ReadonlyURLSearchParams): string => {
     if (!parts.length) continue
 
     if (parts.length === 1) {
-      facet += ` AND ${attr}:"${escapeAlgoliaFilterValue(parts[0])}"`
+      facet += ` AND ${attr}:"${escapeListingFilterValue(parts[0])}"`
     } else {
       const ors = parts
-        .map((p) => `${attr}:"${escapeAlgoliaFilterValue(p)}"`)
+        .map((p) => `${attr}:"${escapeListingFilterValue(p)}"`)
         .join(" OR ")
       facet += ` AND (${ors})`
     }

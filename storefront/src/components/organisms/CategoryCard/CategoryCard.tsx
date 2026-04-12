@@ -1,20 +1,24 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 import Image from "next/image"
 
 export function CategoryCard({
   category,
 }: {
-  category: { name: string; handle: string }
+  category: { name: string; handle: string; imageSrc?: string }
 }) {
+  const src =
+    category.imageSrc ?? `/images/categories/${category.handle}.png`
+
   return (
     <LocalizedClientLink
-      href={`/categories/${category.handle}`}
+      href={categoryPublicHref(category.handle)}
       className="relative flex flex-col items-center border rounded-sm bg-component transition-all hover:rounded-full w-[233px] aspect-square"
     >
       <div className="flex relative aspect-square overflow-hidden w-[200px]">
         <Image
           loading="lazy"
-          src={`/images/categories/${category.handle}.png`}
+          src={src}
           alt={`category - ${category.name}`}
           width={200}
           height={200}

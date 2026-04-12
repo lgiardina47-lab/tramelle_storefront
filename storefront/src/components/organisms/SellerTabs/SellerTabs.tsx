@@ -15,7 +15,7 @@ export const SellerTabs = ({
   seller_handle: string
   seller_id: string
   locale: string
-  /** Riservato (es. Algolia su altre route); la tab prodotti seller usa solo Medusa. */
+  /** Riservato per listing con ricerca su altre route; la tab prodotti seller usa solo Medusa. */
   currency_code: string
 }) => {
   void currency_code
@@ -34,7 +34,6 @@ export const SellerTabs = ({
         <Suspense fallback={<div data-testid="seller-tabs-products-loading"><ProductListingSkeleton /></div>}>
           {/*
             Pagina seller: sempre Medusa /store/products + filtro seller_id.
-            Algolia spesso è indietro rispetto all’admin → listing vuota in prod se non si reindicizza.
           */}
           <ProductListing seller_id={seller_id} locale={locale} />
         </Suspense>

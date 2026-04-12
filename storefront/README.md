@@ -89,10 +89,6 @@ REVALIDATE_SECRET=supersecret
 NEXT_PUBLIC_SITE_NAME="Fleek Marketplace"
 # Your site description in metadata
 NEXT_PUBLIC_SITE_DESCRIPTION="Fleek Markeplace"
-# Algolia Application ID
-NEXT_PUBLIC_ALGOLIA_ID=supersecret
-# Algolia Search API Key
-NEXT_PUBLIC_ALGOLIA_SEARCH_KEY=supersecret
 #TalkJS APP ID
 NEXT_PUBLIC_TALKJS_APP_ID=<your talkjs app id>
 ```
@@ -109,100 +105,8 @@ yarn dev
 
 ### Guides
 
-#### <a href="https://www.algolia.com/doc/guides/security/api-keys/" target="_blank">How to get Aloglia Keys</a>
-
 #### <a href="https://talkjs.com/docs/Reference/Concepts/Sessions/" target="_blank">How to get TalkJs App ID</a>
 
-### Configure Algolia index
+### Product search (Meilisearch)
 
-To work Algolia correctly you need to configure facets and searchable attributes. You can use import function to upload <a href="./algolia-config.json">algolia-config.json</a> file
-&nbsp;
-
-In Algolia dashboard chose your index and select Import configuration from Manage index dropdown menu
-&nbsp;
-
-<img alt="Algolia import" src="./public/algolia-import.png" />
-
-&nbsp;
-
-<a href="./algolia-config.json">algolia-config.json</a>
-
-```js
-{
-  "settings": {
-    "minWordSizefor1Typo": 4,
-    "minWordSizefor2Typos": 8,
-    "hitsPerPage": 20,
-    "maxValuesPerFacet": 100,
-    "searchableAttributes": [
-      "title",
-      "subtitle",
-      "brand.name",
-      "tags.value",
-      "type.value",
-      "categories.name",
-      "collection.title",
-      "variants.title"
-    ],
-    "numericAttributesToIndex": null,
-    "attributesToRetrieve": null,
-    "unretrievableAttributes": null,
-    "optionalWords": null,
-    "attributesForFaceting": [
-      "average_rating",
-      "filterOnly(categories.id)",
-      "categories.name",
-      "seller.handle",
-      "seller.store_status",
-      "filterOnly(supported_countries)",
-      "searchable(title)",
-      "variants.color",
-      "variants.condition",
-      "variants.prices.currency_code",
-      "variants.size"
-    ],
-    "attributesToSnippet": null,
-    "attributesToHighlight": null,
-    "paginationLimitedTo": 1000,
-    "attributeForDistinct": null,
-    "exactOnSingleWordQuery": "attribute",
-    "ranking": [
-      "typo",
-      "geo",
-      "words",
-      "filters",
-      "proximity",
-      "attribute",
-      "exact",
-      "custom"
-    ],
-    "customRanking": null,
-    "separatorsToIndex": "",
-    "removeWordsIfNoResults": "none",
-    "queryType": "prefixLast",
-    "highlightPreTag": "<em>",
-    "highlightPostTag": "</em>",
-    "alternativesAsExact": ["ignorePlurals", "singleWordSynonym"],
-    "renderingContent": {
-      "facetOrdering": {
-        "facets": {
-          "order": ["variants.color", "variants.size", "variants.condition"]
-        },
-        "values": {
-          "variants.color": {
-            "sortRemainingBy": "count"
-          },
-          "variants.condition": {
-            "sortRemainingBy": "count"
-          },
-          "variants.size": {
-            "sortRemainingBy": "count"
-          }
-        }
-      }
-    }
-  },
-  "rules": [],
-  "synonyms": []
-}
-```
+Listing search calls the backend `POST /store/products/search`, backed by Meilisearch. Set `MEILISEARCH_HOST` and `MEILI_MASTER_KEY` in `backend/.env`, then from `/backend` run `yarn meilisearch:sync`. Index settings live in `backend/src/lib/meilisearch/index-settings.ts`.

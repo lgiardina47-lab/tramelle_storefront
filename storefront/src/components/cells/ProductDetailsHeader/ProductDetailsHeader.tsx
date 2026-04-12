@@ -16,6 +16,8 @@ import { Wishlist } from "@/types/wishlist"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
 import { parsePiecesPerCarton } from "@/lib/helpers/tramelle-variant-metadata"
+import { productProducerDisplayName } from "@/lib/helpers/product-producer-name"
+import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -156,14 +158,27 @@ export const ProductDetailsHeader = ({
 
   const isAddToCartDisabled = !variantStock || !variantHasPrice || !hasAnyPrice || isVariantStockMaxLimitReached
 
+  const producerLabel = productProducerDisplayName(product)
+
   return (
     <div className="border rounded-sm p-5" data-testid="product-details-header">
       <div className="flex justify-between">
         <div>
-          <h2 className="label-md text-secondary">
-            {/* {product?.brand || "No brand"} */}
-          </h2>
           <h1 className="heading-lg text-primary" data-testid="product-title">{titleForUi}</h1>
+          {producerLabel ? (
+            <div className="mt-1" data-testid="product-producer-name">
+              {product.seller?.handle ? (
+                <LocalizedClientLink
+                  href={`/sellers/${product.seller.handle}`}
+                  className="label-md text-secondary hover:text-primary inline-block"
+                >
+                  {producerLabel}
+                </LocalizedClientLink>
+              ) : (
+                <p className="label-md text-secondary">{producerLabel}</p>
+              )}
+            </div>
+          ) : null}
           <div className="mt-2 flex gap-2 items-center" data-testid="product-price-container">
             {hasAnyPrice && variantPrice ? (
               <>
@@ -182,6 +197,17 @@ export const ProductDetailsHeader = ({
                 {t("notAvailableInRegion")}
               </span>
             )}
+            {hasAnyPrice &&
+              selectedStoreVariant?.manage_inventory &&
+              typeof variantStock === "number" &&
+              variantStock > 0 && (
+                <p
+                  className="label-md text-secondary mt-2"
+                  data-testid="product-stock-display"
+                >
+                  {t("inStockCount", { count: variantStock })}
+                </p>
+              )}
           </div>
         </div>
         <div>

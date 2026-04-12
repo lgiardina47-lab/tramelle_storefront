@@ -19,7 +19,7 @@ import { WishlistTabs } from "./WishlistTabs/WishlistTabs"
 import { HomeProductsCarousel } from "./HomeProductsCarousel/HomeProductsCarousel"
 import { ProductGallery } from "./ProductGallery/ProductGallery"
 import { ProductDetails } from "./ProductDetails/ProductDetails"
-import { AlgoliaProductSidebar } from "./ProductSidebar/AlgoliaProductSidebar"
+import { CatalogSearchProductSidebar } from "./ProductSidebar/CatalogSearchProductSidebar"
 import { Addresses } from "./Addressess/Addresses"
 import { ReviewsToWrite } from "./Reviews/ReviewsToWrite"
 import { ReviewsWritten } from "./Reviews/ReviewsWritten"
@@ -47,7 +47,7 @@ export {
   HomeProductsCarousel,
   ProductGallery,
   ProductDetails,
-  AlgoliaProductSidebar,
+  CatalogSearchProductSidebar,
   Addresses,
   ReviewsToWrite,
   ReviewsWritten,

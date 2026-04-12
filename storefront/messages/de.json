@@ -7,7 +7,8 @@
     "addToCartErrorTitle": "Fehler beim Hinzufügen zum Warenkorb",
     "addToCartErrorDescription": "Eine Variante hat nicht genug Bestand",
     "wholesaleInvalidQtyTitle": "Ungültige Menge",
-    "wholesaleInvalidQtyDescription": "Für dieses B2B-Produkt Bestellmengen in Vielfachen von {pieces} Stück (Karton)."
+    "wholesaleInvalidQtyDescription": "Für dieses B2B-Produkt Bestellmengen in Vielfachen von {pieces} Stück (Karton).",
+    "inStockCount": "{count} auf Lager"
   },
   "Nav": {
     "utilityAria": "Nützliche Links",
@@ -36,7 +37,27 @@
   "Header": {
     "wishlist": "Merkliste",
     "wishlistAria": "Merkliste",
-    "logoAlt": "Tramelle Source Gourmet"
+    "logoAlt": "Tramelle Source Gourmet",
+    "gourmet": {
+      "tagline": "Source Gourmet",
+      "searchPlaceholder": "Produkte, Produzenten, Regionen suchen…",
+      "consumer": "Consumer",
+      "chefPro": "Chef Pro",
+      "consumerHint": "Consumer-Katalog",
+      "chefProHint": "Chef-Pro-Konto aktiv (B2B-Preise und Mengen)",
+      "categoriesHeading": "Kategorien",
+      "selectionsHeading": "Auswahlen",
+      "producersHeading": "Produzenten",
+      "seeAll": "Alle anzeigen",
+      "seeAllProducers": "Alle anzeigen",
+      "allCategories": "Alle",
+      "shippingEu": "Versand in Europa",
+      "news": "Neuheiten",
+      "becomeProducer": "Produzent werden",
+      "categoryNavAria": "Kategorienavigation",
+      "exploreProducersInCategory": "Produzenten in {name} entdecken",
+      "browseAllCollections": "Alle Kollektionen"
+    }
   },
   "Hero": {
     "heading": "Gourmet-Schätze, sorgfältig geliefert",

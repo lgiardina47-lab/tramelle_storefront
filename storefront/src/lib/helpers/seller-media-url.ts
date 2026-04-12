@@ -4,9 +4,18 @@
  */
 
 import { sellerStorytellingGalleryUrls } from "@/components/molecules/SellerStorytellingGallery/seller-storytelling-gallery-urls"
-import type { StoreSellerListItem } from "@/types/seller"
-import { maybeExpandCfImgRef } from "@/lib/helpers/cloudflare-images"
+import {
+  maybeExpandCfImgRef,
+  rewriteCfImagesDeliveryUrlStripPartnerPrefix,
+} from "@/lib/helpers/cloudflare-images"
 import { medusaImageRewriteBase } from "@/lib/helpers/get-image-url"
+import type { StoreSellerListItem } from "@/types/seller"
+
+/** Campi usati per risolvere hero / logo / gallery (non serve `id`). */
+export type SellerMediaFields = Pick<
+  StoreSellerListItem,
+  "metadata" | "photo" | "handle" | "name"
+>
 
 export function medusaPublicBase(): string {
   return medusaImageRewriteBase()
@@ -91,15 +100,22 @@ export function inferTramellePartnerLogoUrl(
 }
 
 /** Trasforma URL API Medusa / CDN in assoluti (necessario per `<img>` e browser). */
-export function normalizeSellerImageUrl(raw: string): string | null {
+export function normalizeSellerImageUrl(
+  raw: string,
+  sellerHandle?: string
+): string | null {
   const u = raw.trim()
   if (!u) return null
-  const cf = maybeExpandCfImgRef(u)
+
+  const cf = maybeExpandCfImgRef(u, sellerHandle)
   if (cf) {
     return cf
   }
   if (u.startsWith("//")) {
-    return `https:${u}`
+    const out = `https:${u}`
+    return sellerHandle
+      ? rewriteCfImagesDeliveryUrlStripPartnerPrefix(out, sellerHandle)
+      : out
   }
   if (u.startsWith("/")) {
     return `${medusaPublicBase()}${u}`
@@ -112,7 +128,9 @@ export function normalizeSellerImageUrl(raw: string): string | null {
     } catch {
       return null
     }
-    return u
+    return sellerHandle
+      ? rewriteCfImagesDeliveryUrlStripPartnerPrefix(u, sellerHandle)
+      : u
   }
   return null
 }
@@ -126,8 +144,12 @@ function isPittiArchiveCdnUrl(absoluteUrl: string): boolean {
   }
 }
 
-function pushUnique(out: string[], url: string | null | undefined) {
-  const n = url ? normalizeSellerImageUrl(url) : null
+function pushUnique(
+  out: string[],
+  url: string | null | undefined,
+  sellerHandle?: string
+) {
+  const n = url ? normalizeSellerImageUrl(url, sellerHandle) : null
   if (!n || out.includes(n)) {
     return
   }
@@ -147,22 +169,23 @@ function pushUnique(out: string[], url: string | null | undefined) {
 /**
  * Candidati hero in ordine (primo che carica vince se usi fallback a catena).
  */
-export function sellerHeroImageCandidates(seller: StoreSellerListItem): string[] {
+export function sellerHeroImageCandidates(seller: SellerMediaFields): string[] {
   const out: string[] = []
   const meta = seller.metadata ?? undefined
+  const handle = (seller.handle || "").trim()
 
   const hero =
     meta && typeof meta.hero_image_url === "string"
       ? meta.hero_image_url.trim()
       : ""
-  pushUnique(out, hero)
+  pushUnique(out, hero, handle)
 
-  for (const g of sellerStorytellingGalleryUrls(meta ?? undefined)) {
-    pushUnique(out, g)
+  for (const g of sellerStorytellingGalleryUrls(meta ?? undefined, handle)) {
+    pushUnique(out, g, handle)
   }
 
-  pushUnique(out, inferTramellePartnerCoverUrl(seller))
-  pushUnique(out, typeof seller.photo === "string" ? seller.photo : "")
+  pushUnique(out, inferTramellePartnerCoverUrl(seller), handle)
+  pushUnique(out, typeof seller.photo === "string" ? seller.photo : "", handle)
 
   return out
 }
@@ -170,29 +193,43 @@ export function sellerHeroImageCandidates(seller: StoreSellerListItem): string[]
 /**
  * Candidati logo (badge sulla card): metadata logo, poi foto profilo, poi CDN.
  */
-export function sellerLogoImageCandidates(seller: StoreSellerListItem): string[] {
+export function sellerLogoImageCandidates(seller: SellerMediaFields): string[] {
   const out: string[] = []
   const meta = seller.metadata ?? undefined
+  const handle = (seller.handle || "").trim()
   if (meta) {
     for (const k of ["logo_url", "logoUrl"] as const) {
       const v = meta[k]
       if (typeof v === "string" && v.trim()) {
-        pushUnique(out, v.trim())
+        pushUnique(out, v.trim(), handle)
       }
     }
   }
-  pushUnique(out, typeof seller.photo === "string" ? seller.photo : "")
-  pushUnique(out, inferTramellePartnerLogoUrl(seller, "png"))
-  pushUnique(out, inferTramellePartnerLogoUrl(seller, "jpg"))
+  pushUnique(out, typeof seller.photo === "string" ? seller.photo : "", handle)
+  pushUnique(out, inferTramellePartnerLogoUrl(seller, "png"), handle)
+  pushUnique(out, inferTramellePartnerLogoUrl(seller, "jpg"), handle)
 
   const heroFirst = sellerHeroImageCandidates(seller)[0]
   return out.filter((u) => !heroFirst || u !== heroFirst)
 }
 
 /** Foto badge/avatar: stesso ordine della directory (logo metadata → photo → CDN legacy), senza Pitti. */
-export function sellerPrimaryLogoOrPhotoUrl(
-  seller: Pick<StoreSellerListItem, "metadata" | "photo" | "handle" | "name">
-): string {
+export function sellerPrimaryLogoOrPhotoUrl(seller: SellerMediaFields): string {
   const c = sellerLogoImageCandidates(seller)
-  return c[0] ?? ""
+  if (c.length > 0) {
+    return c[0] ?? ""
+  }
+  // Se `photo` coincide con l’hero viene filtrato in `sellerLogoImageCandidates`: mostra comunque l’avatar.
+  const raw = typeof seller.photo === "string" ? seller.photo.trim() : ""
+  const handle = (seller.handle || "").trim()
+  return raw ? normalizeSellerImageUrl(raw, handle) ?? "" : ""
+}
+
+/**
+ * Solo cover a tutta larghezza (niente gallery sotto; candidati da hero, storytelling, foto, CDN).
+ */
+export function sellerPagePhotoMosaicModel(seller: SellerMediaFields): {
+  coverCandidates: string[]
+} {
+  return { coverCandidates: sellerHeroImageCandidates(seller) }
 }

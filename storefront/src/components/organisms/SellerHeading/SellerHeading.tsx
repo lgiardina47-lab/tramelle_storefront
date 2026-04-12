@@ -22,7 +22,7 @@ export const SellerHeading = ({
   )
 
   return (
-    <div className="border-b">
+    <div className="border-b border-neutral-100">
       <div className="flex flex-col md:flex-row justify-between">
         <div>
           <SellerInfo header={header} seller={seller} />

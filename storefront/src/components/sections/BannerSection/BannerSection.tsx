@@ -1,8 +1,21 @@
 import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import Image from "next/image"
+import { listCollections } from "@/lib/data/collections"
 
-export const BannerSection = () => {
+export async function BannerSection() {
+  const { collections } = await listCollections({ limit: "1", offset: "0" })
+  const c = collections[0]
+  if (!c) {
+    return null
+  }
+
+  const title = c.title ?? c.handle
+  const description =
+    typeof c.metadata?.description === "string"
+      ? c.metadata.description
+      : null
+
   return (
     <section className="bg-tertiary container text-tertiary">
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
@@ -11,15 +24,12 @@ export const BannerSection = () => {
             <span className="text-sm inline-block px-4 py-1 border border-secondary rounded-sm">
               #COLLECTION
             </span>
-            <h2 className="display-sm">
-              BOHO VIBES: WHERE COMFORT MEETS CREATIVITY
-            </h2>
-            <p className="text-lg text-tertiary max-w-lg">
-              Discover boho styles that inspire adventure and embrace the beauty
-              of the unconventional.
-            </p>
+            <h2 className="display-sm uppercase">{title}</h2>
+            {description ? (
+              <p className="text-lg text-tertiary max-w-lg">{description}</p>
+            ) : null}
           </div>
-          <LocalizedClientLink href="/collections/boho">
+          <LocalizedClientLink href={`/collections/${c.handle}`}>
             <Button size="large" className="w-fit bg-secondary/10">
               EXPLORE
             </Button>
@@ -30,7 +40,7 @@ export const BannerSection = () => {
             loading="lazy"
             fetchPriority="high"
             src="/images/banner-section/Image.jpg"
-            alt="Boho fashion collection - Model wearing a floral dress with yellow boots"
+            alt=""
             width={700}
             height={600}
             className="object-cover object-top rounded-sm"

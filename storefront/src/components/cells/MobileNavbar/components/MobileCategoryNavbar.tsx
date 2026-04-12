@@ -3,9 +3,9 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
 import { useParams } from "next/navigation"
-import { CollapseIcon } from "@/icons"
 import { useMemo, useState } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 import { MobileCategoryDrawer } from "./MobileCategoryDrawer"
 
 interface MobileCategoryNavbarProps {
@@ -58,7 +58,7 @@ export const MobileCategoryNavbar = ({
         </LocalizedClientLink>
 
         {parentCategories.map(({ id, handle, name, category_children }) => {
-          const categoryUrl = `/categories/${handle}`
+          const categoryUrl = categoryPublicHref(handle)
           const isActive = handle === activeParentHandle
           const hasChildren = category_children && category_children.length > 0
 
@@ -80,10 +80,10 @@ export const MobileCategoryNavbar = ({
                   <button
                     type="button"
                     onClick={() => handleCategoryClick(id)}
-                    className="px-4 py-3 transition-colors hover:bg-secondary/10"
+                    className="px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-secondary/10"
                     aria-label={`Apri sottocategorie ${name}`}
                   >
-                    <CollapseIcon size={18} className="-rotate-90" />
+                    ›
                   </button>
                 )}
               </div>

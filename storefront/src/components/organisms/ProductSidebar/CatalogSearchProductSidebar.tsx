@@ -5,10 +5,10 @@ import { Accordion, FilterCheckboxOption, Modal } from "@/components/molecules"
 import useFilters from "@/hooks/useFilters"
 import useUpdateSearchParams from "@/hooks/useUpdateSearchParams"
 import {
-  ALGOLIA_LISTING_FACET_ATTRIBUTES,
-  ALGOLIA_TO_LISTING_FACET_PARAM,
-  facetHeadingForAlgoliaAttribute,
-} from "@/lib/helpers/algolia-facets"
+  INDEX_TO_LISTING_FACET_PARAM,
+  LISTING_SEARCH_FACET_ATTRIBUTES,
+  facetHeadingForListingAttribute,
+} from "@/lib/helpers/search-listing-facets"
 import { cn } from "@/lib/utils"
 import { useSearchParams } from "next/navigation"
 import React, { useEffect, useMemo, useState } from "react"
@@ -16,10 +16,10 @@ import { ProductListingActiveFilters } from "../ProductListingActiveFilters/Prod
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { HIDE_LISTING_FILTERS } from "@/const"
 
-/** Algolia facet response: attribute → facet value → hit count */
+/** Risposta facet Meilisearch: attributo → valore → conteggio */
 export type ListingFacetBuckets = Record<string, number>
 
-export const AlgoliaProductSidebar = ({
+export const CatalogSearchProductSidebar = ({
   facets,
 }: {
   facets: Record<string, ListingFacetBuckets | undefined>
@@ -31,8 +31,8 @@ export const AlgoliaProductSidebar = ({
 
   const sections = useMemo(
     () =>
-      ALGOLIA_LISTING_FACET_ATTRIBUTES.map((attr) => {
-        const param = ALGOLIA_TO_LISTING_FACET_PARAM[attr]
+      LISTING_SEARCH_FACET_ATTRIBUTES.map((attr) => {
+        const param = INDEX_TO_LISTING_FACET_PARAM[attr]
         if (!param) return null
         const buckets = facets[attr]
         if (!buckets || typeof buckets !== "object" || Array.isArray(buckets))
@@ -91,7 +91,7 @@ export const AlgoliaProductSidebar = ({
         return (
           <GenericCheckboxFacet
             key={attr}
-            heading={facetHeadingForAlgoliaAttribute(attr)}
+            heading={facetHeadingForListingAttribute(attr)}
             param={param}
             entries={entries}
             defaultOpen={defaultOpen}
@@ -177,7 +177,7 @@ function ColorFilter({
   }
   return (
     <Accordion
-      heading={facetHeadingForAlgoliaAttribute("variants.color")}
+      heading={facetHeadingForListingAttribute("variants.color")}
       defaultOpen={defaultOpen}
     >
       <ul className="px-4">
@@ -220,7 +220,7 @@ function SizeFilter({
 
   return (
     <Accordion
-      heading={facetHeadingForAlgoliaAttribute("variants.size")}
+      heading={facetHeadingForListingAttribute("variants.size")}
       defaultOpen={defaultOpen}
     >
       <ul className="grid grid-cols-4 mt-2 gap-2">

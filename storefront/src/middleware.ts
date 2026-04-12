@@ -11,6 +11,7 @@ import {
 } from './lib/i18n/storefront-path-locale';
 import { requestShowsComingSoonHome } from './lib/constants/coming-soon-public-home';
 import { MEDUSA_BACKEND_URL } from './lib/medusa-backend-url';
+import { TRAMELLE_CATEGORY_HANDLE_PREFIX } from './lib/helpers/category-public-url';
 
 const BACKEND_URL = MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
@@ -207,6 +208,21 @@ export async function middleware(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+
+  /** SEO / bookmark: URL legacy con prefisso handle Medusa → slug pubblico. */
+  const catSegs = pathname.split('/').filter(Boolean);
+  if (
+    catSegs.length >= 3 &&
+    catSegs[1] === 'categories' &&
+    catSegs[2]!.toLowerCase().startsWith(TRAMELLE_CATEGORY_HANDLE_PREFIX)
+  ) {
+    const short = catSegs[2]!.slice(TRAMELLE_CATEGORY_HANDLE_PREFIX.length);
+    if (short) {
+      catSegs[2] = short;
+      const dest = `/${catSegs.join('/')}${request.nextUrl.search}`;
+      return NextResponse.redirect(new URL(dest, request.url), 301);
+    }
+  }
   const cacheIdCookie = request.cookies.get('_medusa_cache_id');
   const cacheId = cacheIdCookie?.value || crypto.randomUUID();
 

@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowRightIcon } from "@/icons"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 
 interface Props {
   category: HttpTypes.StoreProductCategory
@@ -16,7 +17,7 @@ export const FeaturedCategory = ({ category, onLinkClick }: Props) => {
 
   return (
     <LocalizedClientLink
-      href={`/categories/${category.handle}`}
+      href={categoryPublicHref(category.handle)}
       onClick={onLinkClick}
       className="flex h-full max-w-sm flex-col overflow-hidden rounded-xl border border-neutral-100 bg-white shadow-sm transition-shadow hover:shadow-md"
     >

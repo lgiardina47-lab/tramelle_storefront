@@ -10,6 +10,19 @@ export default {
   ],
   theme: {
     extend: {
+      /** Allineate a `Header.tsx` (Playfair_Display + Plus_Jakarta_Sans) e MVP HTML */
+      fontFamily: {
+        tramelle: [
+          "var(--font-tramelle-jakarta)",
+          "ui-sans-serif",
+          "system-ui",
+        ],
+        "tramelle-display": [
+          "var(--font-tramelle-playfair)",
+          "Georgia",
+          "serif",
+        ],
+      },
       backgroundColor: {
         primary: "rgba(var(--bg-primary))",
         secondary: "rgba(var(--bg-secondary))",

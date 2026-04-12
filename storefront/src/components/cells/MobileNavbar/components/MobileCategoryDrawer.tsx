@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon, CloseIcon } from "@/icons"
 import { IconButton } from "@/components/atoms"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 
 interface MobileCategoryDrawerProps {
   category: HttpTypes.StoreProductCategory
@@ -76,7 +77,7 @@ export const MobileCategoryDrawer = ({
           <div className="flex-1 overflow-y-auto p-4">
             <nav className="flex flex-col gap-2">
               <LocalizedClientLink
-                href={`/categories/${category.handle}`}
+                href={categoryPublicHref(category.handle)}
                 onClick={handleLinkClick}
                 className="heading-sm px-4 py-3 uppercase text-primary transition-colors hover:bg-secondary/10"
               >
@@ -87,7 +88,7 @@ export const MobileCategoryDrawer = ({
                 return (
                   <div key={dept.id} className="flex flex-col border-b border-secondary/10 pb-2">
                     <LocalizedClientLink
-                      href={`/categories/${dept.handle}`}
+                      href={categoryPublicHref(dept.handle)}
                       onClick={handleLinkClick}
                       className="label-md px-4 py-2 font-semibold uppercase text-primary transition-colors hover:bg-secondary/10"
                     >
@@ -97,7 +98,7 @@ export const MobileCategoryDrawer = ({
                       ? subs.map((sub) => (
                           <LocalizedClientLink
                             key={sub.id}
-                            href={`/categories/${sub.handle}`}
+                            href={categoryPublicHref(sub.handle)}
                             onClick={handleLinkClick}
                             className="label-md border-t border-secondary/5 px-4 py-2.5 pl-8 normal-case text-primary transition-colors hover:bg-secondary/10"
                           >

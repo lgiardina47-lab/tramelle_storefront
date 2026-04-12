@@ -45,20 +45,6 @@ export function HeaderUtilityBar({
           </LocalizedClientLink>
         </nav>
 
-        <div className="hidden flex-1 justify-center md:flex">
-          <span className="flex items-center gap-1 text-xs text-cortilia">
-            <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-              {t("howItWorks")}
-            </LocalizedClientLink>
-            <span className="text-neutral-300" aria-hidden>
-              |
-            </span>
-            <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-              {t("contact")}
-            </LocalizedClientLink>
-          </span>
-        </div>
-
         <div className="flex items-center justify-end gap-3 sm:ml-auto">
           {isLoggedIn && <MessageButton locale={locale} />}
           <UserDropdown

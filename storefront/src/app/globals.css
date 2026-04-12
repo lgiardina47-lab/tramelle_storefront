@@ -15,6 +15,7 @@
 .text-md {
   @apply text-[14px] leading-[22px] font-light tracking-normal;
 }
+/* Attenzione: stessa specificità di `font-semibold` → il peso può risultare errato nei componenti che combinano le due classi. Il mega menu gourmet usa `text-[14px]` + pesi espliciti. */
 .text-sm {
   @apply text-[12px] font-light tracking-normal;
 }
@@ -152,4 +153,13 @@ button:disabled svg path {
 .no-arrows-number-input {
   -moz-appearance: textfield;
   appearance: textfield;
+}
+
+/* Header gourmet MVP: come .nav-scroll nella pagina statica */
+.tramelle-gourmet-nav-scroll {
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+.tramelle-gourmet-nav-scroll::-webkit-scrollbar {
+  display: none;
 }

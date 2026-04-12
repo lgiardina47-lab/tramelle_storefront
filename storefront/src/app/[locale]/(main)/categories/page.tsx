@@ -2,7 +2,7 @@ import { ProductListingSkeleton } from "@/components/organisms/ProductListingSke
 import { Suspense } from "react"
 
 import { Breadcrumbs } from "@/components/atoms"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
+import { CatalogSearchListing, ProductListing } from "@/components/sections"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
@@ -143,7 +143,7 @@ async function AllCategories({
         {bot || !preferBackendProductSearchListing() ? (
           <ProductListing locale={locale} />
         ) : (
-          <AlgoliaProductsListing
+          <CatalogSearchListing
             locale={locale}
             currency_code={currency_code}
             region_id={region_id}

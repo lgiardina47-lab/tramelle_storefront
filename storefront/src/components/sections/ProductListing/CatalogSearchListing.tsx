@@ -2,7 +2,7 @@
 
 import { HttpTypes } from "@medusajs/types"
 import {
-  AlgoliaProductSidebar,
+  CatalogSearchProductSidebar,
   ProductListingActiveFilters,
   ProductsPagination,
 } from "@/components/organisms"
@@ -14,13 +14,16 @@ import {
 import { useSearchParams } from "next/navigation"
 import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { HIDE_LISTING_FILTERS, PRODUCT_LIMIT } from "@/const"
-import { storefrontPathToAlgoliaSupportedCountry } from "@/lib/i18n/storefront-path-locale"
+import {
+  STOREFRONT_EN_URL_SEGMENT,
+  storefrontPathToSearchSupportedCountry,
+} from "@/lib/i18n/storefront-path-locale"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { useEffect, useState } from "react"
 import { fetchMedusaCatalogFallback, searchProducts } from "@/lib/data/products"
-import { ListingFacetBuckets } from "@/components/organisms/ProductSidebar/AlgoliaProductSidebar"
+import { ListingFacetBuckets } from "@/components/organisms/ProductSidebar/CatalogSearchProductSidebar"
 
-export const AlgoliaProductsListing = ({
+export const CatalogSearchListing = ({
   category_id,
   collection_id,
   seller_handle,
@@ -41,12 +44,16 @@ export const AlgoliaProductsListing = ({
   const query: string = searchParams.get("query") || ""
   const page: number = +(searchParams.get("page") || 1)
 
-  const algoliaCountry = storefrontPathToAlgoliaSupportedCountry(locale ?? "")
+  const searchCountry = storefrontPathToSearchSupportedCountry(locale ?? "")
+  const enCatalogFilter =
+    (locale ?? "").toLowerCase() === STOREFRONT_EN_URL_SEGMENT
+      ? " AND content_locales:en"
+      : ""
   const filters = `${
     seller_handle
       ? `NOT seller:null AND seller.handle:${seller_handle} AND `
       : "NOT seller:null AND "
-  }NOT seller.store_status:SUSPENDED AND supported_countries:${algoliaCountry} AND variants.prices.currency_code:${currency_code} AND variants.prices.amount > 0${
+  }NOT seller.store_status:SUSPENDED AND supported_countries:${searchCountry} AND variants.prices.currency_code:${currency_code} AND variants.prices.amount > 0${enCatalogFilter}${
     category_id
       ? ` AND categories.id:${category_id}${
           collection_id !== undefined
@@ -57,16 +64,16 @@ export const AlgoliaProductsListing = ({
   }`
 
   return (
-      <ProductsListing
-        locale={locale}
-        currency_code={currency_code}
-        filters={filters}
-        query={query}
-        page={page}
-        category_id={category_id}
-        collection_id={collection_id}
-        region_id={region_id}
-      />
+    <ProductsListing
+      locale={locale}
+      currency_code={currency_code}
+      filters={filters}
+      query={query}
+      page={page}
+      category_id={category_id}
+      collection_id={collection_id}
+      region_id={region_id}
+    />
   )
 }
 
@@ -99,8 +106,6 @@ const ProductsListing = ({
   const [count, setCount] = useState(0)
   const [pages, setPages] = useState(1)
 
-  const searchParams = useSearchParams()
-
   useEffect(() => {
     async function fetchProducts() {
       if (!locale) return
@@ -121,11 +126,10 @@ const ProductsListing = ({
         let nbPages = result.nbPages
         let facets = result.facets
 
-        // Algolia senza hit / payload prodotti vuoto (disallineamento indice): fallback catalogo Medusa.
-        const algoliaEffectivelyEmpty =
+        const searchEffectivelyEmpty =
           (nbHits ?? 0) === 0 || !(products && products.length > 0)
         const canFallbackCatalog =
-          algoliaEffectivelyEmpty &&
+          searchEffectivelyEmpty &&
           !query?.trim() &&
           !!locale &&
           !!region_id
@@ -150,7 +154,7 @@ const ProductsListing = ({
             nbPages = Math.max(1, Math.ceil(nbHits / PRODUCT_LIMIT))
             facets = {}
           } catch {
-            /* keep Algolia empty result */
+            /* mantieni risultato vuoto dalla ricerca */
           }
         }
 
@@ -195,7 +199,7 @@ const ProductsListing = ({
       <div className="md:flex gap-4">
         {!HIDE_LISTING_FILTERS && (
           <div className="w-[280px] flex-shrink-0 hidden md:block">
-            <AlgoliaProductSidebar facets={facets} />
+            <CatalogSearchProductSidebar facets={facets} />
           </div>
         )}
         <div className="w-full flex flex-col">

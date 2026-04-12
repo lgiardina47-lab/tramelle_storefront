@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { useParams } from "next/navigation"
 import { useMemo } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
+import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 
 interface ParentCategoryLinksProps {
   parentCategories: HttpTypes.StoreProductCategory[]
@@ -33,7 +34,7 @@ export const ParentCategoryLinks = ({
         return (
           <LocalizedClientLink
             key={id}
-            href={`/categories/${handle}`}
+            href={categoryPublicHref(handle)}
             title={name}
             className={cn(
               "shrink-0 rounded-md px-2.5 py-1.5 text-center text-[10px] font-semibold uppercase leading-tight tracking-tight text-primary transition-opacity hover:opacity-80 sm:text-[11px]",
