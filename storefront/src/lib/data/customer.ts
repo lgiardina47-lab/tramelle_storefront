@@ -3,6 +3,7 @@
 import { HttpTypes } from '@medusajs/types';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 
 import { sdk } from '../config';
 import { MEDUSA_BACKEND_URL } from '../medusa-backend-url';
@@ -92,27 +93,32 @@ async function assignCustomerToB2bProGroupImmediate(customerId: string): Promise
   }
 }
 
-export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null> => {
-  const authHeaders = await getAuthHeaders();
-  if (!authHeaders) return null;
+const retrieveCustomerUncached =
+  async (): Promise<HttpTypes.StoreCustomer | null> => {
+    const authHeaders = await getAuthHeaders();
+    if (!authHeaders) return null;
 
-  const headers = {
-    ...authHeaders
+    const headers = {
+      ...authHeaders
+    };
+
+    return await sdk.client
+      .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
+        method: 'GET',
+        query: {
+          // `*groups` non è ammesso su /store/customers/me in Mercur/Medusa → 400 e la sessione sembra assente.
+          // Senza `*orders`: ordini da `listOrders`; meno payload su ogni richiesta RSC.
+          fields: '*metadata',
+        },
+        headers,
+        cache: 'no-store'
+      })
+      .then(({ customer }) => customer ?? null)
+      .catch(() => null);
   };
 
-  return await sdk.client
-    .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
-      method: 'GET',
-      query: {
-        // `*groups` non è ammesso su /store/customers/me in Mercur/Medusa → 400 e la sessione sembra assente.
-        fields: '*metadata,*orders',
-      },
-      headers,
-      cache: 'no-store'
-    })
-    .then(({ customer }) => customer ?? null)
-    .catch(() => null);
-};
+/** Una sola chiamata /customers/me per richiesta RSC (layout + Header + pagine). */
+export const retrieveCustomer = cache(retrieveCustomerUncached);
 
 export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
   const headers = {

@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google"
+import Image from "next/image"
 import { getTranslations } from "next-intl/server"
 import { Suspense } from "react"
 
@@ -13,7 +14,7 @@ import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher/Langua
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { buildLanguageSwitcherOptions } from "@/lib/helpers/language-switcher-options"
 import { buildMegaNavCategories } from "@/lib/helpers/category-mega-nav"
-import { listCategories } from "@/lib/data/categories"
+import { listCategoriesForHeaderNav } from "@/lib/data/categories"
 import { listCollections } from "@/lib/data/collections"
 import { getProducersByParentId } from "@/lib/data/nav-producers"
 import { getRegion, listRegions } from "@/lib/data/regions"
@@ -38,8 +39,18 @@ const jakarta = Plus_Jakarta_Sans({
 const gourmetFontVariables = `${playfair.variable} ${jakarta.variable}`
 
 export const Header = async ({ locale }: { locale: string }) => {
-  const t = await getTranslations("Header")
-  const user = await retrieveCustomer().catch(() => null)
+  const [t, user, regions, categoriesData, region] = await Promise.all([
+    getTranslations("Header"),
+    retrieveCustomer().catch(() => null),
+    listRegions(),
+    listCategoriesForHeaderNav() as Promise<{
+      categories: HttpTypes.StoreProductCategory[]
+      parentCategories: HttpTypes.StoreProductCategory[]
+      allCategoriesFlat: HttpTypes.StoreProductCategory[]
+    }>,
+    getRegion(locale),
+  ])
+
   const isLoggedIn = Boolean(user)
 
   let wishlist: Wishlist = { products: [] }
@@ -47,22 +58,11 @@ export const Header = async ({ locale }: { locale: string }) => {
     wishlist = await getUserWishlists({ countryCode: locale })
   }
 
-  const regions = await listRegions()
   const languageOptions = buildLanguageSwitcherOptions(regions)
 
   const wishlistCount = wishlist?.products.length || 0
 
-  const { categories, parentCategories, allCategoriesFlat } =
-    (await listCategories({
-      query: {
-        include_ancestors_tree: true,
-        limit: 2000,
-      },
-    })) as {
-      categories: HttpTypes.StoreProductCategory[]
-      parentCategories: HttpTypes.StoreProductCategory[]
-      allCategoriesFlat: HttpTypes.StoreProductCategory[]
-    }
+  const { categories, parentCategories, allCategoriesFlat } = categoriesData
 
   const userEmail =
     user && "email" in user ? (user as { email?: string }).email : undefined
@@ -79,12 +79,10 @@ export const Header = async ({ locale }: { locale: string }) => {
 
   const megaNavCategories = buildMegaNavCategories(
     parentCategories,
-    producersByParentId,
     allCategoriesFlat,
     storeCollections
   )
 
-  const region = await getRegion(locale)
   const headerCurrency = region?.currency_code || "usd"
 
   return (
@@ -120,14 +118,14 @@ export const Header = async ({ locale }: { locale: string }) => {
                   className="inline-flex shrink-0 items-center"
                   data-testid="header-logo-link"
                 >
-                  <img
+                  <Image
                     src="/tramelle.svg"
                     width={200}
                     height={40}
                     alt={t("logoAlt")}
                     className="h-8 w-auto max-h-9"
-                    decoding="async"
-                    fetchPriority="high"
+                    priority
+                    unoptimized
                   />
                 </LocalizedClientLink>
               </div>

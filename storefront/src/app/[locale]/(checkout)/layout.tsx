@@ -1,6 +1,8 @@
 import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { CollapseIcon } from "@/icons"
+import Image from "next/image"
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -20,14 +22,14 @@ export default async function RootLayout({
           </div>
           <div className="flex items-center justify-center pl-4 lg:pl-0 w-full">
             <LocalizedClientLink href="/" className="inline-flex items-center">
-              <img
+              <Image
                 src="/tramelle.svg"
                 width={200}
                 height={40}
                 alt="Tramelle Source Gourmet"
                 className="h-8 w-auto max-h-10 md:max-h-[40px]"
-                decoding="async"
-                fetchPriority="high"
+                priority
+                unoptimized
               />
             </LocalizedClientLink>
           </div>
