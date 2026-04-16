@@ -5,27 +5,24 @@ export const useCategoryDropdown = () => {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false)
   const [shouldRenderDropdown, setShouldRenderDropdown] = useState(false)
 
-  const openDropdown = useCallback((categoryId: string) => {
-    setHoveredCategoryId(categoryId)
-    setShouldRenderDropdown(true)
-    const timer = setTimeout(() => setIsDropdownVisible(true), 20)
-    return () => clearTimeout(timer)
+  const toggleDropdown = useCallback((categoryId: string) => {
+    setHoveredCategoryId((prev) => (prev === categoryId ? null : categoryId))
   }, [])
 
   const closeDropdown = useCallback(() => {
-    setIsDropdownVisible(false)
-    const timer = setTimeout(() => {
-      setShouldRenderDropdown(false)
-      setHoveredCategoryId(null)
-    }, 0)
-    return () => clearTimeout(timer)
+    setHoveredCategoryId(null)
   }, [])
 
   useEffect(() => {
-    if (!hoveredCategoryId) {
-      closeDropdown()
+    if (hoveredCategoryId) {
+      setShouldRenderDropdown(true)
+      const t = window.setTimeout(() => setIsDropdownVisible(true), 20)
+      return () => clearTimeout(t)
     }
-  }, [hoveredCategoryId, closeDropdown])
+    setIsDropdownVisible(false)
+    const t = window.setTimeout(() => setShouldRenderDropdown(false), 200)
+    return () => clearTimeout(t)
+  }, [hoveredCategoryId])
 
   useEffect(() => {
     if (!shouldRenderDropdown) return
@@ -45,7 +42,7 @@ export const useCategoryDropdown = () => {
     hoveredCategoryId,
     isDropdownVisible,
     shouldRenderDropdown,
-    openDropdown,
+    toggleDropdown,
     closeDropdown,
     setHoveredCategoryId,
   }

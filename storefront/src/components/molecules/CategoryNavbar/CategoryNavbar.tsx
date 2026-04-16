@@ -3,7 +3,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
 import { useParams } from "next/navigation"
-import { useMemo, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import {
   getActiveParentHandle,
   filterCategoriesByParent,
@@ -42,10 +42,30 @@ export const CategoryNavbar = ({
     hoveredCategoryId,
     isDropdownVisible,
     shouldRenderDropdown,
-    openDropdown,
-    setHoveredCategoryId,
+    toggleDropdown,
     closeDropdown,
   } = useCategoryDropdown()
+
+  const navRootRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!shouldRenderDropdown) return
+    const onDocDown = (e: MouseEvent) => {
+      const el = navRootRef.current
+      if (el && !el.contains(e.target as Node)) {
+        closeDropdown()
+      }
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeDropdown()
+    }
+    document.addEventListener("mousedown", onDocDown)
+    window.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("mousedown", onDocDown)
+      window.removeEventListener("keydown", onKey)
+    }
+  }, [shouldRenderDropdown, closeDropdown])
 
   const activeParentHandle = useMemo(
     () => getActiveParentHandle(category, categories, parentCategories),
@@ -77,32 +97,11 @@ export const CategoryNavbar = ({
     closeDropdown()
   }
 
-  const handleParentMouseEnter = (parentId: string) => {
-    const p = parentCategories.find((x) => x.id === parentId)
-    if (p?.category_children && p.category_children.length > 0) {
-      openDropdown(parentId)
-    }
-  }
-
-  const handleCategoryMouseLeave = () => {
-    setHoveredCategoryId(null)
-  }
-
-  const handleDropdownMouseEnter = () => {
-    if (hoveredCategoryId) {
-      setHoveredCategoryId(hoveredCategoryId)
-    }
-  }
-
-  const handleDropdownMouseLeave = () => {
-    setHoveredCategoryId(null)
-  }
-
   const scrollRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-0">
-      <div className="relative w-full min-w-0">
+      <div ref={navRootRef} className="relative w-full min-w-0">
         <div className="relative flex items-end gap-1">
         <nav
           ref={scrollRef}
@@ -128,34 +127,58 @@ export const CategoryNavbar = ({
             const badge = navBadge(parent.metadata)
 
             return (
-              <div
-                key={parent.id}
-                className="relative shrink-0 snap-start"
-                onMouseEnter={() =>
-                  hasChildren ? handleParentMouseEnter(parent.id) : undefined
-                }
-                onMouseLeave={handleCategoryMouseLeave}
-              >
-                <LocalizedClientLink
-                  href={categoryPublicHref(parent.handle)}
-                  onClick={handleClose}
-                  title={parent.name}
-                  className={cn(
-                    "relative flex max-w-[11rem] flex-col items-center justify-center px-2 py-2.5 text-center sm:px-4",
-                    isActive &&
-                      "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-0.5 after:rounded-full after:bg-cortilia"
-                  )}
-                  data-testid={`category-parent-link-${parent.handle}`}
-                >
-                  <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-cortilia sm:text-xs">
-                    {parent.name}
-                    {badge ? (
-                      <span className="ml-1 align-top text-[8px] font-bold uppercase text-amber-600">
-                        {badge}
-                      </span>
-                    ) : null}
-                  </span>
-                </LocalizedClientLink>
+              <div key={parent.id} className="relative shrink-0 snap-start">
+                {hasChildren ? (
+                  <button
+                    type="button"
+                    title={parent.name}
+                    aria-expanded={hoveredCategoryId === parent.id}
+                    aria-haspopup="true"
+                    onClick={() => toggleDropdown(parent.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        toggleDropdown(parent.id)
+                      }
+                    }}
+                    className={cn(
+                      "relative flex max-w-[11rem] flex-col items-center justify-center px-2 py-2.5 text-center sm:px-4",
+                      isActive &&
+                        "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-0.5 after:rounded-full after:bg-cortilia"
+                    )}
+                    data-testid={`category-parent-link-${parent.handle}`}
+                  >
+                    <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-cortilia sm:text-xs">
+                      {parent.name}
+                      {badge ? (
+                        <span className="ml-1 align-top text-[8px] font-bold uppercase text-amber-600">
+                          {badge}
+                        </span>
+                      ) : null}
+                    </span>
+                  </button>
+                ) : (
+                  <LocalizedClientLink
+                    href={categoryPublicHref(parent.handle)}
+                    onClick={handleClose}
+                    title={parent.name}
+                    className={cn(
+                      "relative flex max-w-[11rem] flex-col items-center justify-center px-2 py-2.5 text-center sm:px-4",
+                      isActive &&
+                        "after:absolute after:bottom-0 after:left-1 after:right-1 after:h-0.5 after:rounded-full after:bg-cortilia"
+                    )}
+                    data-testid={`category-parent-link-${parent.handle}`}
+                  >
+                    <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-cortilia sm:text-xs">
+                      {parent.name}
+                      {badge ? (
+                        <span className="ml-1 align-top text-[8px] font-bold uppercase text-amber-600">
+                          {badge}
+                        </span>
+                      ) : null}
+                    </span>
+                  </LocalizedClientLink>
+                )}
               </div>
             )
           })}
@@ -177,8 +200,6 @@ export const CategoryNavbar = ({
             parentCategory={hoveredParent}
             producers={producersByParentId[hoveredParent.id] ?? []}
             isVisible={isDropdownVisible}
-            onMouseEnter={handleDropdownMouseEnter}
-            onMouseLeave={handleDropdownMouseLeave}
             onLinkClick={handleClose}
           />
         )}

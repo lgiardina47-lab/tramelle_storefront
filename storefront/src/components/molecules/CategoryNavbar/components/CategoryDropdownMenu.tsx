@@ -13,13 +13,11 @@ import { CategoryDropdownContent } from "./CategoryDropdownContent"
 import { FeaturedCategory } from "./FeaturedCategory"
 
 interface CategoryDropdownMenuProps {
-  /** Categoria radice (padre) su cui si è in hover. */
+  /** Categoria radice (padre) il cui menu è aperto al click. */
   parentCategory: HttpTypes.StoreProductCategory
   /** Seller da mostrare come Produttori. */
   producers: { name: string; handle: string }[]
   isVisible: boolean
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
   onLinkClick?: () => void
 }
 
@@ -38,8 +36,6 @@ export const CategoryDropdownMenu = ({
   parentCategory,
   producers,
   isVisible,
-  onMouseEnter,
-  onMouseLeave,
   onLinkClick,
 }: CategoryDropdownMenuProps) => {
   const departments = collectDepartmentCategories(parentCategory)
@@ -59,11 +55,7 @@ export const CategoryDropdownMenu = ({
   const featured = pickFeatured(parentCategory)
 
   return (
-    <CategoryDropdownContainer
-      isVisible={isVisible}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
+    <CategoryDropdownContainer isVisible={isVisible}>
       <CategoryDropdownContent maxHeight="28rem">
         <div
           className={cn(

@@ -60,6 +60,13 @@ function formatProducerRegion(s: string | undefined): string {
     .join(" · ")
 }
 
+type MegaOriginSeller = {
+  handle: string
+  name: string
+  paese: string
+  photo: string | null
+}
+
 type Props = {
   locale: string
   currencyCode: string
@@ -88,38 +95,19 @@ export function TramelleGourmetHeader({
 
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
   const [scrolled, setScrolled] = useState(false)
-  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const navScrollRef = useRef<HTMLDivElement>(null)
   const [canL, setCanL] = useState(false)
   const [canR, setCanR] = useState(true)
-
-  const clearCloseTimer = useCallback(() => {
-    if (closeTimerRef.current) {
-      clearTimeout(closeTimerRef.current)
-      closeTimerRef.current = null
-    }
-  }, [])
+  const [originSellers, setOriginSellers] = useState<MegaOriginSeller[]>([])
+  const [originLoading, setOriginLoading] = useState(false)
 
   const closeMenu = useCallback(() => {
-    clearCloseTimer()
     setActiveIndex(null)
-  }, [clearCloseTimer])
+  }, [])
 
-  const openMenu = useCallback(
-    (i: number) => {
-      clearCloseTimer()
-      setActiveIndex(i)
-    },
-    [clearCloseTimer]
-  )
-
-  /** Chiusura ritardata solo quando il puntatore esce dall’area nav + mega (wrapper). */
-  const scheduleClose = useCallback(() => {
-    clearCloseTimer()
-    closeTimerRef.current = setTimeout(() => {
-      setActiveIndex(null)
-    }, 220)
-  }, [clearCloseTimer])
+  const toggleMenu = useCallback((i: number) => {
+    setActiveIndex((prev) => (prev === i ? null : i))
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 6)
@@ -156,6 +144,32 @@ export function TramelleGourmetHeader({
   }
 
   const active = activeIndex !== null ? megaCategories[activeIndex] : null
+
+  useEffect(() => {
+    if (activeIndex === null) {
+      setOriginSellers([])
+      return
+    }
+    let cancelled = false
+    setOriginLoading(true)
+    fetch("/api/tramelle/mega-random-sellers", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error(String(res.status))
+        return res.json() as Promise<{ sellers?: MegaOriginSeller[] }>
+      })
+      .then((data) => {
+        if (!cancelled) setOriginSellers(data.sellers ?? [])
+      })
+      .catch(() => {
+        if (!cancelled) setOriginSellers([])
+      })
+      .finally(() => {
+        if (!cancelled) setOriginLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [activeIndex])
 
   return (
     <div
@@ -340,11 +354,7 @@ export function TramelleGourmetHeader({
         className="sticky z-[60] border-b border-gray-100 bg-white"
         style={{ top: "6rem" }}
       >
-        <div
-          className="relative"
-          onMouseEnter={clearCloseTimer}
-          onMouseLeave={scheduleClose}
-        >
+        <div className="relative">
           <div className="flex h-14 min-h-[3.5rem] items-stretch">
             <button
               type="button"
@@ -387,12 +397,11 @@ export function TramelleGourmetHeader({
                       ? "bg-gray-100 text-gray-900 shadow-sm ring-1 ring-gray-200/80"
                       : "text-gray-500 hover:bg-gray-50 hover:text-gray-800 hover:ring-1 hover:ring-gray-200/60"
                   )}
-                  onMouseEnter={() => openMenu(i)}
-                  onFocus={() => openMenu(i)}
+                  onClick={() => toggleMenu(i)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault()
-                      openMenu(i)
+                      toggleMenu(i)
                     }
                   }}
                 >
@@ -507,34 +516,13 @@ export function TramelleGourmetHeader({
                       style={{ height: "1.75rem" }}
                     >
                       <span className="text-[0.58rem] font-bold uppercase tracking-[0.36em] text-gray-900">
-                        {t("gourmet.selectionsHeading")}
+                        {t("gourmet.characteristicsHeading")}
                       </span>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 content-start">
-                      {active.selezioni.length > 0 ? (
-                        active.selezioni.map((s) => (
-                          <LocalizedClientLink
-                            key={s.handle}
-                            href={`/collections/${s.handle}`}
-                            locale={locale}
-                            onClick={closeMenu}
-                            className="flex min-h-[2.25rem] items-start gap-2.5 rounded-lg px-2 py-1 text-left text-[14px] font-medium leading-snug text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/15"
-                          >
-                            <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-300" aria-hidden />
-                            <span className="min-w-0">{s.name}</span>
-                          </LocalizedClientLink>
-                        ))
-                      ) : (
-                        <LocalizedClientLink
-                          href="/collections"
-                          locale={locale}
-                          onClick={closeMenu}
-                          className="col-span-2 flex min-h-[2.25rem] items-center gap-2.5 rounded-lg px-2 py-1 text-[14px] font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/15"
-                        >
-                          <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-gray-300" />
-                          {t("gourmet.browseAllCollections")}
-                        </LocalizedClientLink>
-                      )}
+                    <div className="max-h-[min(22rem,55vh)] min-h-[6rem] overflow-y-auto rounded-lg border border-dashed border-gray-200/90 bg-gray-50/40 px-3 py-4">
+                      <p className="text-center text-[13px] font-medium leading-snug text-gray-400">
+                        {t("gourmet.characteristicsPlaceholder")}
+                      </p>
                     </div>
                   </div>
 
@@ -544,7 +532,7 @@ export function TramelleGourmetHeader({
                       style={{ height: "1.75rem" }}
                     >
                       <span className="text-[0.58rem] font-bold uppercase tracking-[0.36em] text-gray-900">
-                        {t("gourmet.producersHeading")}
+                        {t("gourmet.originHeading")}
                       </span>
                       <LocalizedClientLink
                         href="/sellers"
@@ -555,58 +543,57 @@ export function TramelleGourmetHeader({
                         {t("gourmet.seeAllProducers")} →
                       </LocalizedClientLink>
                     </div>
-                    <div className="grid grid-cols-2 gap-x-2.5 gap-y-1 content-start">
-                      {active.producers.length > 0 ? (
-                        active.producers.slice(0, 6).map((p) => (
-                          <LocalizedClientLink
-                            key={p.handle}
-                            href={`/sellers/${p.handle}`}
-                            locale={locale}
-                            onClick={closeMenu}
-                            className="group flex min-h-[3rem] items-center gap-2.5 rounded-2xl px-2 py-2 transition-colors duration-200 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/10"
-                          >
-                            <div
-                              className="relative flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)] ring-1 ring-inset ring-gray-200/90 transition-[box-shadow,ring-color] duration-200 group-hover:shadow-[0_2px_6px_rgba(0,0,0,0.06)] group-hover:ring-gray-300/90"
-                              aria-hidden
-                            >
-                              {p.photo ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                  src={p.photo}
-                                  alt=""
-                                  className="h-full w-full object-cover"
-                                  loading="lazy"
-                                  decoding="async"
-                                />
-                              ) : (
-                                <div className="flex h-full w-full items-center justify-center bg-gray-50 text-[11px] font-semibold tabular-nums tracking-tight text-gray-600">
-                                  {producerInitials(p.name)}
-                                </div>
-                              )}
-                            </div>
-                            <div className="min-w-0 flex-1 py-0.5">
-                              <div className="line-clamp-2 text-left text-[14px] font-bold leading-tight text-gray-900 normal-case">
-                                {formatProducerLine(p.name)}
-                              </div>
-                              {p.region ? (
-                                <div className="mt-0.5 line-clamp-1 text-left text-xs font-medium leading-tight text-gray-400 normal-case">
-                                  {formatProducerRegion(p.region)}
-                                </div>
-                              ) : null}
-                            </div>
-                          </LocalizedClientLink>
-                        ))
+                    <div className="max-h-[min(22rem,55vh)] overflow-y-auto pr-1">
+                      {originLoading ? (
+                        <p className="px-1 py-3 text-[13px] text-gray-400">
+                          {t("gourmet.originLoading")}
+                        </p>
+                      ) : originSellers.length === 0 ? (
+                        <p className="px-1 py-3 text-[13px] text-gray-400">
+                          {t("gourmet.originEmpty")}
+                        </p>
                       ) : (
-                        <LocalizedClientLink
-                          href={categoryPublicHref(active.handle)}
-                          locale={locale}
-                          onClick={closeMenu}
-                          className="col-span-2 rounded-lg py-2 text-[14px] font-medium text-gray-700 transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/15"
-                        >
-                          {t("gourmet.exploreProducersInCategory", {
-                            name: active.name,
-                          })}
-                        </LocalizedClientLink>
+                        <div className="grid grid-cols-1 gap-1 content-start sm:grid-cols-2">
+                          {originSellers.map((p) => (
+                            <LocalizedClientLink
+                              key={p.handle}
+                              href={`/sellers/${p.handle}`}
+                              locale={locale}
+                              onClick={closeMenu}
+                              className="group flex min-h-[2.75rem] items-center gap-2 rounded-xl px-1.5 py-1.5 transition-colors duration-200 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/10"
+                            >
+                              <div
+                                className="relative flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)] ring-1 ring-inset ring-gray-200/90"
+                                aria-hidden
+                              >
+                                {p.photo ? (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={p.photo}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center bg-gray-50 text-[10px] font-semibold text-gray-600">
+                                    {producerInitials(p.name)}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="min-w-0 flex-1 py-0.5">
+                                <div className="line-clamp-2 text-left text-[13px] font-bold leading-tight text-gray-900 normal-case">
+                                  {formatProducerLine(p.name)}
+                                </div>
+                                {p.paese ? (
+                                  <div className="mt-0.5 line-clamp-1 text-left text-[11px] font-medium leading-tight text-gray-400 normal-case">
+                                    {formatProducerLine(p.paese)}
+                                  </div>
+                                ) : null}
+                              </div>
+                            </LocalizedClientLink>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>
