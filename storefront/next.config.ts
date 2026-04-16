@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    /** Next 15: solo questi valori sono ammessi su `/_next/image` (cfr. `quality` su `<Image />`). */
+    qualities: [50, 70, 75, 85],
     remotePatterns: [
       {
         protocol: 'https',
@@ -61,6 +63,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'api.tramelle.com'
+      },
+      /** CDN immagini siti WooCommerce (es. Alpe Magna). */
+      {
+        protocol: 'https',
+        hostname: 'dgxea1iio7h1w.cloudfront.net'
       },
       {
         protocol: 'https',
