@@ -11,7 +11,7 @@ export async function ShopByStyleSection() {
 
   return (
     <section className="bg-primary container">
-      <h2 className="heading-lg text-primary mb-12">SHOP BY COLLECTION</h2>
+      <h2 className="heading-lg text-primary mb-12 uppercase tracking-tight">Selezioni</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
         <div className="py-[52px] px-[58px] h-full border rounded-sm">
           {collections.map((c) => (

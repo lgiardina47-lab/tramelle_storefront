@@ -51,12 +51,20 @@ export const convertToLocale = ({
   maximumFractionDigits,
   locale = "en-US",
 }: ConvertToLocaleParams) => {
-  return currency_code && !isEmpty(currency_code)
-    ? new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency: currency_code,
-        minimumFractionDigits,
-        maximumFractionDigits,
-      }).format(amount)
-    : amount.toString()
+  if (!currency_code || isEmpty(currency_code)) {
+    return Number.isFinite(amount) ? String(amount) : "0"
+  }
+  const code = String(currency_code).toUpperCase()
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: code,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(amount)
+  } catch {
+    /** Codice valuta non ISO (es. dati API corrotti): evita crash su cart / summary. */
+    const n = Number.isFinite(amount) ? amount : 0
+    return `${n} ${code}`
+  }
 }

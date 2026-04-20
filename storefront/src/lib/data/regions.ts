@@ -1,5 +1,6 @@
 'use server';
 
+import { cache } from 'react';
 import { HttpTypes } from '@medusajs/types';
 
 import {
@@ -66,8 +67,9 @@ export async function medusaCountryToStorefrontPathSegment(
 /**
  * Non lancia: se l'API non risponde (backend spento, URL errato) resta [] così
  * layout/header non vanno in 500.
+ * `cache()`: una sola richiesta Medusa per tutte le chiamate nella stessa RSC (layout + metadata + checkRegion).
  */
-export const listRegions = async (): Promise<HttpTypes.StoreRegion[]> => {
+export const listRegions = cache(async (): Promise<HttpTypes.StoreRegion[]> => {
   try {
     const next = {
       ...(await getCacheOptions('regions')),
@@ -87,7 +89,7 @@ export const listRegions = async (): Promise<HttpTypes.StoreRegion[]> => {
   } catch {
     return [] as HttpTypes.StoreRegion[];
   }
-};
+});
 
 export const retrieveRegion = async (
   id: string

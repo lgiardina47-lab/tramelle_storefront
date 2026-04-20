@@ -1,26 +1,37 @@
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
 import { ProductCard } from "@/components/organisms"
+import { ProductListingImageLoadProvider } from "@/components/organisms/ProductCard/ProductListingImageLoadContext"
+import {
+  productListingImageRowIndex,
+  productListingRowCardCounts,
+} from "@/lib/helpers/product-listing-grid-layout"
 
 interface Props {
   products: HttpTypes.StoreProduct[]
 }
 
-const ProductListingProductsView = ({ products }: Props) => (
-  <div className="w-full">
-    <ul className="flex flex-wrap gap-4">
-      {products.map(
-        (product) =>
-           (
-            <li key={product.id} className="w-full lg:w-[calc(25%-1rem)] min-w-[250px]">
+const ProductListingProductsView = ({ products }: Props) => {
+  const rowCardCounts = productListingRowCardCounts(products.length)
+
+  return (
+    <ProductListingImageLoadProvider rowCardCounts={rowCardCounts}>
+      <div className="w-full">
+        <ul className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          {products.map((product, index) => (
+            <li key={product.id} className="min-w-0">
               <ProductCard
                 product={product}
-                className="w-full h-full lg:w-full min-w-0"
+                className="h-full w-full min-w-0"
+                imageRowIndex={productListingImageRowIndex(index)}
               />
             </li>
-          )
-      )}
-    </ul>
-  </div>
-)
+          ))}
+        </ul>
+      </div>
+    </ProductListingImageLoadProvider>
+  )
+}
 
 export default ProductListingProductsView

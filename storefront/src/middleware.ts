@@ -15,7 +15,9 @@ import { TRAMELLE_CATEGORY_HANDLE_PREFIX } from './lib/helpers/category-public-u
 
 const BACKEND_URL = MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
-const DEFAULT_REGION = process.env.NEXT_PUBLIC_DEFAULT_REGION || 'us';
+/** Allineato a `app/page.tsx` e `app/sellers/page.tsx` (Tramelle: default IT). */
+const DEFAULT_REGION =
+  process.env.NEXT_PUBLIC_DEFAULT_REGION?.trim().toLowerCase() || 'it'
 
 const makeAuthRedirect = (
   req: NextRequest,

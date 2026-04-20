@@ -1,7 +1,8 @@
 import { convertToLocale } from "@/lib/helpers/money"
-import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
+import { TramelleProductImage } from "@/components/atoms"
 
 export const CartDropdownItem = ({
   item,
@@ -19,19 +20,22 @@ export const CartDropdownItem = ({
     amount: item.subtotal ?? 0,
     currency_code,
   })
-  const thumb = resolveProductThumbnailSrc(item.thumbnail)
+  const thumb = resolveLineItemThumbnailSrc(item)
 
   return (
     <div className="border rounded-sm p-1 flex gap-2 mb-4">
       <div className="w-[100px] h-[132px] flex items-center justify-center">
         {thumb ? (
-          <Image
+          <TramelleProductImage
+            layout="intrinsic"
             src={thumb}
             alt={item.product_title || ""}
             width={80}
             height={90}
-            className="w-[80px] h-[90px] object-cover rounded-xs"
-            priority
+            preset="cart-dropdown"
+            quality={82}
+            forceEager
+            className="h-[90px] w-[80px] rounded-xs object-cover"
           />
         ) : (
           <Image

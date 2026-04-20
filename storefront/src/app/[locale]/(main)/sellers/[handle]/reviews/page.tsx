@@ -11,10 +11,13 @@ export default async function SellerReviewsPage({
 }) {
   const { handle, locale } = await params
 
-  const seller = await getSellerByHandle(handle)
-  const currency_code = (await getRegion(locale))?.currency_code || "usd"
-
-  const user = await retrieveCustomer()
+  const [seller, user, region] = await Promise.all([
+    getSellerByHandle(handle),
+    retrieveCustomer(),
+    getRegion(locale),
+  ])
+  const currency_code = region?.currency_code || "usd"
+  const region_id = region?.id
 
   const tab = "reviews"
 
@@ -37,6 +40,7 @@ export default async function SellerReviewsPage({
           seller_handle={seller.handle}
           locale={locale}
           currency_code={currency_code}
+          region_id={region_id}
         />
       </div>
     </main>

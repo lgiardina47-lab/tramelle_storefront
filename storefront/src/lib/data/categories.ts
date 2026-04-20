@@ -1,6 +1,8 @@
+import { cache } from 'react';
 import { HttpTypes } from '@medusajs/types';
 
 import { sdk } from '@/lib/config';
+import { CATEGORY_URL_SLUG_HANDLE_TRIES } from '@/lib/helpers/category-public-url';
 
 interface CategoriesProps {
   query?: Record<string, unknown>;
@@ -47,7 +49,12 @@ function buildCategoryTreeFromFlat(
   return attach(null);
 }
 
-export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
+const DEFAULT_LIST_CATEGORIES_INPUT: Partial<CategoriesProps> = {}
+
+const listCategoriesUncached = async (
+  props: Partial<CategoriesProps> = DEFAULT_LIST_CATEGORIES_INPUT
+) => {
+  const { query } = props
   /** Header mega-menu + albero: serve l’elenco completo sotto ogni macro (tassonomia Tramelle). */
   const limit = query?.limit ?? 2000;
 
@@ -87,6 +94,12 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
   };
 };
 
+/** Una sola fetch categorie per richiesta RSC (header, pagine, ecc.). */
+export const listCategories = cache(listCategoriesUncached);
+
+/** Alias usato da `Header` (mega-nav): stesso contratto di {@link listCategories}. */
+export const listCategoriesForHeaderNav = listCategories;
+
 export const getCategoryByHandle = async (categoryHandle: string) => {
   return sdk.client
     .fetch<HttpTypes.StoreProductCategoryListResponse>(`/store/product-categories`, {
@@ -115,6 +128,14 @@ export const getCategoryByPageParam = async (rawParam: string) => {
   if (!lower.startsWith('tramelle-')) {
     const prefixed = await getCategoryByHandle(`tramelle-${decoded}`);
     if (prefixed) return prefixed;
+  }
+
+  const tries = CATEGORY_URL_SLUG_HANDLE_TRIES[lower];
+  if (tries?.length) {
+    for (const h of tries) {
+      const hit = await getCategoryByHandle(h);
+      if (hit) return hit;
+    }
   }
 
   return undefined;

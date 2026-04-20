@@ -1,0 +1,231 @@
+{
+  "Footer": {
+    "sections": {
+      "buying": "Einkaufen mit uns",
+      "help": "Hilfe",
+      "selling": "Verkaufen mit uns",
+      "about": "Über uns",
+      "follow": "Folgen Sie uns"
+    },
+    "links": {
+      "producers": "Produzenten",
+      "howItWorks": "So funktioniert’s",
+      "delivery": "Lieferung",
+      "returns": "Rücksendungen",
+      "corporateGifting": "Firmengeschenke",
+      "giftVouchers": "Geschenkgutscheine",
+      "helpCentre": "Hilfecenter",
+      "trackMyOrder": "Meine Bestellung verfolgen",
+      "helpWithOrder": "Hilfe zur Bestellung",
+      "myAccount": "Mein Konto",
+      "mySubscriptions": "Meine Abonnements",
+      "loyaltyFaq": "FAQ Taster-Club",
+      "contactUs": "Kontakt",
+      "whySellWithUs": "Warum bei uns verkaufen",
+      "applyToSell": "Als Verkäufer bewerben",
+      "whyTramelle": "Warum Tramelle",
+      "ourValues": "Unsere Werte",
+      "whoWeAre": "Wer wir sind",
+      "customerReviews": "Kundenbewertungen",
+      "blog": "Blog",
+      "terms": "AGB",
+      "privacy": "Datenschutz & Cookies",
+      "press": "Presse"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "facebookAria": "Tramelle auf Facebook",
+      "instagram": "Instagram",
+      "instagramAria": "Tramelle auf Instagram",
+      "twitter": "Twitter",
+      "twitterAria": "Tramelle auf Twitter"
+    },
+    "aria": {
+      "buying": "Navigation Einkaufen mit uns",
+      "help": "Navigation Hilfe",
+      "selling": "Navigation Verkaufen mit uns",
+      "about": "Navigation Über uns",
+      "follow": "Social-Media-Links"
+    },
+    "copyright": "© {year} Tramelle"
+  },
+  "InfoPages": {
+    "common": {
+      "backHome": "Zur Startseite",
+      "breadcrumbAria": "Brotkrumennavigation"
+    },
+    "how-it-works": {
+      "title": "So funktioniert’s",
+      "metaDescription": "Einkauf auf Tramelle: von der Entdeckung bis zur Lieferung.",
+      "paragraphs": [
+        "Tramelle ist ein kuratierter Marktplatz: unabhängige Produzenten und Verkäufer listen Spezialitäten und Feinkost, die Sie mit wenigen Klicks in den Warenkorb legen.",
+        "Beim Checkout zahlen Sie sicher. Versandoptionen, Kosten und Zeiten hängen vom Verkäufer und Ihrer Adresse ab — sichtbar vor der Bestätigung.",
+        "Hilfe: Hilfecenter oder Bestellung unter Mein Konto öffnen, um den Verkäufer zu kontaktieren oder Status zu sehen."
+      ]
+    },
+    "delivery": {
+      "title": "Lieferung",
+      "metaDescription": "Lieferung auf Tramelle: Optionen, Fristen und Verantwortung.",
+      "paragraphs": [
+        "Die Lieferung organisiert jeder Verkäufer. Anbieter, Cut-offs und Preise erscheinen nach Adresseingabe im Checkout.",
+        "Angaben sind Schätzungen und können bei Hochlast, Remote-Regionen oder Zoll variieren.",
+        "Bei Schaden oder Verzug zuerst den Verkäufer über die Bestellseite kontaktieren; siehe Hilfe zur Bestellung."
+      ]
+    },
+    "returns": {
+      "title": "Rücksendungen",
+      "metaDescription": "Widerruf und Rückgabe bei Tramelle-Bestellungen.",
+      "paragraphs": [
+        "Für viele EU-Verbraucherkäufe gilt eine gesetzliche Widerrufsfrist (oft 14 Tage nach Erhalt), mit Ausnahmen z. B. für verderbliche Ware, aus Hygienegründen versiegelte Produkte oder Individualanfertigungen.",
+        "Verkäufer können zusätzliche Regeln im Shop oder auf Belegen angeben. Lesen Sie diese, bevor Sie versiegelte Lebensmittel öffnen.",
+        "Rückgabe oder Problem: anmelden, Bestellungen öffnen, Bestellung wählen und den Schritten folgen. Allgemeines: Hilfecenter."
+      ]
+    },
+    "corporate-gifting": {
+      "title": "Firmengeschenke",
+      "metaDescription": "Business-Geschenke und Volumenbestellungen auf Tramelle.",
+      "paragraphs": [
+        "Wir unterstützen größere Geschenkaktionen, wenn Verkäufer liefern können. Mindestmengen, Rechnung und Zeitfenster variieren.",
+        "Senden Sie Firma, Budget, Länder und Wunschtermine über Kontakt.",
+        "Chef-Pro-/B2B-Kunden können das im Hinweis nennen."
+      ]
+    },
+    "gift-vouchers": {
+      "title": "Geschenkgutscheine",
+      "metaDescription": "Gutscheine und digitale Geschenke auf Tramelle.",
+      "paragraphs": [
+        "Wenn Gutscheine aktiv sind, stehen Anweisungen im Checkout und in der Bestätigungsmail.",
+        "Code ungültig: Bestellnummer und Screenshot mitschicken.",
+        "Firmenkunden: siehe Firmengeschenke."
+      ]
+    },
+    "help-centre": {
+      "title": "Hilfecenter",
+      "metaDescription": "Antworten zu Bestellungen, Lieferung und Konto.",
+      "paragraphs": [
+        "Starten Sie mit Lieferung, Rücksendungen und So funktioniert’s im Footer.",
+        "Angemeldet: Mein Konto → Bestellungen für Tracking und Verkäufernachrichten.",
+        "Sonst Kontakt mit Bestellnummer, Konto-E-Mail und Kurzbeschreibung."
+      ]
+    },
+    "help-with-order": {
+      "title": "Hilfe zur Bestellung",
+      "metaDescription": "Probleme mit einer Tramelle-Bestellung lösen.",
+      "paragraphs": [
+        "Mein Konto → Bestellungen öffnen: Zahlungsstatus, Tracking (falls vorhanden), Verkäuferkontakt.",
+        "Beschädigung oder Fehlmenge: Fotos und Artikelliste anhängen.",
+        "Login vergessen: Passwort zurücksetzen, dann Bestellung verfolgen."
+      ]
+    },
+    "my-subscriptions": {
+      "title": "Meine Abonnements",
+      "metaDescription": "Abos und wiederkehrende Lieferungen.",
+      "paragraphs": [
+        "Manche Verkäufer bieten Abos oder Boxen. Steuerung unter Mein Konto, wenn aktiv.",
+        "Pausieren/Kündigen nach Verkäuferbedingungen vor Aboabschluss.",
+        "Keine Abo-Steuerung: vermutlich Einmalkauf — E-Mail prüfen."
+      ]
+    },
+    "loyalty-faq": {
+      "title": "FAQ Taster-Club",
+      "metaDescription": "Fragen zum Club und Vorteilen.",
+      "paragraphs": [
+        "Der Club bündelt Vorabzugänge und Aktionen, Verfügbarkeit je Land/Saison unterschiedlich.",
+        "Teilnahme freiwillig; Einkauf ohne Programm möglich.",
+        "Programmfragen: Land und Konto-E-Mail angeben."
+      ]
+    },
+    "contact": {
+      "title": "Kontakt",
+      "metaDescription": "Tramelle erreichen für Käufer und Verkäufer.",
+      "paragraphs": [
+        "Bei Bestellproblemen Bestellnummer angeben.",
+        "Produzenten: Als Verkäufer bewerben; Überblick unter Warum bei uns verkaufen.",
+        "Presse: Menüpunkt Presse."
+      ]
+    },
+    "why-sell-with-us": {
+      "title": "Warum bei uns verkaufen",
+      "metaDescription": "Vorteile für Produzenten auf Tramelle.",
+      "paragraphs": [
+        "Tramelle rückt Kleinserien und Herkunft in den Fokus.",
+        "Listings, Checkout und Nachrichten übernehmen wir als Plattform — Sie produzieren und versenden.",
+        "Kategorien und Kampagnen sind kuratiert."
+      ]
+    },
+    "apply-to-sell": {
+      "title": "Als Verkäufer bewerben",
+      "metaDescription": "Verkäuferkonto bei Tramelle beantragen.",
+      "paragraphs": [
+        "Unternehmen, Land, Kategorien, Lebensmittelsicherheitsnachweise, erwartetes Volumen nennen.",
+        "Wir prüfen Passung zu Gourmet-Positionierung und Compliance.",
+        "HD-Fotos, Zutaten, Allergene vorbereiten — Pflicht vor Go-live."
+      ]
+    },
+    "why-tramelle": {
+      "title": "Warum Tramelle",
+      "metaDescription": "Was Tramelle für Feinschmecker ausmacht.",
+      "paragraphs": [
+        "Fokus auf Terroir und Handwerk statt anonymer SKUs.",
+        "Jeder Verkäufer steuert Katalog und Versand — Regeln variieren, Checkout lesen.",
+        "Chef Pro ergänzt B2B-Preise, wo konfiguriert."
+      ]
+    },
+    "our-values": {
+      "title": "Unsere Werte",
+      "metaDescription": "Qualität, Transparenz, Partnerschaft.",
+      "paragraphs": [
+        "Qualität vor Lautstärke: klare Etiketten, ehrliche Herkunft.",
+        "Transparenz bei Inhaltsstoffen, Allergenen, Fotos und Gewicht.",
+        "Partnerschaft mit unabhängigen Produzenten."
+      ]
+    },
+    "who-we-are": {
+      "title": "Wer wir sind",
+      "metaDescription": "Team und Mission von Tramelle.",
+      "paragraphs": [
+        "Tramelle Source Gourmet baut Infrastruktur für europäische Spezialitäten.",
+        "Wir betreiben die Plattform; Verkäufer haften für Ware, Recht und Kundenservice.",
+        "Sitz in Europa; Märkte laut Länderwahl."
+      ]
+    },
+    "reviews": {
+      "title": "Kundenbewertungen",
+      "metaDescription": "So funktionieren Bewertungen.",
+      "paragraphs": [
+        "Nach Lieferung können Einladungen folgen. Bewertungen sollen ehrlich sein.",
+        "Betrug, Beleidigung oder Off-Topic werden moderiert.",
+        "B2B kann bewerten, wenn aktiviert."
+      ]
+    },
+    "terms": {
+      "title": "AGB",
+      "metaDescription": "Nutzungsbedingungen von Tramelle.",
+      "paragraphs": [
+        "Nutzung setzt korrekte Kontodaten und rechtmäßige Nutzung voraus.",
+        "Kaufvertrag mit Verkäufer nach Checkout; Tramelle stellt Plattformleistungen bereit.",
+        "AGB können aktualisiert werden; weitere Nutzung gilt als Zustimmung.",
+        "Volltext je Land über Checkout-Link oder auf Anfrage."
+      ]
+    },
+    "privacy": {
+      "title": "Datenschutz & Cookies",
+      "metaDescription": "Daten und Cookies auf Tramelle.",
+      "paragraphs": [
+        "Wir verarbeiten Daten für Konto, Bestellungen, Betrugsprävention, Analyse und Marketing mit Einwilligung.",
+        "Rechte auf Auskunft, Berichtigung, Löschung, Übertragbarkeit, Widerspruch je Region.",
+        "Cookies für Sitzung, Einstellungen, Messung — Browser oder Banner.",
+        "Anfragen von der Konto-E-Mail aus zur Identitätsprüfung."
+      ]
+    },
+    "press": {
+      "title": "Presse",
+      "metaDescription": "Pressekontakt und Materialien.",
+      "paragraphs": [
+        "Journalisten: Logos, Bios, Bilder auf Anfrage — Kontakt mit Betreff „Presse“.",
+        "Medium, Deadline, Bedarf an Marktkommentar nennen.",
+        "Verkäufergeschichten nach Freigabe."
+      ]
+    }
+  }
+}

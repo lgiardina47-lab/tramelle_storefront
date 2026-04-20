@@ -55,7 +55,7 @@ export function SellerDescriptionTabsPlain({
       <p
         className={
           className ??
-          "line-clamp-2 px-4 py-3 text-sm leading-relaxed text-neutral-600"
+          "line-clamp-3 text-sm leading-relaxed text-neutral-600"
         }
       >
         {excerpt}
@@ -64,7 +64,7 @@ export function SellerDescriptionTabsPlain({
   }
 
   return (
-    <div className="px-4 py-3">
+    <div>
       <div
         className="mb-2 flex flex-wrap gap-1"
         role="tablist"
@@ -101,9 +101,12 @@ export function SellerDescriptionTabsPlain({
 export function SellerDescriptionTabsHtml({
   descriptions,
   urlLocale,
+  className,
 }: {
   descriptions: TramelleDescriptionI18n
   urlLocale: string
+  /** Classi sul contenuto HTML (es. tipografia / prose). */
+  className?: string
 }) {
   const localesWithContent = useMemo(
     () => activeLocales(descriptions),
@@ -122,10 +125,12 @@ export function SellerDescriptionTabsHtml({
 
   const html = descriptions[active] || ""
 
+  const bodyClass = className ?? "label-md"
+
   if (localesWithContent.length === 1) {
     return (
       <div
-        className="label-md"
+        className={bodyClass}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     )
@@ -156,7 +161,7 @@ export function SellerDescriptionTabsHtml({
         ))}
       </div>
       <div
-        className="label-md"
+        className={bodyClass}
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

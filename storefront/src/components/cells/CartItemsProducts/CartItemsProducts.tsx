@@ -1,12 +1,16 @@
+'use client';
+
 import { HttpTypes } from '@medusajs/types';
 import Image from 'next/image';
+import { TramelleProductImage } from '@/components/atoms';
+import { useTranslations } from 'next-intl';
 
 import { DeleteCartItemButton } from '@/components/molecules';
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink';
 import { UpdateCartItemButton } from '@/components/molecules/UpdateCartItemButton/UpdateCartItemButton';
 import { filterValidCartItems } from '@/lib/helpers/filter-valid-cart-items';
 import { convertToLocale } from '@/lib/helpers/money';
-import { resolveProductThumbnailSrc } from '@/lib/helpers/get-image-url';
+import { resolveLineItemThumbnailSrc } from '@/lib/helpers/get-image-url';
 
 export const CartItemsProducts = ({
   products,
@@ -21,6 +25,7 @@ export const CartItemsProducts = ({
   change_quantity?: boolean;
   wholesaleBuyer?: boolean;
 }) => {
+  const t = useTranslations('Cart');
   // Filter out items with invalid data (missing prices/variants)
   const validProducts = filterValidCartItems(products);
 
@@ -33,7 +38,7 @@ export const CartItemsProducts = ({
           amount: product.subtotal ?? 0,
           currency_code
         })
-        const thumb = resolveProductThumbnailSrc(product.thumbnail)
+        const thumb = resolveLineItemThumbnailSrc(product)
 
         return (
           <div
@@ -44,17 +49,20 @@ export const CartItemsProducts = ({
             <LocalizedClientLink href={`/products/${product.product_handle}`}>
               <div className="w-[100px] h-[132px] flex items-center justify-center" data-testid="cart-item-image">
                 {thumb ? (
-                  <Image
+                  <TramelleProductImage
+                    layout="intrinsic"
                     src={thumb}
-                    alt="Product thumbnail"
+                    alt={t('productThumbnailAlt')}
                     width={100}
                     height={132}
+                    preset="cart-line"
+                    quality={82}
                     className="h-[132px] w-[100px] rounded-xs object-contain"
                   />
                 ) : (
                   <Image
                     src={'/images/placeholder.svg'}
-                    alt="Product thumbnail"
+                    alt={t('productThumbnailAlt')}
                     width={50}
                     height={66}
                     className="h-[66px] w-[50px] rounded-xs object-contain opacity-30"
@@ -101,7 +109,8 @@ export const CartItemsProducts = ({
                     />
                   ) : (
                     <p>
-                      Quantity: <span className="text-primary">{product.quantity}</span>
+                      {t('quantityLabel')}{' '}
+                      <span className="text-primary">{product.quantity}</span>
                     </p>
                   )}
                 </div>

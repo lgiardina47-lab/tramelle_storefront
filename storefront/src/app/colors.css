@@ -23,9 +23,10 @@
     --brand-400: 115, 115, 115;
     --brand-500: 82, 82, 82;
     --brand-600: 64, 64, 64;
-    --brand-700: 27, 27, 27;
-    --brand-800: 22, 22, 22;
-    --brand-900: 9, 9, 9;
+    /* Brand / ink caldo (#0F0E0B) — design system Tramelle */
+    --brand-700: 38, 36, 32;
+    --brand-800: 27, 25, 22;
+    --brand-900: 15, 14, 11;
     
     /* Red colors are used across error states and in "destructive" actions. */
     --red-25: 254, 243, 242;
@@ -125,8 +126,8 @@
 
     --bg-disabled: var(--neutral-200);
 
-    --content-primary: var(--neutral-1000);
-    --content-secondary: var(--neutral-500);
+    --content-primary: var(--brand-900);
+    --content-secondary: 138, 133, 128;
     --content-tertiary: var(--neutral-0);
 
     --content-action-primary: var(--brand-900);
@@ -150,7 +151,8 @@
 
     --content-disabled: var(--neutral-400);
 
-    --border-primary: var(--neutral-50);
+    /* Bordo default DS #E8E4DE */
+    --border-primary: 232, 228, 222;
     --border-secondary: var(--neutral-800);
     --border-action: var(--brand-900);
     --border-negative-primary: var(--red-700);

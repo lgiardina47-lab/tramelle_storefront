@@ -43,7 +43,7 @@ function buildSubTreeFromFlat(
  * così ogni macrocategoria ha l’elenco completo delle sottocategorie (l’API può dare
  * `category_children` incompleti o assenti sul singolo parent).
  */
-function mergeChildrenFromFlat(
+export function mergeChildrenFromFlat(
   parent: HttpTypes.StoreProductCategory,
   allFlat: HttpTypes.StoreProductCategory[] | undefined
 ): HttpTypes.StoreProductCategory {
@@ -58,6 +58,42 @@ function mergeChildrenFromFlat(
     }
   }
   return parent
+}
+
+/** Id della categoria corrente e di tutti i discendenti (per listing macro → prodotti nelle foglie). */
+export function collectCategorySubtreeIds(
+  root: HttpTypes.StoreProductCategory
+): string[] {
+  const out: string[] = []
+  const walk = (c: HttpTypes.StoreProductCategory) => {
+    const id = c.id?.trim()
+    if (id) out.push(id)
+    for (const ch of c.category_children ?? []) {
+      walk(ch)
+    }
+  }
+  walk(root)
+  return [...new Set(out)]
+}
+
+/**
+ * Stessa colonna «categorie» del mega menu: foglie se ci sono, altrimenti dipartimenti,
+ * con handle deduplicati.
+ */
+export function primarySubcategoryNavItems(
+  parent: HttpTypes.StoreProductCategory
+): HttpTypes.StoreProductCategory[] {
+  const departments = collectDepartmentCategories(parent)
+  const subcatLeaves = collectSubcategoryLeavesForParent(parent)
+  let col1Items =
+    subcatLeaves.length > 0 ? subcatLeaves : departments
+  const seenHandles = new Set<string>()
+  return col1Items.filter((c) => {
+    const h = (c.handle ?? "").trim().toLowerCase()
+    if (!h || seenHandles.has(h)) return false
+    seenHandles.add(h)
+    return true
+  })
 }
 
 function pickFeaturedImage(
@@ -138,17 +174,7 @@ export function buildMegaNavCategories(
 ): MegaNavCategory[] {
   return parentCategories.map((raw) => {
     const parent = mergeChildrenFromFlat(raw, allCategoriesFlat)
-    const departments = collectDepartmentCategories(parent)
-    const subcatLeaves = collectSubcategoryLeavesForParent(parent)
-    let col1Items =
-      subcatLeaves.length > 0 ? subcatLeaves : departments
-    const seenHandles = new Set<string>()
-    col1Items = col1Items.filter((c) => {
-      const h = (c.handle ?? "").trim().toLowerCase()
-      if (!h || seenHandles.has(h)) return false
-      seenHandles.add(h)
-      return true
-    })
+    const col1Items = primarySubcategoryNavItems(parent)
 
     const selezioniCols = collectionsForParent(parent, storeCollections)
     const selezioni = selezioniCols.map((c) => ({

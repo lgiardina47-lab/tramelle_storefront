@@ -19,6 +19,32 @@ function variantsForCatalog(
   )
 }
 
+/**
+ * Listino B2B “nascosto” in vetrina B2C: varianti con `tramelle_b2c_visible: false`.
+ * Usato per il prezzo sfocato nel lock sotto il retail.
+ */
+export function getCheapestB2bOnlyCatalogPrice(
+  product: HttpTypes.StoreProduct
+): ReturnType<typeof getPricesForVariant> | null {
+  if (!product?.id) return null
+  const pool = variantsForCatalog(product, false).filter(
+    (v: { metadata?: unknown; calculated_price?: unknown }) =>
+      !isVariantVisibleB2c(v.metadata as Record<string, unknown> | undefined) &&
+      !!v.calculated_price
+  )
+  if (!pool.length) return null
+  const sorted = [...pool].sort((a: any, b: any) => {
+    const aw = a.calculated_price?.calculated_amount_with_tax
+    const bw = b.calculated_price?.calculated_amount_with_tax
+    if (aw != null && bw != null) return aw - bw
+    return (
+      (a.calculated_price?.calculated_amount ?? 0) -
+      (b.calculated_price?.calculated_amount ?? 0)
+    )
+  })
+  return getPricesForVariant(sorted[0])
+}
+
 export const getPricesForVariant = (variant: any) => {
   if (
     !variant?.calculated_price?.calculated_amount_with_tax &&
@@ -109,8 +135,14 @@ export function getProductPrice({
   /** Se true, ignora varianti con metadata `tramelle_b2c_visible: false` (solo catalogo retail). */
   restrictToB2cVisible?: boolean
 }) {
+  /** Listing Meili / payload parziale: non far saltare il boundary globale. */
   if (!product || !product.id) {
-    throw new Error("No product provided")
+    return {
+      product: product as HttpTypes.StoreProduct,
+      cheapestPrice: null,
+      variantPrice: null,
+      cheapestVariant: null,
+    }
   }
 
   const catalogVariants = () => variantsForCatalog(product, restrictToB2cVisible)

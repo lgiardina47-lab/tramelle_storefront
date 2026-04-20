@@ -2,7 +2,9 @@ import { Divider } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { TramelleProductImage } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { Fragment } from "react"
 
 export const OrderProductListItem = ({
@@ -13,19 +15,24 @@ export const OrderProductListItem = ({
   item: any
   currency_code: string
   withDivider?: boolean
-}) => (
+}) => {
+  const thumb = resolveLineItemThumbnailSrc(item)
+  return (
   <Fragment>
     {withDivider && <Divider className="mt-4" />}
     <li className={cn("flex items-center", withDivider && "mt-2")}>
       <div className="grid grid-cols-1 sm:grid-cols-7 w-full sm:gap-4 mb-2">
         <div className="sm:col-span-2 flex gap-2 items-center">
           <div className="w-[66px] h-16 relative rounded-sm overflow-hidden flex items-center justify-center">
-            {item.thumbnail ? (
-              <Image
-                src={item.thumbnail}
+            {thumb ? (
+              <TramelleProductImage
+                layout="intrinsic"
+                src={thumb}
                 alt={item.title}
                 width={66}
                 height={66}
+                preset="order-list-thumb"
+                quality={85}
                 className="object-cover"
               />
             ) : (
@@ -70,4 +77,5 @@ export const OrderProductListItem = ({
       </div>
     </li>
   </Fragment>
-)
+  )
+}

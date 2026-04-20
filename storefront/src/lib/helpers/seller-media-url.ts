@@ -5,6 +5,7 @@
 
 import { sellerStorytellingGalleryUrls } from "@/components/molecules/SellerStorytellingGallery/seller-storytelling-gallery-urls"
 import {
+  applyCloudflareDirectoryCardVariantIfCf,
   maybeExpandCfImgRef,
   rewriteCfImagesDeliveryUrlStripPartnerPrefix,
 } from "@/lib/helpers/cloudflare-images"
@@ -211,6 +212,29 @@ export function sellerLogoImageCandidates(seller: SellerMediaFields): string[] {
 
   const heroFirst = sellerHeroImageCandidates(seller)[0]
   return out.filter((u) => !heroFirst || u !== heroFirst)
+}
+
+/**
+ * Come `sellerHeroImageCandidates`, ma URL Cloudflare Images verso variante card (`public` di default),
+ * non la variante hero full (`tramelle`), per byte allineati alla griglia directory.
+ */
+export function sellerDirectoryHeroImageCandidates(
+  seller: SellerMediaFields
+): string[] {
+  return sellerHeroImageCandidates(seller).map((u) =>
+    applyCloudflareDirectoryCardVariantIfCf(u)
+  )
+}
+
+/**
+ * Logo card directory: stessa ottimizzazione CF della hero.
+ */
+export function sellerDirectoryLogoImageCandidates(
+  seller: SellerMediaFields
+): string[] {
+  return sellerLogoImageCandidates(seller).map((u) =>
+    applyCloudflareDirectoryCardVariantIfCf(u)
+  )
 }
 
 /** Foto badge/avatar: stesso ordine della directory (logo metadata → photo → CDN legacy), senza Pitti. */

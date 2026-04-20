@@ -1,6 +1,8 @@
 "use server"
 
 import { HttpTypes } from "@medusajs/types"
+import { cache } from "react"
+
 import { getCacheOptions } from "./cookies"
 import { sdk } from "../config"
 
@@ -20,26 +22,35 @@ export const retrieveCollection = async (id: string) => {
     .then(({ collection }) => collection)
 }
 
-export const listCollections = async (
-  queryParams: Record<string, string> = {}
-): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
-  const next = {
-    ...(await getCacheOptions("collections")),
+/** Una richiesta Medusa per coppia limit/offset per RSC (header + sezioni home in parallelo). */
+const listCollectionsCached = cache(
+  async (
+    limit: string,
+    offset: string
+  ): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
+    const next = {
+      ...(await getCacheOptions("collections")),
+    }
+
+    return sdk.client
+      .fetch<{ collections: HttpTypes.StoreCollection[]; count: number }>(
+        "/store/collections",
+        {
+          query: { limit, offset },
+          next,
+          cache: "force-cache",
+        }
+      )
+      .then(({ collections }) => ({ collections, count: collections.length }))
   }
+)
 
-  queryParams.limit = queryParams.limit || "100"
-  queryParams.offset = queryParams.offset || "0"
-
-  return sdk.client
-    .fetch<{ collections: HttpTypes.StoreCollection[]; count: number }>(
-      "/store/collections",
-      {
-        query: queryParams,
-        next,
-        cache: "force-cache",
-      }
-    )
-    .then(({ collections }) => ({ collections, count: collections.length }))
+export async function listCollections(
+  queryParams: Record<string, string> = {}
+): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> {
+  const limit = queryParams.limit || "100"
+  const offset = queryParams.offset || "0"
+  return listCollectionsCached(limit, offset)
 }
 
 export const getCollectionByHandle = async (

@@ -4,7 +4,7 @@ import { Button } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowLeftIcon } from "@/icons"
 import { redirect } from "next/navigation"
-import { format } from "date-fns"
+import { formatDateSafe } from "@/lib/helpers/format-date-safe"
 import { retrieveOrderSet } from "@/lib/data/orders"
 import { OrderDetailsSection } from "@/components/sections/OrderDetailsSection/OrderDetailsSection"
 export default async function UserPage({
@@ -40,7 +40,7 @@ export default async function UserPage({
             <p className="label-md text-secondary">
               Order date:{" "}
               <span className="text-primary">
-                {format(orderSet.created_at || "", "yyyy-MM-dd")}
+                {formatDateSafe(orderSet.created_at, "yyyy-MM-dd")}
               </span>
             </p>
           </div>

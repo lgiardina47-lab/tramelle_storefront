@@ -11,13 +11,13 @@ export const OrderReturn = ({ order }: { order: any }) => {
         <p className="text-secondary label-md max-w-sm">
           Once you receive your order, you will have [14] days to return items.
           Find out more about{" "}
-          <Link href="/returns" className="underline">
+          <Link href="/returns" className="underline" prefetch={true}>
             returns and refunds
           </Link>
           .
         </p>
       </div>
-      <Link href={`/user/orders/${order.id}/return`}>
+      <Link href={`/user/orders/${order.id}/return`} prefetch={true}>
         <Button variant="tonal" className="uppercase" onClick={() => null}>
           Return
         </Button>

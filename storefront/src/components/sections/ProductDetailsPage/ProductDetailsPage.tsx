@@ -1,5 +1,6 @@
 import { ProductDetails, ProductGallery } from "@/components/organisms"
 import { listProducts } from "@/lib/data/products"
+import { productProducerDisplayName } from "@/lib/helpers/product-producer-name"
 import { HomeProductSection } from "../HomeProductSection/HomeProductSection"
 import { notFound } from "next/navigation"
 import { getTranslations } from "next-intl/server"
@@ -26,6 +27,13 @@ export const ProductDetailsPage = async ({
   }
 
   const t = await getTranslations("ProductSheet")
+  const sellerNameForHeading =
+    prod.seller?.name?.trim() ||
+    productProducerDisplayName(prod) ||
+    null
+  const moreProductsHeading = sellerNameForHeading
+    ? t("moreFromSellerGourmet", { sellerName: sellerNameForHeading })
+    : t("moreFromSeller")
 
   return (
     <>
@@ -42,7 +50,7 @@ export const ProductDetailsPage = async ({
       </div>
       <div className="my-8">
         <HomeProductSection
-          heading={t("moreFromSeller")}
+          heading={moreProductsHeading}
           products={prod.seller?.products}
           // seller_handle={prod.seller?.handle}
           locale={locale}

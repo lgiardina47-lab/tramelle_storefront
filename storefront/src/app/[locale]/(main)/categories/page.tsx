@@ -17,6 +17,7 @@ import {
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
+import { parseProductListingPage } from "@/lib/helpers/product-listing-page"
 export const revalidate = 60
 
 export async function generateMetadata({
@@ -67,10 +68,14 @@ export async function generateMetadata({
 
 async function AllCategories({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { locale } = await params
+  const sp = await searchParams
+  const listingPage = parseProductListingPage(sp)
 
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
@@ -141,7 +146,7 @@ async function AllCategories({
 
       <Suspense fallback={<div data-testid="all-categories-page-loading"><ProductListingSkeleton /></div>}>
         {bot || !preferBackendProductSearchListing() ? (
-          <ProductListing locale={locale} />
+          <ProductListing locale={locale} page={listingPage} />
         ) : (
           <CatalogSearchListing
             locale={locale}

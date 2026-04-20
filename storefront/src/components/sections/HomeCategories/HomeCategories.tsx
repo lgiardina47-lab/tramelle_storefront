@@ -15,8 +15,8 @@ export const HomeCategories = async ({ heading }: { heading: string }) => {
 
   return (
     <section className="bg-primary py-8 w-full">
-      <div className="mb-6">
-        <h2 className="heading-lg text-primary uppercase">{heading}</h2>
+      <div className="mb-8">
+        <h2 className="heading-lg text-primary uppercase tracking-tight">{heading}</h2>
       </div>
       <Carousel
         items={items.map((category) => (
@@ -25,7 +25,6 @@ export const HomeCategories = async ({ heading }: { heading: string }) => {
             category={{
               name: category.name,
               handle: category.handle,
-              imageSrc: "/images/placeholder.svg",
             }}
           />
         ))}

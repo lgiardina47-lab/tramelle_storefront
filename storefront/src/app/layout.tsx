@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
-import { Funnel_Display } from 'next/font/google';
 
 import './globals.css';
+
+import {
+  tramelleDesignSystemFontVariables,
+  tramelleDmSans,
+} from '@/lib/fonts/tramelle-ds';
 
 import { MedusaToaster } from '@/components/MedusaToaster';
 import { retrieveCart } from '@/lib/data/cart';
@@ -24,12 +28,6 @@ function safeMetadataBase(): URL {
     return new URL(DEFAULT_PUBLIC_SITE_ORIGIN);
   }
 }
-
-const funnelDisplay = Funnel_Display({
-  variable: '--font-funnel-sans',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600']
-});
 
 export const metadata: Metadata = {
   title: {
@@ -77,8 +75,10 @@ export default async function RootLayout({
   const htmlLang = "it-IT";
 
   return (
-    <html lang={htmlLang} className="">
-      <body className={`${funnelDisplay.className} relative bg-primary text-secondary antialiased`}>
+    <html lang={htmlLang} className={tramelleDesignSystemFontVariables}>
+      <body
+        className={`${tramelleDmSans.className} relative bg-[#F7F6F3] text-primary antialiased`}
+      >
         <Providers cart={cart} wholesaleBuyer={wholesaleBuyer}>{children}</Providers>
         <MedusaToaster />
       </body>

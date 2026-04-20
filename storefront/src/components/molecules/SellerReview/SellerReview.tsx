@@ -2,7 +2,7 @@ import { StarRating } from "@/components/atoms"
 import { SingleProductReview } from "@/types/product"
 import { Divider } from "@medusajs/ui"
 import clsx from "clsx"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNowSafe } from "@/lib/helpers/format-date-safe"
 
 export const SellerReview = ({ review }: { review: SingleProductReview }) => {
   return (
@@ -18,7 +18,7 @@ export const SellerReview = ({ review }: { review: SingleProductReview }) => {
             className="h-[10px] border-disabled"
           />
           <p className="label-md text-secondary">
-            {formatDistanceToNow(new Date(review.created_at), {
+            {formatDistanceToNowSafe(review.created_at, {
               addSuffix: true,
             })}
           </p>
@@ -42,7 +42,7 @@ export const SellerReview = ({ review }: { review: SingleProductReview }) => {
                 />
 
                 <p className="label-md text-secondary">
-                  {formatDistanceToNow(new Date(review.updated_at), {
+                  {formatDistanceToNowSafe(review.updated_at, {
                     addSuffix: true,
                   })}
                 </p>

@@ -3,17 +3,17 @@ import { Pagination } from "@/components/cells"
 import { usePagination } from "@/hooks/usePagination"
 
 export const OrdersPagination = ({ pages }: { pages: number }) => {
-  const { currentPage, setPage } = usePagination()
+  const { currentPage, hrefForPage } = usePagination()
 
-  const setPageHandler = (page: number) => {
-    setPage(`${page}`)
-  }
+  const safeCurrent =
+    Number.isFinite(currentPage) && currentPage >= 1 ? currentPage : 1
+
   return (
     <div className="mt-6 flex justify-center">
       <Pagination
         pages={pages}
-        setPage={setPageHandler}
-        currentPage={currentPage}
+        currentPage={safeCurrent}
+        hrefForPage={hrefForPage}
       />
     </div>
   )

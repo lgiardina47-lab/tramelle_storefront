@@ -19,7 +19,7 @@ export const HomeProductSection = async ({
       </h2>
       <HomeProductsCarousel
         locale={locale}
-        sellerProducts={products.slice(0, 4)}
+        sellerProducts={products.slice(0, 15)}
         home={home}
       />
     </section>

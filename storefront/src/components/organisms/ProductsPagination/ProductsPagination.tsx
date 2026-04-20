@@ -1,24 +1,21 @@
-'use client';
-import { Pagination } from '@/components/cells';
-import { usePagination } from '@/hooks/usePagination';
+"use client"
 
-export const ProductsPagination = ({
-  pages,
-}: {
-  pages: number;
-}) => {
-  const { currentPage, setPage } = usePagination();
+import { Pagination } from "@/components/cells"
+import { usePagination } from "@/hooks/usePagination"
 
-  const setPageHandler = (page: number) => {
-    setPage(`${page}`);
-  };
+export const ProductsPagination = ({ pages }: { pages: number }) => {
+  const { currentPage, hrefForPage } = usePagination()
+
+  const safeCurrent =
+    Number.isFinite(currentPage) && currentPage >= 1 ? currentPage : 1
+
   return (
-    <div className='mt-6 flex justify-center'>
+    <div className="mt-6 flex justify-center">
       <Pagination
         pages={pages}
-        setPage={setPageHandler}
-        currentPage={currentPage}
+        currentPage={safeCurrent}
+        hrefForPage={hrefForPage}
       />
     </div>
-  );
-};
+  )
+}

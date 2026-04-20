@@ -1,4 +1,5 @@
 import { TRAMELLE_PRODUCTION_MEDUSA_ORIGIN } from '@/lib/medusa-backend-url'
+import { maybeExpandCfImgRef } from '@/lib/helpers/cloudflare-images'
 
 function trimTrailingSlash(s: string) {
   return s.replace(/\/$/, '')
@@ -72,6 +73,10 @@ export function resolveProductThumbnailSrc(
   } catch {
     // lascia stringa originale
   }
+  const viaCf = maybeExpandCfImgRef(url)
+  if (viaCf) {
+    return viaCf
+  }
   const base = medusaImageRewriteBase()
   if (url.startsWith("/") && base) {
     url = `${base}${url}`
@@ -83,7 +88,64 @@ export function resolveProductThumbnailSrc(
   return url || null
 }
 
+/** Thumbnail riga ordine/carrello: prova la line item, poi il prodotto collegato (spesso solo lì è valorizzato). */
+export type LineItemThumbnailSource = {
+  thumbnail?: string | null
+  variant?: {
+    thumbnail?: string | null
+    product?: {
+      thumbnail?: string | null
+      images?: Array<{ url?: string | null } | null> | null
+    } | null
+  } | null
+  product?: {
+    thumbnail?: string | null
+    images?: Array<{ url?: string | null } | null> | null
+  } | null
+} | null | undefined
+
+function firstGalleryImageUrl(
+  product:
+    | {
+        images?: Array<{ url?: string | null } | null> | null
+      }
+    | null
+    | undefined
+): string | null {
+  const imgs = product?.images
+  if (!Array.isArray(imgs)) return null
+  for (const im of imgs) {
+    const u = im?.url?.trim()
+    if (u) return u
+  }
+  return null
+}
+
+export function resolveLineItemThumbnailSrc(
+  item: LineItemThumbnailSource
+): string | null {
+  if (!item) return null
+  const fromLine = resolveProductThumbnailSrc(item.thumbnail)
+  if (fromLine) return fromLine
+  const fromVariant = resolveProductThumbnailSrc(item.variant?.thumbnail)
+  if (fromVariant) return fromVariant
+  const vProd = item.variant?.product
+  const rootProd = item.product
+  const productThumb =
+    vProd?.thumbnail ?? rootProd?.thumbnail
+  const fromProductThumb = resolveProductThumbnailSrc(productThumb)
+  if (fromProductThumb) return fromProductThumb
+  const fromGallery = resolveProductThumbnailSrc(
+    firstGalleryImageUrl(vProd) ?? firstGalleryImageUrl(rootProd)
+  )
+  return fromGallery
+}
+
 export const getImageUrl = (image: string) => {
+  const cf = maybeExpandCfImgRef(image)
+  if (cf) {
+    return cf
+  }
   const base = medusaImageRewriteBase()
   if (!base) return image
   return image

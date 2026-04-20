@@ -1,11 +1,10 @@
 "use client"
 import { HttpTypes } from "@medusajs/types"
-import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
 import { useParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import { getActiveParentHandle } from "@/lib/helpers/category-utils"
-import { categoryPublicHref } from "@/lib/helpers/category-public-url"
+import { useTranslations } from "next-intl"
 import { MobileCategoryDrawer } from "./MobileCategoryDrawer"
 
 interface MobileCategoryNavbarProps {
@@ -20,6 +19,7 @@ export const MobileCategoryNavbar = ({
   onClose,
 }: MobileCategoryNavbarProps) => {
   const { category } = useParams<{ category?: string }>()
+  const t = useTranslations("Header.gourmet")
   const [selectedCategory, setSelectedCategory] =
     useState<HttpTypes.StoreProductCategory | null>(null)
 
@@ -32,13 +32,6 @@ export const MobileCategoryNavbar = ({
     onClose?.(false)
   }
 
-  const handleCategoryClick = (categoryId: string) => {
-    const cat = parentCategories.find((c) => c.id === categoryId)
-    if (cat && cat.category_children && cat.category_children.length > 0) {
-      setSelectedCategory(cat)
-    }
-  }
-
   const handleDrawerClose = () => {
     setSelectedCategory(null)
   }
@@ -46,47 +39,36 @@ export const MobileCategoryNavbar = ({
   return (
     <>
       <nav
-        className="flex flex-col gap-2"
-        aria-label="Mobile category navigation"
+        className="flex flex-col gap-0"
+        aria-label={t("browseCategoriesTitle")}
       >
-        <LocalizedClientLink
-          href="/categories"
-          onClick={handleClose}
-          className="label-md px-4 py-3 uppercase text-primary transition-colors hover:bg-secondary/10"
-        >
-          Tutti i prodotti
-        </LocalizedClientLink>
-
-        {parentCategories.map(({ id, handle, name, category_children }) => {
-          const categoryUrl = categoryPublicHref(handle)
+        {parentCategories.map((cat) => {
+          const { id, handle, name } = cat
           const isActive = handle === activeParentHandle
-          const hasChildren = category_children && category_children.length > 0
 
           return (
-            <div key={id} className="relative">
-              <div className="flex items-center justify-between">
-                <LocalizedClientLink
-                  href={categoryUrl}
-                  onClick={handleClose}
-                  className={cn(
-                    "label-md flex-1 px-4 py-3 uppercase text-primary transition-colors hover:bg-secondary/10",
-                    isActive && "border-l-2 border-primary bg-secondary/5"
-                  )}
-                >
-                  {name}
-                </LocalizedClientLink>
-
-                {hasChildren && (
-                  <button
-                    type="button"
-                    onClick={() => handleCategoryClick(id)}
-                    className="px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-secondary/10"
-                    aria-label={`Apri sottocategorie ${name}`}
-                  >
-                    ›
-                  </button>
+            <div
+              key={id}
+              className="border-b border-[#E8E4DE] last:border-b-0"
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedCategory(cat)}
+                className={cn(
+                  "font-tramelle flex min-h-[48px] w-full items-center gap-2 px-3 py-3.5 text-left text-[14px] font-semibold leading-snug text-[#0F0E0B] transition-colors hover:bg-[#F7F6F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#0F0E0B]/15",
+                  isActive && "bg-[#F5F3F0]"
                 )}
-              </div>
+                aria-label={t("openSubcategoriesAria", { name })}
+                aria-expanded={selectedCategory?.id === id}
+              >
+                <span className="min-w-0 flex-1">{name}</span>
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#E8E4DE] bg-white text-[22px] font-normal leading-none text-[#0F0E0B] shadow-[0_1px_0_rgba(15,14,11,0.06)]"
+                  aria-hidden
+                >
+                  ›
+                </span>
+              </button>
             </div>
           )
         })}

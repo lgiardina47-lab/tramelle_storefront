@@ -18,12 +18,67 @@ if (openNextCloudflareDev) {
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+/** Host aggiuntivi per HMR (`next dev`): vedi `NEXT_DEV_ALLOWED_ORIGINS` in `.env.local.example`. */
+const extraAllowedDevOrigins = (process.env.NEXT_DEV_ALLOWED_ORIGINS ?? '')
+  .split(',')
+  .map((h) => h.trim())
+  .filter(Boolean);
+
 const allowSearchIndexing =
   process.env.NEXT_PUBLIC_ALLOW_SEARCH_INDEXING === 'true';
 
 const nextConfig: NextConfig = {
-  /** Dev: HMR quando si apre il sito da 127.0.0.1 (non solo localhost). */
-  allowedDevOrigins: ['127.0.0.1', 'localhost'],
+  /**
+   * HMR: su Docker bind mount / SSH / FS che non notificano, senza poll il dev server non vede i salvataggi.
+   * Default in `next dev`: poll ogni ~1s (disattiva con `NEXT_DEV_POLLING_OFF=true` in `.env.local` su Mac veloce).
+   */
+  webpack: (config, { dev }) => {
+    if (dev && process.env.NEXT_DEV_POLLING_OFF !== 'true') {
+      const interval = Number(process.env.NEXT_DEV_POLL_INTERVAL_MS || 1000);
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: Number.isFinite(interval) && interval > 0 ? interval : 1000,
+        aggregateTimeout: 300,
+      };
+    }
+    return config;
+  },
+  /**
+   * Evita chunk server `vendor-chunks/@medusajs*.js` mancanti o path con `@` dopo rebuild/HMR tra ambienti diversi.
+   * Il JS SDK viene risolto da `node_modules` a runtime (cfr. Next.js `serverExternalPackages`).
+   */
+  serverExternalPackages: ['@medusajs/js-sdk', '@medusajs/types'],
+  /**
+   * Next 15 di default usa `experimental.cssChunking: true`. In produzione (standalone dietro Cloudflare)
+   * abbiamo riscontrato 400 su *un* solo file `/_next/static/css/<hash>.css` mentre gli altri chunk CSS
+   * rispondono 200: il modulo `send` rifiuta il path (decode). Chunking disabilitato = meno edge case e
+   * hash CSS stabili dopo ogni `yarn build`; dopo il deploy conviene purge cache HTML su CDN.
+   */
+  experimental: {
+    cssChunking: false,
+    /** Meno JS dai barrel `lodash` / `date-fns` senza refactor manuale ovunque. */
+    optimizePackageImports: ['lodash', 'date-fns'],
+    /**
+     * Next 15: default `staleTimes.dynamic` = 0 → ogni navigazione rifà il fetch RSC
+     * della pagina (sensazione “non SPA”). Valori > 0 riusano il payload in memoria come
+     * una webapp classica, con rischio dati non freschissimi per pochi secondi.
+     */
+    staleTimes: {
+      dynamic: 60,
+      static: 300,
+    },
+  },
+  /**
+   * Dev: Next 15 accetta HMR/WebSocket solo da questi host.
+   * Solo `localhost` / `127.0.0.1` → ok con tunnel SSH o browser sul server.
+   * Se apri `http://IP_SERVER:3000` o un hostname diverso, aggiungilo in
+   * `NEXT_DEV_ALLOWED_ORIGINS` (virgola-separato), poi riavvia `next dev`.
+   */
+  allowedDevOrigins: [
+    '127.0.0.1',
+    'localhost',
+    ...extraAllowedDevOrigins,
+  ],
   /** Spazio per alias next-intl se in futuro si torna a Turbopack in dev (cfr. issue next-intl / Next 16). */
   turbopack: {},
   /** Richiesto da PM2/Hetzner e da `@opennextjs/cloudflare` (build con `NEXT_PRIVATE_STANDALONE`). */
@@ -36,8 +91,13 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    /** Immagini Cloudflare Images → URL diretto (cache edge CF); altre → `/_next/image`. */
+    loader: 'custom',
+    loaderFile: './src/lib/helpers/tramelle-next-image-loader.ts',
+    /** Cache CDN/browser per URL `/_next/image`: meno ricalcoli su navigazione ripetuta. */
+    minimumCacheTTL: 604800,
     /** Next 15: solo questi valori sono ammessi su `/_next/image` (cfr. `quality` su `<Image />`). */
-    qualities: [50, 70, 75, 85],
+    qualities: [50, 70, 72, 75, 80, 85, 88, 92, 96, 100],
     remotePatterns: [
       {
         protocol: 'https',

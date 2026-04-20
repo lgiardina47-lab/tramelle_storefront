@@ -12,6 +12,7 @@ import Spinner from "@/icons/spinner"
 import ShippingAddress from "@/components/organisms/ShippingAddress/ShippingAddress"
 import { CheckCircleSolid } from "@medusajs/icons"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { useTranslations } from "next-intl"
 
 export const CartAddressSection = ({
   cart,
@@ -20,6 +21,7 @@ export const CartAddressSection = ({
   cart: HttpTypes.StoreCart | null
   customer: HttpTypes.StoreCustomer | null
 }) => {
+  const t = useTranslations("Checkout")
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
@@ -60,12 +62,12 @@ export const CartAddressSection = ({
           level="h2"
           className="flex flex-row text-3xl-regular gap-x-2 items-baseline items-center"
         >
-          {!isOpen && <CheckCircleSolid />} Shipping Address
+          {!isOpen && <CheckCircleSolid />} {t("shippingAddress")}
         </Heading>
         {!isOpen && isAddress && (
           <Text>
             <Button onClick={handleEdit} variant="tonal" data-testid="checkout-address-edit-button">
-              Edit
+              {t("edit")}
             </Button>
           </Text>
         )}
@@ -90,7 +92,7 @@ export const CartAddressSection = ({
               data-testid="submit-address-button"
               variant="tonal"
             >
-              Save
+              {t("save")}
             </Button>
             <ErrorMessage
               error={message !== "success" && message}
@@ -132,7 +134,7 @@ export const CartAddressSection = ({
         {isAddress && !searchParams.get("step") && (
           <LocalizedClientLink href="/checkout?step=delivery">
             <Button className="mt-6" variant="tonal">
-              Continue to Delivery
+              {t("continueToDelivery")}
             </Button>
           </LocalizedClientLink>
         )}

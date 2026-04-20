@@ -7,8 +7,10 @@ import { BinIcon, CollapseIcon, DiscountIcon } from '@/icons';
 import { applyPromotions, deletePromotionCode } from '@/lib/data/cart';
 import { toast } from '@/lib/helpers/toast';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 export const PromoCode = ({ cart, defaultOpen = false }: { cart: any; defaultOpen?: boolean }) => {
+  const t = useTranslations('Checkout');
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [height, setHeight] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -42,12 +44,12 @@ export const PromoCode = ({ cart, defaultOpen = false }: { cart: any; defaultOpe
       }
 
       if (!result.applied) {
-        toast.info({ title: 'Promotion code not found' });
+        toast.info({ title: t('promoNotFound') });
         setHasError(true);
         return;
       }
 
-      toast.success({ title: 'Promotion code applied' });
+      toast.success({ title: t('promoApplied') });
       setPromoCode('');
       setHasError(false);
     });
@@ -59,9 +61,9 @@ export const PromoCode = ({ cart, defaultOpen = false }: { cart: any; defaultOpe
     startTransition(async () => {
       try {
         await deletePromotionCode(code);
-        toast.success({ title: 'Promotion code removed' });
+        toast.success({ title: t('promoRemoved') });
       } catch {
-        toast.info({ title: 'Failed to remove promotion code' });
+        toast.info({ title: t('promoRemoveFailed') });
       }
     });
   };
@@ -81,7 +83,7 @@ export const PromoCode = ({ cart, defaultOpen = false }: { cart: any; defaultOpe
       >
         <div className="flex items-center gap-2">
           <DiscountIcon size={20} />
-          <h4 className="label-md">Have promo code?</h4>
+          <h4 className="label-md">{t('promoHeading')}</h4>
         </div>
         <CollapseIcon
           size={20}
@@ -110,7 +112,7 @@ export const PromoCode = ({ cart, defaultOpen = false }: { cart: any; defaultOpe
                   setHasError(false);
                 }}
                 onKeyDown={handleKeyDown}
-                placeholder="Enter code"
+                placeholder={t('promoPlaceholder')}
                 error={hasError}
                 className="h-12 flex-grow"
               />
@@ -122,7 +124,7 @@ export const PromoCode = ({ cart, defaultOpen = false }: { cart: any; defaultOpe
                 className="mt-2 h-12"
                 variant="filled"
               >
-                ACTIVATE
+                {t('promoApply')}
               </Button>
             </div>
           ) : (

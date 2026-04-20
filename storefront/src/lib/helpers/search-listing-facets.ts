@@ -2,6 +2,8 @@
  * Facet listing: nomi attributi allineati all’indice Meilisearch (backend).
  */
 export const LISTING_FACET_PARAM_TO_INDEX: Record<string, string> = {
+  provenance_country: "provenance_country",
+  provenance_region: "provenance_region",
   size: "variants.size",
   color: "variants.color",
   condition: "variants.condition",
@@ -10,6 +12,12 @@ export const LISTING_FACET_PARAM_TO_INDEX: Record<string, string> = {
   type_value: "type.value",
   tags_value: "tags.value",
 }
+
+/** Sempre in cima: provenienza venditore (nazione + regione), allineata ai campi Meilisearch. */
+const LISTING_FACET_PROVENANCE: string[] = [
+  "provenance_country",
+  "provenance_region",
+]
 
 const LISTING_FACET_CORE: string[] = [
   "seller.handle",
@@ -26,7 +34,7 @@ const LISTING_FACET_VARIANTS: string[] = [
 ]
 
 function buildListingSearchFacetAttributes(): string[] {
-  const out: string[] = []
+  const out: string[] = [...LISTING_FACET_PROVENANCE]
   if (process.env.NEXT_PUBLIC_LISTING_CATEGORY_FACET === "true") {
     out.push(...LISTING_FACET_CATEGORY)
   }
@@ -49,6 +57,8 @@ export const INDEX_TO_LISTING_FACET_PARAM: Record<string, string> =
   )
 
 const FACET_HEADING: Record<string, string> = {
+  provenance_country: "Country (origin)",
+  provenance_region: "Region (origin)",
   "categories.name": "Category",
   "seller.handle": "Seller",
   "type.value": "Product type",

@@ -128,6 +128,7 @@ const Form = () => {
 
             <Link
               href="/forgot-password"
+              prefetch={true}
               className="label-md mt-4 block text-right uppercase text-action-on-secondary"
               data-testid="login-forgot-password-link"
             >
@@ -150,6 +151,7 @@ const Form = () => {
           </h2>
           <Link
             href="/register"
+            prefetch={true}
             data-testid="login-register-link"
           >
             <Button

@@ -88,6 +88,7 @@ const Form = () => {
 
           <Link
             href="/user"
+            prefetch={true}
             className="flex"
             data-testid="forgot-password-back-to-login-link"
           >

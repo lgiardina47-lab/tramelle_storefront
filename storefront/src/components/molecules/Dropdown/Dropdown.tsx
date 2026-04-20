@@ -11,7 +11,7 @@ export const Dropdown = ({
 
   return (
     <div
-      className='absolute -right-2 bg-primary text-primary z-20 border border-primary rounded-sm w-max'
+      className='absolute -right-2 z-[100] w-max rounded-sm border border-primary bg-primary text-primary'
       data-testid={dataTestId ?? 'dropdown'}
     >
       {children}

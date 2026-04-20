@@ -3,12 +3,15 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { MessageButton } from "@/components/molecules/MessageButton/MessageButton"
 import { UserDropdown } from "@/components/cells/UserDropdown/UserDropdown"
+import type { TramelleHeaderAccountRole } from "@/lib/tramelle-header-account-role"
 import { useTranslations } from "next-intl"
 
 type Props = {
   isLoggedIn: boolean
   userEmail?: string | null
   locale: string
+  presentation?: "icon" | "gourmet"
+  accountRole?: TramelleHeaderAccountRole
 }
 
 const linkClass =
@@ -18,8 +21,33 @@ export function HeaderUtilityBar({
   isLoggedIn,
   userEmail,
   locale,
+  presentation = "icon",
+  accountRole = "consumer",
 }: Props) {
   const t = useTranslations("Nav")
+  const tHead = useTranslations("Header")
+
+  if (presentation === "gourmet") {
+    return (
+      <div
+        className="flex w-full shrink-0 items-center justify-center border-b border-[#E8E4DE] bg-[#F5F3F0] px-5 py-0.5 sm:px-7 sm:py-1"
+        data-testid="header-utility-bar"
+      >
+        <div className="mx-auto w-full max-w-4xl text-center">
+          <p className="font-tramelle text-balance text-[11px] font-normal leading-tight text-[#8A8580] sm:text-xs sm:leading-snug">
+            <span>{tHead("gourmet.topBarLead")}</span>{" "}
+            <LocalizedClientLink
+              href="/registrati"
+              locale={locale}
+              className="inline font-medium normal-case tracking-normal text-[#0F0E0B] underline decoration-[#0F0E0B]/35 underline-offset-[3px] transition-opacity hover:opacity-90"
+            >
+              {tHead("gourmet.topBarRegister")}
+            </LocalizedClientLink>
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div
@@ -34,15 +62,6 @@ export function HeaderUtilityBar({
           <LocalizedClientLink href="/sellers" locale={locale} className={linkClass}>
             {t("producers")}
           </LocalizedClientLink>
-          <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-            {t("recipes")}
-          </LocalizedClientLink>
-          <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-            {t("giftCards")}
-          </LocalizedClientLink>
-          <LocalizedClientLink href="/categories" locale={locale} className={linkClass}>
-            {t("b2bServices")}
-          </LocalizedClientLink>
         </nav>
 
         <div className="flex items-center justify-end gap-3 sm:ml-auto">
@@ -51,6 +70,8 @@ export function HeaderUtilityBar({
             isLoggedIn={isLoggedIn}
             compactEmail={userEmail}
             locale={locale}
+            presentation={presentation}
+            accountRole={accountRole}
           />
         </div>
       </div>

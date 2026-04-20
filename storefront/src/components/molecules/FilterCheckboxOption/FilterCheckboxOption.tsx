@@ -1,45 +1,47 @@
-import { Checkbox } from '@/components/atoms';
-import { cn } from '@/lib/utils';
+import { Checkbox } from "@/components/atoms"
+import { cn } from "@/lib/utils"
 
 export const FilterCheckboxOption = ({
   label,
+  /** Valore query string / Meilisearch (es. ISO2); se assente si usa `label`. */
+  filterValue,
   amount,
   checked = false,
   onCheck = () => null,
   disabled = false,
   ...props
 }: {
-  label: string;
-  amount?: number;
-  checked?: boolean;
-  onCheck?: (option: string) => void;
-  disabled?: boolean;
-  'data-testid'?: string;
+  label: string
+  filterValue?: string
+  amount?: number
+  checked?: boolean
+  onCheck?: (option: string) => void
+  disabled?: boolean
+  "data-testid"?: string
 }) => {
+  const value = filterValue ?? label
   return (
     <label
       className={cn(
-        'flex gap-4 items-center cursor-pointer',
-        disabled && '!cursor-default'
+        "flex cursor-pointer items-center gap-3",
+        disabled && "!cursor-default"
       )}
-      onClick={() => (disabled ? null : onCheck(label))}
+      onClick={() => (disabled ? null : onCheck(value))}
       {...props}
     >
       <Checkbox checked={checked} disabled={disabled} />
       <p
         className={cn(
-          'label-md !font-normal',
-          checked && '!font-semibold',
-          disabled && 'text-disabled'
+          "tramelle-filter-body",
+          checked && "font-medium",
+          disabled && "text-disabled"
         )}
       >
-        {label}{' '}
-        {amount && (
-          <span className='label-sm !font-light'>
-            ({amount})
-          </span>
-        )}
+        {label}{" "}
+        {amount != null && amount > 0 ? (
+          <span className="tramelle-filter-muted">({amount})</span>
+        ) : null}
       </p>
     </label>
-  );
-};
+  )
+}

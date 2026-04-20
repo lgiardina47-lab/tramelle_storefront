@@ -14,29 +14,35 @@ import {
 import { useSearchParams } from "next/navigation"
 import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { HIDE_LISTING_FILTERS, PRODUCT_LIMIT } from "@/const"
-import {
-  STOREFRONT_EN_URL_SEGMENT,
-  storefrontPathToSearchSupportedCountry,
-} from "@/lib/i18n/storefront-path-locale"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { useEffect, useState } from "react"
+import { useTranslations } from "next-intl"
 import { fetchMedusaCatalogFallback, searchProducts } from "@/lib/data/products"
+import { buildCatalogSearchFilterString } from "@/lib/helpers/catalog-search-filters"
 import { ListingFacetBuckets } from "@/components/organisms/ProductSidebar/CatalogSearchProductSidebar"
 
 export const CatalogSearchListing = ({
   category_id,
+  category_ids,
   collection_id,
   seller_handle,
+  seller_id,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION,
   currency_code,
   region_id,
+  sellerPageListing = false,
 }: {
   category_id?: string
+  category_ids?: string[]
   collection_id?: string
   locale?: string
   seller_handle?: string
+  /** Fallback Medusa su `/store/sellers/:id/products` se Meilisearch non restituisce hit. */
+  seller_id?: string
   currency_code: string
   region_id?: string
+  /** Pagina shop produttore: titolo “Prodotti disponibili (n)”. */
+  sellerPageListing?: boolean
 }) => {
   const searchParams = useSearchParams()
 
@@ -44,24 +50,22 @@ export const CatalogSearchListing = ({
   const query: string = searchParams.get("query") || ""
   const page: number = +(searchParams.get("page") || 1)
 
-  const searchCountry = storefrontPathToSearchSupportedCountry(locale ?? "")
-  const enCatalogFilter =
-    (locale ?? "").toLowerCase() === STOREFRONT_EN_URL_SEGMENT
-      ? " AND content_locales:en"
-      : ""
-  const filters = `${
-    seller_handle
-      ? `NOT seller:null AND seller.handle:${seller_handle} AND `
-      : "NOT seller:null AND "
-  }NOT seller.store_status:SUSPENDED AND supported_countries:${searchCountry} AND variants.prices.currency_code:${currency_code} AND variants.prices.amount > 0${enCatalogFilter}${
-    category_id
-      ? ` AND categories.id:${category_id}${
-          collection_id !== undefined
-            ? ` AND collections.id:${collection_id}`
-            : ""
-        } ${facetFilters}`
-      : ` ${facetFilters}`
-  }`
+  const resolvedCategoryIds = [
+    ...new Set(
+      [...(category_ids ?? []), ...(category_id ? [category_id] : [])]
+        .map((id) => (typeof id === "string" ? id.trim() : ""))
+        .filter(Boolean)
+    ),
+  ]
+
+  const filters = buildCatalogSearchFilterString({
+    locale: locale ?? "",
+    currency_code,
+    category_ids: resolvedCategoryIds,
+    collection_id,
+    seller_handle,
+    facetFilters,
+  })
 
   return (
     <ProductsListing
@@ -71,8 +75,12 @@ export const CatalogSearchListing = ({
       query={query}
       page={page}
       category_id={category_id}
+      category_ids={resolvedCategoryIds.length ? resolvedCategoryIds : undefined}
       collection_id={collection_id}
       region_id={region_id}
+      seller_handle={seller_handle}
+      seller_id={seller_id}
+      sellerPageListing={sellerPageListing}
     />
   )
 }
@@ -84,8 +92,12 @@ const ProductsListing = ({
   query,
   page,
   category_id,
+  category_ids,
   collection_id,
   region_id,
+  seller_handle,
+  seller_id,
+  sellerPageListing = false,
 }: {
   locale?: string
   currency_code: string
@@ -93,9 +105,14 @@ const ProductsListing = ({
   query: string
   page: number
   category_id?: string
+  category_ids?: string[]
   collection_id?: string
   region_id?: string
+  seller_handle?: string
+  seller_id?: string
+  sellerPageListing?: boolean
 }) => {
+  const tSeller = useTranslations("SellerPage")
   const [products, setProducts] = useState<
     (HttpTypes.StoreProduct & { seller?: any })[]
   >([])
@@ -132,7 +149,8 @@ const ProductsListing = ({
           searchEffectivelyEmpty &&
           !query?.trim() &&
           !!locale &&
-          !!region_id
+          !!region_id &&
+          (!seller_handle || Boolean(seller_id?.trim()))
 
         if (canFallbackCatalog) {
           const offset = (page - 1) * PRODUCT_LIMIT
@@ -140,8 +158,10 @@ const ProductsListing = ({
             const medusa = await fetchMedusaCatalogFallback({
               countryCode: locale,
               category_id,
+              category_ids,
               collection_id,
               region_id,
+              seller_id: seller_id?.trim() || undefined,
               limit: PRODUCT_LIMIT,
               offset,
             })
@@ -182,27 +202,34 @@ const ProductsListing = ({
     category_id,
     collection_id,
     region_id,
+    seller_handle,
+    seller_id,
+    category_ids,
   ])
 
   if (isLoading && products.length === 0) return <ProductListingSkeleton />
 
   return (
     <div className="min-h-[70vh]">
-      <div className="flex justify-between w-full items-center">
-        <div className="my-4 label-md">{`${count} listings`}</div>
+      <div className="flex justify-between w-full items-center border-b border-neutral-100 pb-4">
+        <h2 className="heading-sm text-primary uppercase tracking-tight">
+          {sellerPageListing
+            ? tSeller("productsAvailable", { count })
+            : `${count} listings`}
+        </h2>
       </div>
       {!HIDE_LISTING_FILTERS && (
-        <div className="hidden md:block">
+        <div className="mt-4 hidden md:block">
           <ProductListingActiveFilters />
         </div>
       )}
-      <div className="md:flex gap-4">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start">
         {!HIDE_LISTING_FILTERS && (
-          <div className="w-[280px] flex-shrink-0 hidden md:block">
+          <div className="order-2 w-full flex-shrink-0 md:order-1 md:block md:w-[280px] md:sticky md:top-24">
             <CatalogSearchProductSidebar facets={facets} />
           </div>
         )}
-        <div className="w-full flex flex-col">
+        <div className="order-1 w-full flex flex-col md:order-2 md:min-w-0 md:flex-1">
           {isLoading && <ProductListingLoadingView />}
 
           {!isLoading && !products.length && <ProductListingNoResultsView />}

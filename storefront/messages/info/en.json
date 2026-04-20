@@ -1,0 +1,231 @@
+{
+  "Footer": {
+    "sections": {
+      "buying": "Buying with us",
+      "help": "Help",
+      "selling": "Selling with us",
+      "about": "About us",
+      "follow": "Follow us"
+    },
+    "links": {
+      "producers": "Producers",
+      "howItWorks": "How it works",
+      "delivery": "Delivery",
+      "returns": "Returns",
+      "corporateGifting": "Corporate gifting",
+      "giftVouchers": "Gift vouchers",
+      "helpCentre": "Help centre",
+      "trackMyOrder": "Track my order",
+      "helpWithOrder": "Help with my order",
+      "myAccount": "My account",
+      "mySubscriptions": "My subscriptions",
+      "loyaltyFaq": "Tasters club FAQ",
+      "contactUs": "Contact us",
+      "whySellWithUs": "Why sell with us",
+      "applyToSell": "Apply to sell",
+      "whyTramelle": "Why Tramelle",
+      "ourValues": "Our values",
+      "whoWeAre": "Who we are",
+      "customerReviews": "Customer reviews",
+      "blog": "Blog",
+      "terms": "Terms & conditions",
+      "privacy": "Privacy policy & cookies",
+      "press": "Press information"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "facebookAria": "Tramelle on Facebook",
+      "instagram": "Instagram",
+      "instagramAria": "Tramelle on Instagram",
+      "twitter": "Twitter",
+      "twitterAria": "Tramelle on Twitter"
+    },
+    "aria": {
+      "buying": "Buying with us navigation",
+      "help": "Help navigation",
+      "selling": "Selling with us navigation",
+      "about": "About us navigation",
+      "follow": "Social media links"
+    },
+    "copyright": "© {year} Tramelle"
+  },
+  "InfoPages": {
+    "common": {
+      "backHome": "Back to home",
+      "breadcrumbAria": "Breadcrumb"
+    },
+    "how-it-works": {
+      "title": "How it works",
+      "metaDescription": "Learn how shopping on Tramelle works from discovery to delivery.",
+      "paragraphs": [
+        "Tramelle is a curated marketplace: independent producers and sellers list specialty food and pantry items you can add to your cart in a few clicks.",
+        "When you check out, you pay securely through our platform. Shipping options, costs and delivery times depend on each seller and your address—you will always see them before you confirm the order.",
+        "If you need help, use Help centre or open your order from My account to message the seller or review status updates."
+      ]
+    },
+    "delivery": {
+      "title": "Delivery",
+      "metaDescription": "How delivery works on Tramelle: options, timelines and responsibilities.",
+      "paragraphs": [
+        "Delivery is arranged by each seller. Available carriers, cut-off times and rates appear at checkout once you enter your shipping address.",
+        "Estimated timelines are indicative and may vary during busy periods, remote areas or customs processing for international shipments.",
+        "If a parcel is delayed or damaged, contact the seller first from your order page; you can also read Help with my order for suggested next steps."
+      ]
+    },
+    "returns": {
+      "title": "Returns",
+      "metaDescription": "Returns and withdrawal information for Tramelle orders.",
+      "paragraphs": [
+        "For many EU consumer purchases you have a statutory withdrawal period (commonly 14 days from receipt), with exceptions—for example perishable goods, sealed items that cannot be resold for health or hygiene reasons, or products made to your specifications.",
+        "Each seller may publish additional return rules on their shop page or packing slip. Please read them before you open sealed food products.",
+        "To start a return or report an issue, sign in, open Orders, select the order and follow the prompts. If something is unclear, see Help centre."
+      ]
+    },
+    "corporate-gifting": {
+      "title": "Corporate gifting",
+      "metaDescription": "Corporate and business gifting on Tramelle.",
+      "paragraphs": [
+        "We welcome bulk orders, hampers and business gifts where sellers can fulfil them. Requirements (minimum quantities, invoicing, delivery windows) vary by producer.",
+        "Share your company details, budget, destination countries and desired delivery dates via Contact us so we can route you to the right sellers or internal team.",
+        "Chef Pro / B2B customers can combine corporate needs with recurring pantry orders—mention your account type when you write."
+      ]
+    },
+    "gift-vouchers": {
+      "title": "Gift vouchers",
+      "metaDescription": "Gift vouchers and digital gifts on Tramelle.",
+      "paragraphs": [
+        "When gift vouchers or digital gifts are available, redemption steps appear in checkout and in the confirmation email.",
+        "If you received a code that does not work or expired, include the order number and a screenshot when you contact us.",
+        "Corporate teams can combine vouchers with larger gifting programmes—see Corporate gifting for volume requests."
+      ]
+    },
+    "help-centre": {
+      "title": "Help centre",
+      "metaDescription": "Find answers about orders, delivery and your Tramelle account.",
+      "paragraphs": [
+        "Start with the topics in this footer: Delivery, Returns and How it works cover most shopper questions.",
+        "Signed-in customers should open My account → Orders for live tracking, receipts and messages with sellers.",
+        "Still stuck? Use Contact us and include your order number, email on the account and a short description of the issue."
+      ]
+    },
+    "help-with-order": {
+      "title": "Help with my order",
+      "metaDescription": "Resolve issues with a Tramelle order.",
+      "paragraphs": [
+        "Open My account → Orders and select the order. You will see payment status, tracking (when provided) and shortcuts to contact the seller.",
+        "For damaged or missing items, attach photos and list affected products; sellers usually respond within their published service window.",
+        "If you cannot sign in, reset your password from the login page, then open Track my order once you recover access."
+      ]
+    },
+    "my-subscriptions": {
+      "title": "My subscriptions",
+      "metaDescription": "Subscriptions and repeat deliveries on Tramelle.",
+      "paragraphs": [
+        "Some sellers may offer subscribe-and-save or recurring boxes. When active, management options appear under My account.",
+        "You can pause or cancel according to the seller’s subscription terms shown before you subscribe.",
+        "If you do not see subscription controls, the product may be a one-off purchase—check the order confirmation email for details."
+      ]
+    },
+    "loyalty-faq": {
+      "title": "Tasters club FAQ",
+      "metaDescription": "Frequently asked questions about the Tramelle tasters club and loyalty perks.",
+      "paragraphs": [
+        "The tasters club groups early access, tastings and member perks when we run them. Availability can differ by country or season.",
+        "Invitations and rewards are always optional: you can shop on Tramelle without joining any club programme.",
+        "For programme-specific questions, mention your country and the email tied to your account when you contact us."
+      ]
+    },
+    "contact": {
+      "title": "Contact us",
+      "metaDescription": "How to reach Tramelle for shopper or seller questions.",
+      "paragraphs": [
+        "For order issues, please include your order number—it speeds up routing to the seller or support team.",
+        "Sellers and producers can use Apply to sell for onboarding questions and Why sell with us for an overview of benefits.",
+        "Press and partnerships should use Press information so we can direct media enquiries appropriately."
+      ]
+    },
+    "why-sell-with-us": {
+      "title": "Why sell with us",
+      "metaDescription": "Why producers and sellers choose Tramelle.",
+      "paragraphs": [
+        "Tramelle highlights small-batch and specialty food to customers who actively look for provenance, quality and craft.",
+        "We provide marketplace tooling—listings, checkout, communications—so you can focus on production and fulfilment.",
+        "Our team curates categories and campaigns so strong stories and transparent sourcing can stand out."
+      ]
+    },
+    "apply-to-sell": {
+      "title": "Apply to sell",
+      "metaDescription": "Apply to open a seller account on Tramelle.",
+      "paragraphs": [
+        "Tell us about your business: company or producer name, country, categories, food safety references and expected monthly volume.",
+        "We review applications to keep assortment aligned with Tramelle’s gourmet positioning and compliance needs.",
+        "While you wait, gather high-resolution product photos, ingredient lists and allergen statements—they are required before going live."
+      ]
+    },
+    "why-tramelle": {
+      "title": "Why Tramelle",
+      "metaDescription": "What makes Tramelle different for gourmet shoppers.",
+      "paragraphs": [
+        "We focus on source, terroir and craft—connecting you with producers instead of anonymous bulk SKUs.",
+        "Every seller manages their own catalogue and shipping, which keeps authenticity high but means policies can vary—always read checkout details.",
+        "Chef Pro accounts add B2B pricing where configured, so professionals can stock pantries without leaving the same marketplace."
+      ]
+    },
+    "our-values": {
+      "title": "Our values",
+      "metaDescription": "Tramelle values: quality, transparency and fair partnerships.",
+      "paragraphs": [
+        "Quality over noise: we prioritise clear labelling, honest provenance and products that respect the land and labour behind them.",
+        "Transparency: sellers disclose ingredients and allergens; we expect accurate photos and weights.",
+        "Partnership: we succeed when independent producers grow—tools and support aim for long-term relationships, not short-term spikes."
+      ]
+    },
+    "who-we-are": {
+      "title": "Who we are",
+      "metaDescription": "Meet the Tramelle marketplace team and mission.",
+      "paragraphs": [
+        "Tramelle Source Gourmet is a small team building infrastructure for European specialty food—technology, trust and storytelling.",
+        "We operate the platform; sellers remain responsible for their goods, compliance with food law and customer service on fulfilled orders.",
+        "We are headquartered in Europe and serve shoppers and chefs across the markets enabled in your locale selector."
+      ]
+    },
+    "reviews": {
+      "title": "Customer reviews",
+      "metaDescription": "How reviews work on Tramelle.",
+      "paragraphs": [
+        "After delivery, you may be invited to review products or sellers. Reviews should reflect your honest experience.",
+        "We remove or moderate content that is fraudulent, offensive or unrelated to the purchase.",
+        "Business buyers can leave reviews where the feature is enabled; the same community guidelines apply."
+      ]
+    },
+    "terms": {
+      "title": "Terms & conditions",
+      "metaDescription": "Terms and conditions for using Tramelle.",
+      "paragraphs": [
+        "By using Tramelle you agree to our marketplace rules, including accurate account information and lawful use of the site.",
+        "Product contracts are between you and the seller once you complete checkout; Tramelle facilitates payment and platform services as described in your checkout flow.",
+        "We may update these terms to reflect new features or legal requirements. Continued use after notice means you accept the revised terms.",
+        "For the full legal text applicable to your country, refer to the consolidated policy pack linked from checkout or request it via Contact us."
+      ]
+    },
+    "privacy": {
+      "title": "Privacy policy & cookies",
+      "metaDescription": "Privacy, data protection and cookies on Tramelle.",
+      "paragraphs": [
+        "We process personal data to run the marketplace: account details, orders, fraud prevention, analytics and (if you opt in) marketing.",
+        "Depending on your region you may have rights to access, rectify, delete or port your data, and to object to certain processing.",
+        "Cookies and similar technologies help sessions, preferences and measurement. Adjust your browser or our cookie banner where available.",
+        "For data requests, contact us with the email on your account so we can verify identity before disclosure."
+      ]
+    },
+    "press": {
+      "title": "Press information",
+      "metaDescription": "Press contacts and assets for Tramelle.",
+      "paragraphs": [
+        "Journalists and partners can request logos, executive bios and high-resolution imagery through our press inbox—use Contact us with “Press” in the subject.",
+        "Please mention your outlet, deadline and whether you need commentary on the European specialty food market.",
+        "Seller stories and producer profiles are available on approval to protect commercial confidentiality."
+      ]
+    }
+  }
+}

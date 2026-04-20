@@ -10,8 +10,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
   ).toLowerCase()
   const locale = countryCodeToStorefrontMessagesLocale(segment)
 
+  const [{ default: baseMessages }, { default: infoMessages }] =
+    await Promise.all([
+      import(`../../messages/${locale}.json`),
+      import(`../../messages/info/${locale}.json`),
+    ])
+
   return {
     locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
+    /** Evita `ENVIRONMENT_FALLBACK` / mismatch idratazione su `useTranslations` (es. HeaderUtilityBar). */
+    timeZone: "Europe/Rome",
+    messages: { ...baseMessages, ...infoMessages },
   }
 })

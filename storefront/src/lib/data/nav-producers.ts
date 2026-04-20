@@ -1,10 +1,11 @@
 "use server"
 
+import { unstable_cache } from "next/cache"
 import { HttpTypes } from "@medusajs/types"
 
 import { SellerProps, type StoreSellerListItem } from "@/types/seller"
 
-import { sellerHeroImageCandidates } from "@/lib/helpers/seller-media-url"
+import { sellerDirectoryHeroImageCandidates } from "@/lib/helpers/seller-media-url"
 
 import { listProducts } from "./products"
 import { listStoreSellersForParentCategory } from "./seller"
@@ -62,7 +63,7 @@ function sellerRegionLine(
 function sellerNavCoverPhoto(
   s: SellerProps | StoreSellerListItem
 ): string | undefined {
-  const candidates = sellerHeroImageCandidates({
+  const candidates = sellerDirectoryHeroImageCandidates({
     metadata: s.metadata ?? null,
     photo: typeof s.photo === "string" ? s.photo : "",
     handle: s.handle,
@@ -103,7 +104,7 @@ function categoryIdsForProducerLookup(
  * contiene l’handle del parent `tramelle-*`), poi integrazione da catalogo (prodotti
  * nelle sottocategorie).
  */
-export async function getProducersByParentId(
+async function getProducersByParentIdUncached(
   parentCategories: HttpTypes.StoreProductCategory[],
   countryCode: string,
   allCategoriesFlat?: HttpTypes.StoreProductCategory[]
@@ -159,4 +160,27 @@ export async function getProducersByParentId(
   )
 
   return result
+}
+
+/** Cache server 15 min: molte chiamate `listProducts` per macro-categoria; TTFB molto più basso dopo il primo hit / warm. */
+export async function getProducersByParentId(
+  parentCategories: HttpTypes.StoreProductCategory[],
+  countryCode: string,
+  allCategoriesFlat?: HttpTypes.StoreProductCategory[]
+): Promise<Record<string, NavProducer[]>> {
+  if (!parentCategories.length) return {}
+  const idKey = parentCategories
+    .map((p) => p.id)
+    .sort()
+    .join(",")
+  return unstable_cache(
+    () =>
+      getProducersByParentIdUncached(
+        parentCategories,
+        countryCode,
+        allCategoriesFlat
+      ),
+    ["tramelle-header-producers", countryCode.toLowerCase(), idKey],
+    { revalidate: 900 }
+  )()
 }

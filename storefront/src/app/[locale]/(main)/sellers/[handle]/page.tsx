@@ -12,11 +12,14 @@ export default async function SellerPage({
 }) {
   const { handle, locale } = await params
 
-  const seller = await getSellerByHandle(handle)
+  const [seller, user, region] = await Promise.all([
+    getSellerByHandle(handle),
+    retrieveCustomer(),
+    getRegion(locale),
+  ])
 
-  const user = await retrieveCustomer()
-
-  const currency_code = (await getRegion(locale))?.currency_code || "usd"
+  const currency_code = region?.currency_code || "usd"
+  const region_id = region?.id
 
   const tab = "products"
 
@@ -39,6 +42,7 @@ export default async function SellerPage({
           seller_handle={seller.handle}
           locale={locale}
           currency_code={currency_code}
+          region_id={region_id}
         />
       </div>
     </main>

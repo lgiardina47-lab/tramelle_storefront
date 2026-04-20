@@ -1,6 +1,5 @@
-import { format } from 'date-fns';
-
 import { Button } from '@/components/atoms';
+import { formatDateSafe } from '@/lib/helpers/format-date-safe';
 import LocalizedClientLink from '@/components/molecules/LocalizedLink/LocalizedLink';
 import { convertToLocale } from '@/lib/helpers/money';
 
@@ -40,7 +39,7 @@ export const ParcelAccordion = ({
         >
           Order date:{' '}
           <span className="text-primary lg:block xl:inline-block">
-            {format(createdAt || '', 'yyyy-MM-dd')}
+            {formatDateSafe(createdAt, 'yyyy-MM-dd')}
           </span>
         </h2>
         <h2

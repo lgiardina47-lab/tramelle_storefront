@@ -21,17 +21,17 @@ export async function BannerSection() {
       <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
         <div className="py-6 px-6 flex flex-col h-full justify-between border border-secondary rounded-sm">
           <div className="mb-8 lg:mb-48">
-            <span className="text-sm inline-block px-4 py-1 border border-secondary rounded-sm">
-              #COLLECTION
+            <span className="text-sm inline-block px-4 py-1 border border-secondary rounded-sm uppercase tracking-widest">
+              Collezione
             </span>
-            <h2 className="display-sm uppercase">{title}</h2>
+            <h2 className="display-sm uppercase mt-4">{title}</h2>
             {description ? (
-              <p className="text-lg text-tertiary max-w-lg">{description}</p>
+              <p className="text-lg text-tertiary max-w-lg mt-3">{description}</p>
             ) : null}
           </div>
           <LocalizedClientLink href={`/collections/${c.handle}`}>
-            <Button size="large" className="w-fit bg-secondary/10">
-              EXPLORE
+            <Button size="large" className="w-fit bg-secondary/10 uppercase tracking-wide">
+              Esplora la collezione
             </Button>
           </LocalizedClientLink>
         </div>

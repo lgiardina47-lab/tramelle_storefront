@@ -1,26 +1,42 @@
 import { Suspense } from 'react';
 
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import PaymentWrapper from '@/components/organisms/PaymentContainer/PaymentWrapper';
+import { TranslatedPageLoading } from '@/components/molecules/TranslatedPageLoading/TranslatedPageLoading';
 import { CartAddressSection } from '@/components/sections/CartAddressSection/CartAddressSection';
 import CartPaymentSection from '@/components/sections/CartPaymentSection/CartPaymentSection';
 import CartReview from '@/components/sections/CartReview/CartReview';
 import CartShippingMethodsSection from '@/components/sections/CartShippingMethodsSection/CartShippingMethodsSection';
+import { countryCodeToStorefrontMessagesLocale } from '@/lib/i18n/storefront-messages-locale';
 import { retrieveCart } from '@/lib/data/cart';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { listCartPaymentMethods } from '@/lib/data/payment';
-export const metadata: Metadata = {
-  title: 'Checkout',
-  description: 'Completa il tuo ordine su Tramelle — pagamento e spedizione.'
-};
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: country } = await params;
+  const uiLocale = countryCodeToStorefrontMessagesLocale(country);
+  setRequestLocale(uiLocale);
+  const t = await getTranslations('Checkout');
+  return {
+    title: t('pageTitle'),
+    description: t('pageDescription'),
+  };
+}
 
 export default async function CheckoutPage({}) {
   return (
     <Suspense
-      fallback={<div className="container flex items-center justify-center" data-testid="checkout-page-loading">Loading...</div>}
+      fallback={
+        <TranslatedPageLoading namespace="Checkout" testId="checkout-page-loading" />
+      }
     >
       <CheckoutPageContent />
     </Suspense>

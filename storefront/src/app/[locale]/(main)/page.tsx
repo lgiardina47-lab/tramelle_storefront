@@ -1,36 +1,123 @@
 import {
   BannerSection,
   BlogSection,
-  Hero,
   HomeCategories,
   HomeProductSection,
   ShopByStyleSection,
 } from "@/components/sections"
+import {
+  HomeCinematicHero,
+  HomeCinematicHeroSkeleton,
+} from "@/components/sections/HomeCinematicHero/HomeCinematicHero"
 import { ProductionComingSoonHome } from "@/components/sections/ProductionComingSoonHome/ProductionComingSoonHome"
+import { HomeFeaturedSellersSection } from "@/components/sections/HomeFeaturedSellersSection/HomeFeaturedSellersSection"
+import { HomeHowItWorksSection } from "@/components/sections/HomeHowItWorksSection/HomeHowItWorksSection"
 
 import type { Metadata } from "next"
 import { headers } from "next/headers"
 import Script from "next/script"
+import { Suspense } from "react"
 import { getTranslations } from "next-intl/server"
-import { listRegions } from "@/lib/data/regions"
+import { getCachedHomeHreflangLanguages } from "@/lib/data/home-hreflang-alternates"
 import { toHreflang } from "@/lib/helpers/hreflang"
-import { requestShowsComingSoonHome } from "@/lib/constants/coming-soon-public-home"
+import {
+  comingSoonHomeDisabledByEnv,
+  requestShowsComingSoonHome,
+} from "@/lib/constants/coming-soon-public-home"
 import {
   getIndexingRobots,
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
+
+function HomeTrendingSkeleton() {
+  return (
+    <div className="w-full px-4 lg:px-8">
+      <section
+        className="w-full animate-pulse py-8"
+        aria-hidden
+      >
+        <div className="mb-6 h-8 w-48 max-w-full rounded bg-neutral-100" />
+        <div className="flex gap-4 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="aspect-[3/4] w-40 shrink-0 rounded-sm bg-neutral-100 sm:w-48"
+            />
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function HomeCategoriesSkeleton() {
+  return (
+    <div className="w-full px-4 lg:px-8">
+      <section
+        className="w-full animate-pulse bg-primary py-8"
+        aria-hidden
+      >
+        <div className="mb-6 h-8 w-64 max-w-full rounded bg-white/20" />
+        <div className="flex gap-3 overflow-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="h-28 w-24 shrink-0 rounded-sm bg-white/20 sm:h-32 sm:w-28"
+            />
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function HomeWideCardSkeleton() {
+  return (
+    <div
+      className="container animate-pulse py-8"
+      aria-hidden
+    >
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="h-48 rounded-sm bg-neutral-100 lg:h-64" />
+        <div className="aspect-[4/3] rounded-sm bg-neutral-100" />
+      </div>
+    </div>
+  )
+}
+
+function HomeCollectionsListSkeleton() {
+  return (
+    <div
+      className="container animate-pulse py-12"
+      aria-hidden
+    >
+      <div className="mb-10 h-8 w-64 rounded bg-neutral-100" />
+      <div className="space-y-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="h-6 w-2/3 max-w-md rounded bg-neutral-100" />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/** Home catalogo: rigenerazione periodica (ISR) — il layout resta dinamico (cookie/sessione). */
+export const revalidate = 300
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const { locale } = await params
+  const [{ locale }, h] = await Promise.all([params, headers()])
 
   const baseUrl = publicSiteOrigin()
 
-  const h = await headers()
-  const showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
+  let showComingSoon = false
+  if (!comingSoonHomeDisabledByEnv()) {
+    showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
+  }
 
   if (showComingSoon) {
     const title = "Tramelle Source Gourmet"
@@ -63,32 +150,19 @@ export async function generateMetadata({
     }
   }
 
-  // Build alternates based on available regions (locales)
   let languages: Record<string, string> = {}
   try {
-    const regions = await listRegions()
-    const locales = Array.from(
-      new Set(
-        (regions || [])
-          .map((r) => r.countries?.map((c) => c.iso_2) || [])
-          .flat()
-          .filter(Boolean)
-      )
-    ) as string[]
-
-    languages = locales.reduce<Record<string, string>>((acc, code) => {
-      const hrefLang = toHreflang(code)
-      acc[hrefLang] = `${baseUrl}/${code}`
-      return acc
-    }, {})
+    languages = await getCachedHomeHreflangLanguages(baseUrl)
+    if (!Object.keys(languages).length) {
+      languages = { [toHreflang(locale)]: `${baseUrl}/${locale}` }
+    }
   } catch {
-    // Fallback: only current locale
     languages = { [toHreflang(locale)]: `${baseUrl}/${locale}` }
   }
 
-  const title = "Home"
+  const title = "Tramelle Source Gourmet — Il marketplace dell'eccellenza alimentare"
   const description =
-    "Benvenuto su Tramelle: compra, vendi e scopri tesori di moda pre-loved dalle firme più desiderate."
+    "La vetrina globale per i maestri del Gourmet. Produttori artigianali selezionati, specialità autentiche da tutto il mondo, B2C e Chef Pro."
   const ogImage = "/B2C_Storefront_Open_Graph.png"
   const canonical = `${baseUrl}/${locale}`
 
@@ -138,8 +212,11 @@ export default async function Home({
 
   const siteName = resolvedSiteName()
 
-  const h = await headers()
-  const showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
+  let showComingSoon = false
+  if (!comingSoonHomeDisabledByEnv()) {
+    const h = await headers()
+    showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
+  }
 
   if (showComingSoon) {
     return (
@@ -175,18 +252,10 @@ export default async function Home({
     )
   }
 
-  const tHero = await getTranslations("Hero")
   const tHome = await getTranslations("Home")
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start text-primary">
-      <link
-        rel="preload"
-        as="image"
-        href="/images/hero/Image.jpg"
-        imageSrcSet="/images/hero/Image.jpg 700w"
-        imageSizes="(min-width: 1024px) 42vw, 92vw"
-      />
       {/* Organization JSON-LD */}
       <Script
         id="ld-org"
@@ -216,28 +285,57 @@ export default async function Home({
         }}
       />
 
-      <Hero
-        image="/images/hero/Image.jpg"
-        heading={tHero("heading")}
-        paragraph={tHero("paragraph")}
-        buttons={[
-          { label: tHero("buyNow"), path: "/categories" },
-          {
-            label: tHero("sellNow"),
-            path:
-              process.env.NEXT_PUBLIC_VENDOR_URL ||
-              "https://vendor.mercurjs.com",
-          },
-        ]}
-      />
-      <div className="px-4 lg:px-8 w-full">
-        <HomeProductSection heading={tHome("trending")} locale={locale} home />
+      <div className="w-full max-w-full min-w-0">
+        <Suspense fallback={<HomeCinematicHeroSkeleton />}>
+          <HomeCinematicHero locale={locale} />
+        </Suspense>
       </div>
-      <div className="px-4 lg:px-8 w-full">
-        <HomeCategories heading={tHome("shopByCategory")} />
-      </div>
-      <BannerSection />
-      <ShopByStyleSection />
+
+      {/* Prodotti in evidenza */}
+      <Suspense fallback={<HomeTrendingSkeleton />}>
+        <div className="w-full px-4 lg:px-8">
+          <HomeProductSection
+            heading={tHome("trending")}
+            locale={locale}
+            home
+          />
+        </div>
+      </Suspense>
+
+      {/* Produttori selezionati */}
+      <Suspense fallback={
+        <div className="w-full px-4 lg:px-8 animate-pulse py-8">
+          <div className="mb-8 h-8 w-56 rounded bg-neutral-100" />
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="aspect-[4/3] rounded-lg bg-neutral-100" />
+            ))}
+          </div>
+        </div>
+      }>
+        <HomeFeaturedSellersSection locale={locale} />
+      </Suspense>
+
+      {/* Come funziona */}
+      <HomeHowItWorksSection />
+
+      {/* Sfoglia per categoria */}
+      <Suspense fallback={<HomeCategoriesSkeleton />}>
+        <div className="w-full px-4 lg:px-8">
+          <HomeCategories heading={tHome("shopByCategory")} />
+        </div>
+      </Suspense>
+
+      {/* Banner collezione */}
+      <Suspense fallback={<HomeWideCardSkeleton />}>
+        <BannerSection />
+      </Suspense>
+
+      {/* Selezioni / collezioni */}
+      <Suspense fallback={<HomeCollectionsListSkeleton />}>
+        <ShopByStyleSection />
+      </Suspense>
+
       <BlogSection />
     </main>
   )

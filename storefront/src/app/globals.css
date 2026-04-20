@@ -5,6 +5,56 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Tramelle design system v2 (MVP/tramelle_design_system_v2.md) ─────── */
+:root {
+  --tramelle-ink: #0f0e0b;
+  --tramelle-bg: #f7f6f3;
+  --tramelle-surface: #ffffff;
+  --tramelle-surface-warm: #fafaf8;
+  --tramelle-border: #e8e4de;
+  --tramelle-border-hover: #ccc8c0;
+  --tramelle-muted: #8a8580;
+  --tramelle-hint: #b5b0a8;
+  --tramelle-gold: #8a6b2a;
+  --tramelle-gold-bg: #f5ecd3;
+  --tramelle-gold-border: #e8d9a8;
+  --tramelle-success: #2a6b3c;
+  --tramelle-error: #a33030;
+  --tramelle-section-y: 52px;
+  --tramelle-section-x: 28px;
+  --tramelle-gap-grid: 12px;
+  --tramelle-r-sm: 10px;
+  --tramelle-r-md: 16px;
+  --tramelle-r-lg: 18px;
+  --tramelle-r-xl: 24px;
+  --tramelle-r-full: 999px;
+}
+
+/* ─── Spacing system (multipli di 4px / 8px) ─────────────────────────────── */
+:root {
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+}
+
+/* ─── Typography scale ────────────────────────────────────────────────────── */
+:root {
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-md:   17px;
+  --text-lg:   20px;
+  --text-xl:   24px;
+  --text-2xl:  30px;
+  --text-3xl:  36px;
+  --text-4xl:  48px;
+}
+
 /* Typography */
 .text-xl {
   @apply font-light tracking-normal;
@@ -13,11 +63,11 @@
   @apply text-base font-light tracking-normal;
 }
 .text-md {
-  @apply text-[14px] leading-[22px] font-light tracking-normal;
+  @apply text-[14px] leading-[1.7] font-normal tracking-normal;
 }
 /* Attenzione: stessa specificità di `font-semibold` → il peso può risultare errato nei componenti che combinano le due classi. Il mega menu gourmet usa `text-[14px]` + pesi espliciti. */
 .text-sm {
-  @apply text-[12px] font-light tracking-normal;
+  @apply text-[12px] font-normal tracking-normal;
 }
 
 .label-sm {
@@ -40,13 +90,24 @@
   @apply text-[16px] leading-[24px] font-medium tracking-normal;
 }
 .heading-md {
-  @apply text-[24px] leading-[32px] font-medium tracking-normal max-md:text-[20px] max-md:leading-[28px];
+  @apply font-tramelle-display text-[24px] leading-[32px] font-light tracking-normal max-md:text-[20px] max-md:leading-[28px];
 }
 .heading-lg {
-  @apply text-[32px] leading-[40px] font-medium tracking-normal max-md:text-[24px] max-md:leading-[32px];
+  @apply font-tramelle-display text-[32px] leading-[40px] font-light tracking-normal max-md:text-[24px] max-md:leading-[32px];
 }
 .heading-xl {
-  @apply text-[40px] leading-[48px] font-medium tracking-normal max-md:text-[32px] max-md:leading-[40px];
+  @apply font-tramelle-display text-[40px] leading-[48px] font-light tracking-normal max-md:text-[32px] max-md:leading-[40px];
+}
+
+/* Filtri PLP / sidebar listing — design system v2 (MVP §5) */
+.tramelle-filter-heading {
+  @apply font-tramelle text-[11px] font-medium uppercase tracking-[0.14em] text-primary leading-tight;
+}
+.tramelle-filter-body {
+  @apply font-tramelle text-[13px] font-normal leading-[1.7] text-primary;
+}
+.tramelle-filter-muted {
+  @apply font-tramelle text-[11px] font-normal leading-snug text-secondary;
 }
 
 .display-sm {
@@ -162,4 +223,12 @@ button:disabled svg path {
 }
 .tramelle-gourmet-nav-scroll::-webkit-scrollbar {
   display: none;
+}
+
+/* Header: logo SVG / Next Image */
+.logo svg,
+.logo img {
+  width: 120px;
+  height: auto;
+  max-width: 120px;
 }

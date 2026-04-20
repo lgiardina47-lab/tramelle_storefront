@@ -11,11 +11,13 @@ export const SellerInfo = ({
   header = false,
   showArrow = false,
   bottomBorder = false,
+  hideLogo = false,
 }: {
   seller: SellerProps
   header?: boolean
   showArrow?: boolean
   bottomBorder?: boolean
+  hideLogo?: boolean
 }) => {
   const t = useTranslations("ProductSheet")
   const { name, reviews } = seller
@@ -45,6 +47,7 @@ export const SellerInfo = ({
             reviewCount={reviewCount}
             showArrow={showArrow}
             bottomBorder={bottomBorder}
+            hideLogo={hideLogo}
           />
         </LocalizedClientLink>
       ) : (
@@ -55,6 +58,7 @@ export const SellerInfo = ({
           reviewCount={reviewCount}
           showArrow={showArrow}
           bottomBorder={bottomBorder}
+          hideLogo={hideLogo}
         />
       )}
       {!header && (

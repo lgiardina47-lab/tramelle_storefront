@@ -16,6 +16,7 @@ import { calculatePriceForShippingOption } from '@/lib/data/fulfillment';
 import { convertToLocale } from '@/lib/helpers/money';
 
 import { CartShippingMethodRow } from './CartShippingMethodRow';
+import { useTranslations } from 'next-intl';
 
 // Extended cart item product type to include seller
 type ExtendedStoreProduct = HttpTypes.StoreProduct & {
@@ -57,6 +58,7 @@ type ShippingProps = {
 };
 
 const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShippingMethods }) => {
+  const t = useTranslations('Checkout');
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [calculatedPricesMap, setCalculatedPricesMap] = useState<Record<string, number>>({});
   const [error, setError] = useState<string | null>(null);
@@ -67,8 +69,6 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const pathname = usePathname();
 
   const isOpen = searchParams.get('step') === 'delivery';
-
-  console.log(availableShippingMethods);
 
   const _shippingMethods = availableShippingMethods?.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
@@ -124,7 +124,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
       }
     } catch (error: any) {
       setError(
-        error?.message?.replace('Error setting up the request: ', '') || 'An error occurred'
+        error?.message?.replace('Error setting up the request: ', '') || t('genericError')
       );
     } finally {
       setIsLoadingPrices(false);
@@ -178,7 +178,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           className="text-3xl-regular flex flex-row items-baseline gap-x-2"
         >
           {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
-          Delivery
+          {t('delivery')}
         </Heading>
         {isEditEnabled && (
           <Text>
@@ -186,7 +186,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               onClick={handleEdit}
               variant="tonal"
             >
-              Edit
+              {t('edit')}
             </Button>
           </Text>
         )}
@@ -197,7 +197,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             <div data-testid="delivery-options-container">
               <div className="pb-8 pt-2 md:pt-0">
                 {filteredGroupedBySellerId.length === 0
-                  ? 'No shipping options available'
+                  ? t('noShippingOptions')
                   : filteredGroupedBySellerId.map(key => (
                       <div
                         key={key}
@@ -223,7 +223,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                             >
                               {({ open }) => (
                                 <>
-                                  <span className="block truncate">Choose delivery option</span>
+                                  <span className="block truncate">{t('chooseDeliveryOption')}</span>
                                   <ChevronUpDown
                                     className={clx('transition-rotate duration-200', {
                                       'rotate-180 transform': open
@@ -299,7 +299,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               disabled={!cart.shipping_methods?.[0] || isPendingDeleteRow}
               loading={isLoadingPrices}
             >
-              Continue to payment
+              {t('continueToPayment')}
             </Button>
           </div>
         </>
@@ -313,7 +313,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                     key={method.id}
                     className="mb-4 rounded-md border p-4"
                   >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">Method</Text>
+                    <Text className="txt-medium-plus text-ui-fg-base mb-1">{t('shippingMethod')}</Text>
                     <Text className="txt-medium text-ui-fg-subtle">
                       {method.name}{' '}
                       {convertToLocale({

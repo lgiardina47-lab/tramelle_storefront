@@ -80,13 +80,13 @@ export function SellerPagePhotoMosaic({
         />
 
         {showLogo ? (
-          <div className="absolute bottom-6 left-6 z-[1] h-16 w-16 rounded-full bg-white p-2 shadow-sm">
+          <div className="absolute bottom-6 left-6 z-[1] h-24 w-24 rounded-full bg-white p-2.5 shadow-md sm:h-28 sm:w-28 sm:p-3">
             <div className="relative h-full w-full">
               <Image
                 src={logoUrl!}
                 alt={`Logo ${name}`}
                 fill
-                sizes="64px"
+                sizes="(max-width: 640px) 96px, 112px"
                 unoptimized
                 className="object-contain object-center"
                 onError={() => setLogoDead(true)}
@@ -95,7 +95,7 @@ export function SellerPagePhotoMosaic({
           </div>
         ) : null}
 
-        <div className="absolute bottom-6 right-6 z-[1] max-w-[min(100%-7rem,70%)] text-right md:max-w-[55%]">
+        <div className="absolute bottom-6 right-6 z-[1] max-w-[min(100%-9rem,70%)] text-right sm:max-w-[min(100%-10rem,70%)] md:max-w-[55%]">
           <h1 className="font-serif text-[28px] font-light tracking-[0.06em] text-white">
             {name}
           </h1>

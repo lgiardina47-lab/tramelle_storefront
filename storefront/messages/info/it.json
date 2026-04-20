@@ -1,0 +1,231 @@
+{
+  "Footer": {
+    "sections": {
+      "buying": "Acquisti con noi",
+      "help": "Aiuto",
+      "selling": "Vendi con noi",
+      "about": "Chi siamo",
+      "follow": "Seguici"
+    },
+    "links": {
+      "producers": "Produttori",
+      "howItWorks": "Come funziona",
+      "delivery": "Consegna",
+      "returns": "Resi",
+      "corporateGifting": "Regali aziendali",
+      "giftVouchers": "Buoni regalo",
+      "helpCentre": "Centro assistenza",
+      "trackMyOrder": "Traccia il mio ordine",
+      "helpWithOrder": "Aiuto con il mio ordine",
+      "myAccount": "Il mio account",
+      "mySubscriptions": "Le mie iscrizioni",
+      "loyaltyFaq": "FAQ Club dei degustatori",
+      "contactUs": "Contattaci",
+      "whySellWithUs": "Perché vendere con noi",
+      "applyToSell": "Candidati per vendere",
+      "whyTramelle": "Perché Tramelle",
+      "ourValues": "I nostri valori",
+      "whoWeAre": "Chi siamo",
+      "customerReviews": "Recensioni dei clienti",
+      "blog": "Blog",
+      "terms": "Termini e condizioni",
+      "privacy": "Privacy e cookie",
+      "press": "Ufficio stampa"
+    },
+    "social": {
+      "facebook": "Facebook",
+      "facebookAria": "Tramelle su Facebook",
+      "instagram": "Instagram",
+      "instagramAria": "Tramelle su Instagram",
+      "twitter": "Twitter",
+      "twitterAria": "Tramelle su Twitter"
+    },
+    "aria": {
+      "buying": "Navigazione acquisti con noi",
+      "help": "Navigazione aiuto",
+      "selling": "Navigazione vendi con noi",
+      "about": "Navigazione chi siamo",
+      "follow": "Link ai social"
+    },
+    "copyright": "© {year} Tramelle"
+  },
+  "InfoPages": {
+    "common": {
+      "backHome": "Torna alla home",
+      "breadcrumbAria": "Percorso di navigazione"
+    },
+    "how-it-works": {
+      "title": "Come funziona",
+      "metaDescription": "Scopri come acquistare su Tramelle, dalla scoperta dei prodotti alla consegna.",
+      "paragraphs": [
+        "Tramelle è un marketplace curato: produttori e venditori indipendenti pubblicano specialità alimentari e dispensa che puoi aggiungere al carrello in pochi clic.",
+        "Al pagamento utilizzi un checkout sicuro. Opzioni di spedizione, costi e tempi dipendono da ogni venditore e dal tuo indirizzo: li vedi sempre prima di confermare.",
+        "Per assistenza usa il Centro assistenza o apri l’ordine da Il mio account per scrivere al venditore o vedere gli aggiornamenti."
+      ]
+    },
+    "delivery": {
+      "title": "Consegna",
+      "metaDescription": "Come funziona la consegna su Tramelle: opzioni, tempi e responsabilità.",
+      "paragraphs": [
+        "La consegna è organizzata da ciascun venditore. Corrieri disponibili, cut-off e tariffe compaiono al checkout dopo aver inserito l’indirizzo.",
+        "I tempi indicati sono stime e possono variare in periodi di punta, zone remote o sdoganamenti internazionali.",
+        "In caso di ritardo o danneggiamento, contatta prima il venditore dalla pagina ordine; trovi suggerimenti anche in Aiuto con il mio ordine."
+      ]
+    },
+    "returns": {
+      "title": "Resi",
+      "metaDescription": "Diritto di recesso e resi per ordini Tramelle.",
+      "paragraphs": [
+        "Per molti acquisti dei consumatori nell’UE vale un diritto di recesso (di norma 14 giorni dal ricevimento), con eccezioni: ad esempio beni deperibili, prodotti sigillati per igiene o su misura.",
+        "Ogni venditore può indicare condizioni aggiuntive nella scheda negozio o nella documentazione d’ordine. Leggile prima di aprire imballaggi di alimenti sigillati.",
+        "Per avviare un reso o segnalare un problema, accedi, apri Ordini, seleziona l’ordine e segui i passaggi. Per dubbi generali vedi Centro assistenza."
+      ]
+    },
+    "corporate-gifting": {
+      "title": "Regali aziendali",
+      "metaDescription": "Regali e ordini corporate su Tramelle.",
+      "paragraphs": [
+        "Accettiamo ordini multipli, ceste e regali business quando i venditori possono evaderli. Minimi, fatturazione e finestre di consegna dipendono dal produttore.",
+        "Invia ragione sociale, budget, Paesi di destinazione e date desiderate tramite Contattaci così indirizziamo al team o ai venditori giusti.",
+        "Gli account Chef Pro / B2B possono unire esigenze corporate a ricorrenti forniture dispensa—indica il tipo di account nel messaggio."
+      ]
+    },
+    "gift-vouchers": {
+      "title": "Buoni regalo",
+      "metaDescription": "Buoni regalo e regali digitali su Tramelle.",
+      "paragraphs": [
+        "Quando i buoni regalo sono disponibili, le istruzioni di riscatto compaiono al checkout e nell’email di conferma.",
+        "Se un codice non funziona o è scaduto, allega numero d’ordine e uno screenshot quando ci scrivi.",
+        "I team corporate possono abbinare buoni a programmi più ampi—vedi Regali aziendali per volumi."
+      ]
+    },
+    "help-centre": {
+      "title": "Centro assistenza",
+      "metaDescription": "Risposte su ordini, consegna e account Tramelle.",
+      "paragraphs": [
+        "Inizia dagli argomenti nel footer: Consegna, Resi e Come funziona coprono la maggior parte delle domande.",
+        "Se hai effettuato l’accesso, apri Il mio account → Ordini per tracking, ricevute e messaggi con il venditore.",
+        "Serve altro? Usa Contattaci con numero ordine, email dell’account e una breve descrizione del problema."
+      ]
+    },
+    "help-with-order": {
+      "title": "Aiuto con il mio ordine",
+      "metaDescription": "Risolvere problemi su un ordine Tramelle.",
+      "paragraphs": [
+        "Apri Il mio account → Ordini e seleziona l’ordine. Trovi stato pagamento, tracking (se fornito) e contatti verso il venditore.",
+        "Per danni o mancanze allega foto ed elenco prodotti coinvolti; i venditori rispondono di solito entro i tempi indicati.",
+        "Se non accedi, reimposta la password dalla pagina di login, poi usa Traccia il mio ordine."
+      ]
+    },
+    "my-subscriptions": {
+      "title": "Le mie iscrizioni",
+      "metaDescription": "Abbonamenti e consegne ricorrenti su Tramelle.",
+      "paragraphs": [
+        "Alcuni venditori offrono abbonamenti o box ricorrenti. Se attivi, le opzioni di gestione sono sotto Il mio account.",
+        "Puoi sospendere o annullare secondo i termini del venditore mostrati prima dell’iscrizione.",
+        "Se non vedi controlli abbonamento, il prodotto può essere un acquisto singolo—controlla l’email di conferma."
+      ]
+    },
+    "loyalty-faq": {
+      "title": "FAQ Club dei degustatori",
+      "metaDescription": "Domande frequenti sul club e sui vantaggi Tramelle.",
+      "paragraphs": [
+        "Il club raggruppa anteprime, degustazioni e vantaggi quando li proponiamo. La disponibilità può variare per Paese o stagione.",
+        "Inviti e premi sono facoltativi: puoi acquistare su Tramelle senza aderire a programmi fedeltà.",
+        "Per domande sul programma indica Paese e email dell’account quando ci contatti."
+      ]
+    },
+    "contact": {
+      "title": "Contattaci",
+      "metaDescription": "Come raggiungere Tramelle per clienti o venditori.",
+      "paragraphs": [
+        "Per problemi d’ordine includi il numero d’ordine—accelera l’instradamento al venditore o al supporto.",
+        "Produttori e venditori: usa Candidati per vendere per l’onboarding e Perché vendere con noi per una panoramica.",
+        "Stampa e partnership: vedi Ufficio stampa per indirizzare le richieste media."
+      ]
+    },
+    "why-sell-with-us": {
+      "title": "Perché vendere con noi",
+      "metaDescription": "Perché produttori e venditori scelgono Tramelle.",
+      "paragraphs": [
+        "Tramelle mette in risalto piccoli lotti e specialità per clienti che cercano provenienza, qualità e artigianalità.",
+        "Offriamo strumenti di marketplace—schede, checkout, messaggistica—così ti concentri su produzione e spedizione.",
+        "Curiamo categorie e campagne perché storie e trasparenza emergano."
+      ]
+    },
+    "apply-to-sell": {
+      "title": "Candidati per vendere",
+      "metaDescription": "Richiedi un account venditore su Tramelle.",
+      "paragraphs": [
+        "Raccontaci l’attività: ragione sociale o nome produttore, Paese, categorie, riferimenti sicurezza alimentare e volumi attesi.",
+        "Valutiamo le candidature per mantenere l’assortimento coerente con il posizionamento gourmet e gli obblighi normativi.",
+        "Nel frattempo prepara foto ad alta risoluzione, ingredienti e dichiarazioni allergeni—servono prima di andare online."
+      ]
+    },
+    "why-tramelle": {
+      "title": "Perché Tramelle",
+      "metaDescription": "Cosa rende Tramelle diversa per chi ama il gourmet.",
+      "paragraphs": [
+        "Puntiamo su origine, territorio e lavoro artigiano—ti colleghiamo ai produttori invece che a SKU anonimi.",
+        "Ogni venditore gestisce catalogo e spedizioni: più autenticità, ma politiche variabili—leggi sempre il checkout.",
+        "Gli account Chef Pro aggiungono prezzi B2B dove configurati, così i professionisti approvvigionano lo stesso marketplace."
+      ]
+    },
+    "our-values": {
+      "title": "I nostri valori",
+      "metaDescription": "Valori Tramelle: qualità, trasparenza, partnership equa.",
+      "paragraphs": [
+        "Qualità prima del rumore: etichette chiare, provenienza onesta, prodotti che rispettano terra e lavoro.",
+        "Trasparenza: ingredienti e allergeni dichiarati; foto e pesi attendibili.",
+        "Partnership: cresciamo con i produttori indipendenti—strumenti e supporto per relazioni durature."
+      ]
+    },
+    "who-we-are": {
+      "title": "Chi siamo",
+      "metaDescription": "Il team e la missione del marketplace Tramelle.",
+      "paragraphs": [
+        "Tramelle Source Gourmet è un team che costruisce infrastruttura per la specialità alimentare europea—tecnologia, fiducia, racconto.",
+        "Gestiamo la piattaforma; i venditori restano responsabili dei beni, della normativa alimentare e dell’assistenza sugli ordini evasi.",
+        "Siamo in Europa e serviamo i mercati abilitati dal selettore di paese."
+      ]
+    },
+    "reviews": {
+      "title": "Recensioni dei clienti",
+      "metaDescription": "Come funzionano le recensioni su Tramelle.",
+      "paragraphs": [
+        "Dopo la consegna potresti essere invitato a recensire prodotti o venditori. Le recensioni devono riflettere l’esperienza reale.",
+        "Rimuoviamo o modifichiamo contenuti fraudolenti, offensivi o estranei all’acquisto.",
+        "Anche gli acquirenti business possono recensire dove la funzione è attiva; valgono le stesse linee guida."
+      ]
+    },
+    "terms": {
+      "title": "Termini e condizioni",
+      "metaDescription": "Termini di utilizzo di Tramelle.",
+      "paragraphs": [
+        "Usando Tramelle accetti le regole del marketplace, tra cui dati account veritieri e uso lecito del sito.",
+        "Il contratto di vendita è tra te e il venditore al completamento del checkout; Tramelle facilita pagamento e servizi di piattaforma come descritto nel flusso.",
+        "Possiamo aggiornare i termini per nuove funzioni o obblighi legali. L’uso continuato dopo l’avviso implica accettazione.",
+        "Per il testo legale completo applicabile al tuo Paese vedi il pacchetto collegato al checkout o richiedilo via Contattaci."
+      ]
+    },
+    "privacy": {
+      "title": "Privacy e cookie",
+      "metaDescription": "Privacy, trattamento dati e cookie su Tramelle.",
+      "paragraphs": [
+        "Trattiamo dati personali per far funzionare il marketplace: account, ordini, antifrode, analytics e (se acconsenti) marketing.",
+        "Secondo la tua regione puoi avere diritti di accesso, rettifica, cancellazione, portabilità e opposizione a certi trattamenti.",
+        "Cookie e tecnologie simili supportano sessioni, preferenze e misurazione. Puoi regolare il browser o il banner cookie ove presente.",
+        "Per richieste sui dati scrivici dall’email dell’account così verifichiamo l’identità prima di rispondere."
+      ]
+    },
+    "press": {
+      "title": "Ufficio stampa",
+      "metaDescription": "Contatti stampa e materiali Tramelle.",
+      "paragraphs": [
+        "Giornalisti e partner possono richiedere logo, biografie e immagini HD tramite la casella stampa—usa Contattaci con oggetto “Stampa”.",
+        "Indica testata, scadenza e se serve commento sul mercato europeo della specialità.",
+        "Storie di venditori e profili produttore sono disponibili previa approvazione per riservatezza commerciale."
+      ]
+    }
+  }
+}

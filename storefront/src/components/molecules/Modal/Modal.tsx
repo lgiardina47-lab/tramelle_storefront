@@ -1,27 +1,36 @@
 import { CloseIcon } from "@/icons"
+import { cn } from "@/lib/utils"
 
 export const Modal = ({
   children,
   heading,
   onClose,
+  headingClassName,
   "data-testid": dataTestId,
 }: {
   children: React.ReactNode
   heading: string
   onClose: () => void
+  /** Default: titolo editoriale (Cormorant). Per filtri listing usare variant DS. */
+  headingClassName?: string
   "data-testid"?: string
 }) => {
   return (
     <div
-      className="fixed top-0 left-0 w-full h-full flex justify-center z-30"
-      data-testid={dataTestId ?? 'modal'}
+      className="fixed left-0 top-0 z-30 flex h-full w-full justify-center"
+      data-testid={dataTestId ?? "modal"}
     >
       <div
-        className="bg-tertiary/60 w-full h-full absolute backdrop-blur-sm"
+        className="absolute h-full w-full bg-tertiary/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="absolute bg-primary z-20 my-20 py-5 rounded-sm max-w-[600px] w-full max-h-[80vh] overflow-y-auto shadow-lg">
-        <div className="uppercase flex justify-between items-center heading-md border-b px-4 pb-5">
+      <div className="absolute z-20 my-20 max-h-[80vh] w-full max-w-[600px] overflow-y-auto rounded-sm bg-primary py-5 shadow-lg">
+        <div
+          className={cn(
+            "flex items-center justify-between gap-3 border-b border-[#E8E4DE] px-4 pb-4",
+            headingClassName ?? "heading-md uppercase"
+          )}
+        >
           {heading}
           <div onClick={onClose} className="cursor-pointer">
             <CloseIcon size={20} />

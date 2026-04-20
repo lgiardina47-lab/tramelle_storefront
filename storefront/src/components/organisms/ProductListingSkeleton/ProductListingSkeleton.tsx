@@ -16,7 +16,7 @@ export const ProductListingSkeleton = () => {
           <div className='rounded-sm bg-secondary h-80 border border-white animate-pulse' />
         </div>
         <div className='col-span-3'>
-          <div className='grid sm:grid-cols-2 xl:grid-cols-3'>
+          <div className='grid grid-cols-2 gap-3 md:grid-cols-5'>
             <div className='rounded-sm bg-secondary h-[600px] border border-white animate-pulse' />
             <div className='rounded-sm bg-secondary h-[600px] border border-white animate-pulse' />
             <div className='rounded-sm bg-secondary h-[600px] border border-white animate-pulse' />

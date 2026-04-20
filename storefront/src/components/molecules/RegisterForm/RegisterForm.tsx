@@ -251,7 +251,7 @@ const Form = () => {
         <h2 className="heading-md text-primary uppercase mb-8">
           Already have an account?
         </h2>
-        <Link href="/login" data-testid="register-login-link">
+        <Link href="/login" data-testid="register-login-link" prefetch={true}>
           <Button
             variant="tonal"
             className="w-full flex justify-center mt-8 uppercase"

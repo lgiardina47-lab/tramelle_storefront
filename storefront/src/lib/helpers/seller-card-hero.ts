@@ -1,8 +1,8 @@
 import type { StoreSellerListItem } from "@/types/seller"
 
-import { sellerHeroImageCandidates } from "./seller-media-url"
+import { sellerDirectoryHeroImageCandidates } from "./seller-media-url"
 
-/** Primo URL hero per directory (vedi `seller-media-url`). */
+/** Primo URL hero per directory (variante CF card, non hero full). */
 export function sellerCardHeroUrl(seller: {
   photo?: string | null
   metadata?: Record<string, unknown> | null
@@ -10,7 +10,8 @@ export function sellerCardHeroUrl(seller: {
   handle?: string
 }): string | null {
   return (
-    sellerHeroImageCandidates(seller as StoreSellerListItem)[0] ?? null
+    sellerDirectoryHeroImageCandidates(seller as StoreSellerListItem)[0] ??
+    null
   )
 }
 

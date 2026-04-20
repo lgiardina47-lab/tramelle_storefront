@@ -23,7 +23,7 @@ export const WishlistTabs = async ({ tab }: { tab: string }) => {
       <TabsList list={wishlistTabs} activeTab={tab} />
       <TabsContent value="all" activeTab={tab}>
         <Suspense fallback={<>Loading...</>}>
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 mt-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5 mt-8">
             {/* <ProductsList products={products} /> */}
           </div>
           <ProductsPagination pages={2} />
@@ -31,7 +31,7 @@ export const WishlistTabs = async ({ tab }: { tab: string }) => {
       </TabsContent>
       <TabsContent value="products" activeTab={tab}>
         <Suspense fallback={<>Loading...</>}>
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 mt-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5 mt-8">
             {/* <ProductsList products={products} /> */}
           </div>
           <ProductsPagination pages={2} />
@@ -39,7 +39,7 @@ export const WishlistTabs = async ({ tab }: { tab: string }) => {
       </TabsContent>
       <TabsContent value="collections" activeTab={tab}>
         <Suspense fallback={<>Loading...</>}>
-          <div className="grid sm:grid-cols-2 xl:grid-cols-4 mt-8">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5 mt-8">
             {/* <ProductsList products={products} /> */}
           </div>
           <ProductsPagination pages={2} />

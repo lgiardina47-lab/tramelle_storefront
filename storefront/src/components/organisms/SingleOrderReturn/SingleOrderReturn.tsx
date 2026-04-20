@@ -4,10 +4,11 @@ import { Avatar, Badge, Card, Divider } from "@/components/atoms"
 import { CollapseIcon } from "@/icons"
 import { cn } from "@/lib/utils"
 import { Heading } from "@medusajs/ui"
-import { format } from "date-fns"
+import { formatDateSafe } from "@/lib/helpers/format-date-safe"
 import { useEffect, useRef, useState } from "react"
 import { Chat } from "../Chat/Chat"
 import Image from "next/image"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { convertToLocale } from "@/lib/helpers/money"
 import { StepProgressBar } from "@/components/cells/StepProgressBar/StepProgressBar"
 
@@ -73,7 +74,7 @@ export const SingleOrderReturn = ({
         <div className="flex flex-col gap-2 items-center">
           <p className="label-sm text-secondary" data-testid={testIdPrefix ? `${testIdPrefix}-requested-date` : undefined}>
             Return requested date:{" "}
-            {format(item.line_items[0].created_at, "MMM dd, yyyy")}
+            {formatDateSafe(item.line_items[0]?.created_at, "MMM dd, yyyy")}
           </p>
         </div>
       </Card>
@@ -127,13 +128,15 @@ export const SingleOrderReturn = ({
           <Divider />
           <div className="p-4 flex justify-between w-full">
             <div className="flex flex-col gap-4 w-full">
-              {filteredItems.map((filteredItem: any) => (
+              {filteredItems.map((filteredItem: any) => {
+                const lineThumb = resolveLineItemThumbnailSrc(filteredItem)
+                return (
                 <div key={filteredItem.id} className="flex items-center gap-2" data-testid={testIdPrefix ? `${testIdPrefix}-item-${filteredItem.id}` : undefined}>
                   <div className="flex items-center gap-4 w-1/2">
                     <div className="rounded-sm overflow-hidden border">
-                      {filteredItem.thumbnail ? (
+                      {lineThumb ? (
                         <Image
-                          src={filteredItem.thumbnail}
+                          src={lineThumb}
                           alt={filteredItem.product_title}
                           width={60}
                           height={60}
@@ -169,7 +172,8 @@ export const SingleOrderReturn = ({
                     </p>
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </div>
           <Divider />

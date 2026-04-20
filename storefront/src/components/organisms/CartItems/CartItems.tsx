@@ -54,8 +54,15 @@ function groupItemsBySeller(cart: HttpTypes.StoreCart) {
           seller: {
             name: "Tramelle",
             id: "fleek",
+            handle: "",
             photo: "/tramelle_icon.svg",
-            created_at: new Date(),
+            created_at: new Date().toISOString(),
+            rating: 0,
+            reviewCount: 0,
+            verified: false,
+            joinDate: "",
+            sold: 0,
+            description: "",
           },
           items: [],
         }

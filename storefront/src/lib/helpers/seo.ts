@@ -5,6 +5,7 @@ import {
   resolvedSiteName,
 } from "@/lib/constants/site"
 import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
+import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { Metadata } from "next"
 import { categoryPublicHref } from "@/lib/helpers/category-public-url"
 
@@ -28,6 +29,10 @@ export const generateProductMetadata = async (
   const metaDescription =
     (localized?.description?.trim() && localized.description) ||
     `${metaTitle} - ${name}`
+
+  const ogImage =
+    resolveProductThumbnailSrc(product?.thumbnail) ||
+    `${base}/images/placeholder.svg`
 
   return {
     title: metaTitle,
@@ -55,9 +60,7 @@ export const generateProductMetadata = async (
       siteName: name,
       images: [
         {
-          url:
-            product?.thumbnail ||
-            `${base}/images/placeholder.svg`,
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: metaTitle,
@@ -69,9 +72,7 @@ export const generateProductMetadata = async (
       card: "summary_large_image",
       title: metaTitle,
       description: metaDescription,
-      images: [
-        product?.thumbnail || `${base}/images/placeholder.svg`,
-      ],
+      images: [ogImage],
     },
   }
 }

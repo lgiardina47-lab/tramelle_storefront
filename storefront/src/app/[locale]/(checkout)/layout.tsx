@@ -24,10 +24,10 @@ export default async function RootLayout({
             <LocalizedClientLink href="/" className="inline-flex items-center">
               <Image
                 src="/tramelle.svg"
-                width={200}
-                height={40}
+                width={260}
+                height={52}
                 alt="Tramelle Source Gourmet"
-                className="h-8 w-auto max-h-10 md:max-h-[40px]"
+                className="h-10 w-auto max-h-11 md:h-12 md:max-h-[52px]"
                 priority
                 unoptimized
               />

@@ -6,14 +6,19 @@ import { getCollectionByHandle } from "@/lib/data/collections"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { preferBackendProductSearchListing } from "@/lib/constants/site"
+import { parseProductListingPage } from "@/lib/helpers/product-listing-page"
 import { headers } from "next/headers"
 import { Suspense } from "react"
 const SingleCollectionsPage = async ({
   params,
+  searchParams,
 }: {
   params: Promise<{ handle: string; locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) => {
   const { handle, locale } = await params
+  const sp = await searchParams
+  const listingPage = parseProductListingPage(sp)
 
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
@@ -42,7 +47,11 @@ const SingleCollectionsPage = async ({
 
       <Suspense fallback={<div data-testid="collection-page-loading"><ProductListingSkeleton /></div>}>
         {bot || !preferBackendProductSearchListing() ? (
-          <ProductListing collection_id={collection.id} locale={locale} />
+          <ProductListing
+            collection_id={collection.id}
+            locale={locale}
+            page={listingPage}
+          />
         ) : (
           <CatalogSearchListing
             collection_id={collection.id}

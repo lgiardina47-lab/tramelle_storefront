@@ -1,181 +1,119 @@
-import { HttpTypes } from "@medusajs/types"
-import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google"
 import Image from "next/image"
+import { tramelleDesignSystemFontVariables } from "@/lib/fonts/tramelle-ds"
 import { getTranslations } from "next-intl/server"
 import { Suspense } from "react"
 
-import { CartDropdown, MobileNavbar, Navbar } from "@/components/cells"
+import { CartDropdown, MobileNavbar } from "@/components/cells"
+import { UserDropdown } from "@/components/cells/UserDropdown/UserDropdown"
 import { HeaderSearch } from "@/components/molecules/HeaderSearch/HeaderSearch"
-import { HeaderUtilityBar } from "@/components/molecules/HeaderUtilityBar/HeaderUtilityBar"
-import { HeartIcon } from "@/icons"
-import { Wishlist } from "@/types/wishlist"
-import { Badge } from "@/components/atoms"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher/LanguageSwitcher"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
-import { buildLanguageSwitcherOptions } from "@/lib/helpers/language-switcher-options"
-import { buildMegaNavCategories } from "@/lib/helpers/category-mega-nav"
-import { listCategoriesForHeaderNav } from "@/lib/data/categories"
-import { listCollections } from "@/lib/data/collections"
-import { getProducersByParentId } from "@/lib/data/nav-producers"
-import { getRegion, listRegions } from "@/lib/data/regions"
-import { getUserWishlists } from "@/lib/data/wishlist"
+import { WishlistNavLink } from "@/components/molecules/WishlistNavLink/WishlistNavLink"
+import { getHeaderCatalogBundle } from "@/lib/data/header-catalog-bundle"
 import { retrieveCustomer } from "@/lib/data/customer"
+import { tramelleHeaderAccountRole } from "@/lib/tramelle-header-account-role"
 
 import { TramelleGourmetHeader } from "./TramelleGourmetHeader"
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-tramelle-playfair",
-})
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-tramelle-jakarta",
-})
-
-const gourmetFontVariables = `${playfair.variable} ${jakarta.variable}`
-
 export const Header = async ({ locale }: { locale: string }) => {
-  const [t, user, regions, categoriesData, region] = await Promise.all([
+  const [t, catalog, user] = await Promise.all([
     getTranslations("Header"),
+    getHeaderCatalogBundle(locale),
     retrieveCustomer().catch(() => null),
-    listRegions(),
-    listCategoriesForHeaderNav() as Promise<{
-      categories: HttpTypes.StoreProductCategory[]
-      parentCategories: HttpTypes.StoreProductCategory[]
-      allCategoriesFlat: HttpTypes.StoreProductCategory[]
-    }>,
-    getRegion(locale),
   ])
 
   const isLoggedIn = Boolean(user)
 
-  let wishlist: Wishlist = { products: [] }
-  if (user) {
-    wishlist = await getUserWishlists({ countryCode: locale })
-  }
-
-  const languageOptions = buildLanguageSwitcherOptions(regions)
-
-  const wishlistCount = wishlist?.products.length || 0
-
-  const { categories, parentCategories, allCategoriesFlat } = categoriesData
+  const {
+    categories,
+    parentCategories,
+    megaNavCategories,
+    headerCurrency,
+    languageOptions,
+  } = catalog
 
   const userEmail =
     user && "email" in user ? (user as { email?: string }).email : undefined
-
-  const [producersByParentId, storeCollectionsResult] = await Promise.all([
-    getProducersByParentId(parentCategories, locale, allCategoriesFlat),
-    listCollections({ limit: "100", offset: "0" }).catch(() => ({
-      collections: [] as HttpTypes.StoreCollection[],
-      count: 0,
-    })),
-  ])
-
-  const storeCollections = storeCollectionsResult.collections
-
-  const megaNavCategories = buildMegaNavCategories(
-    parentCategories,
-    allCategoriesFlat,
-    storeCollections
-  )
-
-  const headerCurrency = region?.currency_code || "usd"
+  const accountRole = tramelleHeaderAccountRole(user)
 
   return (
     <header
       data-testid="header"
-      className="z-50 overflow-visible border-b border-neutral-100 bg-white shadow-sm lg:border-b-0 lg:shadow-none"
+      className="sticky top-0 z-50 overflow-visible border-b border-neutral-100 bg-white shadow-sm md:static md:border-b-0 md:shadow-none"
     >
-      <div className="lg:hidden">
-        <HeaderUtilityBar
-          isLoggedIn={isLoggedIn}
-          userEmail={userEmail}
-          locale={locale}
-        />
-
-        <div className="w-full overflow-visible px-4 py-3 md:px-6 lg:px-8">
-          <div className="flex flex-col gap-3 overflow-visible lg:hidden">
+      <div className="md:hidden">
+        <div className="w-full overflow-visible px-4 pb-3 pt-3 md:px-6 lg:px-8">
+          <div className="flex flex-col gap-2.5 overflow-visible md:hidden">
             <div
-              className="flex items-center justify-between gap-2"
+              className="flex items-center justify-between gap-3"
               data-testid="header-top"
             >
-              <div className="flex shrink-0 items-center">
-                <MobileNavbar
-                  parentCategories={parentCategories}
-                  categories={categories}
-                  locale={locale}
-                  languageOptions={languageOptions}
+              <LocalizedClientLink
+                href="/"
+                locale={locale}
+                className="logo inline-flex min-w-0 max-w-[55%] shrink items-center"
+                data-testid="header-logo-link"
+                aria-label={t("logoAlt")}
+              >
+                <Image
+                  src="/tramelle.svg"
+                  width={260}
+                  height={52}
+                  alt={t("logoAlt")}
+                  className="h-auto w-full max-h-11 object-contain object-left sm:max-h-[52px]"
+                  priority
+                  unoptimized
                 />
-              </div>
-              <div className="flex min-w-0 flex-1 justify-center px-2">
-                <LocalizedClientLink
-                  href="/"
-                  locale={locale}
-                  className="inline-flex shrink-0 items-center"
-                  data-testid="header-logo-link"
-                >
-                  <Image
-                    src="/tramelle.svg"
-                    width={200}
-                    height={40}
-                    alt={t("logoAlt")}
-                    className="h-8 w-auto max-h-9"
-                    priority
-                    unoptimized
-                  />
-                </LocalizedClientLink>
-              </div>
+              </LocalizedClientLink>
               <div
-                className="flex min-w-0 max-w-full shrink-0 flex-wrap items-center justify-end gap-1 sm:gap-2 md:max-w-[min(100%,36rem)] lg:max-w-none"
+                className="flex shrink-0 flex-nowrap items-center justify-end gap-3 [&>*]:shrink-0"
                 data-testid="header-actions"
               >
-                <LocalizedClientLink
-                  href={isLoggedIn ? "/user/wishlist" : "/login"}
-                  className="relative flex items-center gap-1 text-cortilia"
-                  aria-label={t("wishlistAria")}
-                >
-                  <HeartIcon size={20} color="#000000" />
-                  {Boolean(wishlistCount) && (
-                    <Badge
-                      className="absolute -top-2 -right-2 flex h-4 min-w-4 items-center justify-center p-0 text-[10px]"
-                      data-testid="wishlist-count-badge"
-                    >
-                      {wishlistCount}
-                    </Badge>
-                  )}
-                </LocalizedClientLink>
+                <UserDropdown
+                  isLoggedIn={isLoggedIn}
+                  compactEmail={userEmail}
+                  locale={locale}
+                  presentation="gourmet"
+                  accountRole={accountRole}
+                  showGourmetRegisterLink={false}
+                />
                 <LanguageSwitcher locale={locale} options={languageOptions} />
-                <CartDropdown />
+                <WishlistNavLink
+                  locale={locale}
+                  isLoggedIn={isLoggedIn}
+                  heartSize={22}
+                  className="relative flex h-[22px] w-[22px] cursor-pointer items-center justify-center text-[#8A8580] transition-colors hover:text-[#0F0E0B]"
+                  heartColor="#8A8580"
+                />
+                <CartDropdown variant="gourmet" />
               </div>
             </div>
-            <div className="relative z-[70] min-w-0 overflow-visible">
+            <div className="relative z-[70] flex min-w-0 items-center gap-2 overflow-visible">
+              <MobileNavbar
+                parentCategories={parentCategories}
+                categories={categories}
+              />
               <Suspense
                 fallback={
                   <div
-                    className="h-11 w-full max-w-xl rounded-full bg-neutral-100"
+                    className="h-12 min-w-0 flex-1 rounded-full border border-[#E8E4DE] bg-neutral-50"
                     aria-hidden
                   />
                 }
               >
-                <HeaderSearch
-                  locale={locale}
-                  currency_code={headerCurrency}
-                />
+                <div className="min-w-0 flex-1 rounded-full border border-[#E8E4DE] bg-white px-3 py-1 shadow-none transition-[border-color,box-shadow] focus-within:border-[#0F0E0B] focus-within:shadow-[0_2px_8px_rgba(15,14,11,0.12)]">
+                  <HeaderSearch
+                    locale={locale}
+                    currency_code={headerCurrency}
+                    variant="gourmet"
+                    submitAlign="end"
+                    placeholder={t("gourmet.mobileSearchPlaceholder")}
+                    className="max-w-none"
+                  />
+                </div>
               </Suspense>
             </div>
           </div>
-        </div>
-
-        <div className="border-t border-neutral-100 bg-white px-4 pb-2 pt-1 md:px-6 lg:px-8">
-          <Navbar
-            categories={categories}
-            parentCategories={parentCategories}
-            producersByParentId={producersByParentId}
-          />
         </div>
       </div>
 
@@ -185,9 +123,9 @@ export const Header = async ({ locale }: { locale: string }) => {
         megaCategories={megaNavCategories}
         isLoggedIn={isLoggedIn}
         userEmail={userEmail}
-        wishlistCount={wishlistCount}
+        accountRole={accountRole}
         languageOptions={languageOptions}
-        fontVariables={gourmetFontVariables}
+        fontVariables={tramelleDesignSystemFontVariables}
       />
     </header>
   )

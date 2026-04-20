@@ -10,17 +10,22 @@ export default {
   ],
   theme: {
     extend: {
-      /** Allineate a `Header.tsx` (Playfair_Display + Plus_Jakarta_Sans) e MVP HTML */
+      /** Design system: DM Sans (UI), Cormorant Garamond (titoli/prezzi), Oswald (hero/logo) — vedi `lib/fonts/tramelle-ds.ts` */
       fontFamily: {
         tramelle: [
-          "var(--font-tramelle-jakarta)",
+          "var(--font-tramelle-dm)",
           "ui-sans-serif",
           "system-ui",
         ],
         "tramelle-display": [
-          "var(--font-tramelle-playfair)",
+          "var(--font-tramelle-cormorant)",
           "Georgia",
           "serif",
+        ],
+        "tramelle-hero": [
+          "var(--font-tramelle-oswald)",
+          "Arial Narrow",
+          "sans-serif",
         ],
       },
       backgroundColor: {

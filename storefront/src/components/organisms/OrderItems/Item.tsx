@@ -1,7 +1,8 @@
 import { convertToLocale } from "@/lib/helpers/money"
-import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { HttpTypes } from "@medusajs/types"
 import Image from "next/image"
+import { TramelleProductImage } from "@/components/atoms"
 export const Item = ({
   item,
   currencyCode,
@@ -18,17 +19,20 @@ export const Item = ({
     amount: item.total ?? 0,
     currency_code: currencyCode,
   })
-  const thumb = resolveProductThumbnailSrc(item.thumbnail)
+  const thumb = resolveLineItemThumbnailSrc(item)
 
   return (
     <div className="border rounded-sm p-1 flex gap-2">
       <div className="w-[100px] h-[132px] flex items-center justify-center">
         {thumb ? (
-          <Image
+          <TramelleProductImage
+            layout="intrinsic"
             src={thumb}
             alt="Product thumbnail"
             width={100}
             height={132}
+            preset="cart-line"
+            quality={82}
             className="rounded-xs w-[100px] h-[132px] object-contain"
           />
         ) : (

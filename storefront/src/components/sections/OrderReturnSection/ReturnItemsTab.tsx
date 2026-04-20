@@ -11,6 +11,7 @@ import { ChevronUpDown } from "@medusajs/icons"
 
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 
 export const ReturnItemsTab = ({
   order,
@@ -34,7 +35,9 @@ export const ReturnItemsTab = ({
       </Card>
       <Card className="flex items-center justify-between p-4">
         <ul className="w-full">
-          {order.items.map((item: any) => (
+          {order.items.map((item: any) => {
+            const thumb = resolveLineItemThumbnailSrc(item)
+            return (
             <li key={item.id} className="md:flex justify-between gap-2 w-full">
               <div className="flex items-center gap-2 md:w-2/3 mb-4 md:mb-0">
                 <Checkbox
@@ -45,9 +48,9 @@ export const ReturnItemsTab = ({
                 />
                 <div className="flex items-center gap-2">
                   <div className="w-16 rounded-sm border">
-                    {item.thumbnail ? (
+                    {thumb ? (
                       <Image
-                        src={item.thumbnail}
+                        src={thumb}
                         alt={item.subtitle}
                         width={64}
                         height={64}
@@ -136,7 +139,8 @@ export const ReturnItemsTab = ({
                 </Listbox>
               </div>
             </li>
-          ))}
+            )
+          })}
         </ul>
       </Card>
     </div>

@@ -10,11 +10,14 @@ export const SellerHeading = ({
   user,
   header,
   urlLocale,
+  hideSellerLogo = false,
 }: {
   header: boolean
   seller: SellerProps
   user: HttpTypes.StoreCustomer | null
   urlLocale: string
+  /** Logo già mostrato nel hero mosaic sopra. */
+  hideSellerLogo?: boolean
 }) => {
   const descriptions = sellerDescriptionsMapForUi(
     seller.description,
@@ -25,7 +28,11 @@ export const SellerHeading = ({
     <div className="border-b border-neutral-100">
       <div className="flex flex-col md:flex-row justify-between">
         <div>
-          <SellerInfo header={header} seller={seller} />
+          <SellerInfo
+            header={header}
+            seller={seller}
+            hideLogo={hideSellerLogo}
+          />
         </div>
         {user && (
           <div className="flex gap-2 md:mt-0 p-5 md:ml-auto">

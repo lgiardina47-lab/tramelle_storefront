@@ -1,13 +1,23 @@
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { getCategoryByPageParam } from "@/lib/data/categories"
-import { categorySlugForStorefrontUrl, categoryPublicHref } from "@/lib/helpers/category-public-url"
+import { getCategoryByPageParam, listCategories } from "@/lib/data/categories"
+import {
+  categoryHandleMatchesUrlSegment,
+  categorySlugForStorefrontUrl,
+  categoryPublicHref,
+} from "@/lib/helpers/category-public-url"
+import {
+  collectCategorySubtreeIds,
+  mergeChildrenFromFlat,
+  primarySubcategoryNavItems,
+} from "@/lib/helpers/category-mega-nav"
 import { Suspense } from "react"
 
 import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
 import { Breadcrumbs } from "@/components/atoms"
 import { SubcategoryRibbon } from "@/components/molecules/CategoryNavbar/components/SubcategoryRibbon"
-import { CategoryBanner } from "@/components/molecules/CategoryBanner/CategoryBanner"
 import { CatalogSearchListing, ProductListing } from "@/components/sections"
+import { CategoryMacroSeoFooter } from "@/components/sections/CategoryMacroSeoFooter/CategoryMacroSeoFooter"
 import { notFound, redirect } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
@@ -21,6 +31,8 @@ import {
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
+import { parseProductListingPage } from "@/lib/helpers/product-listing-page"
+import { plainCategoryDescription } from "@/lib/helpers/category-seo"
 export const revalidate = 60
 
 export async function generateMetadata({
@@ -31,7 +43,10 @@ export async function generateMetadata({
   const { category: categoryParam, locale } = await params
   const baseUrl = publicSiteOrigin()
 
-  const cat = await getCategoryByPageParam(categoryParam)
+  const [cat, t] = await Promise.all([
+    getCategoryByPageParam(categoryParam),
+    getTranslations({ locale, namespace: "CategoryPage" }),
+  ])
   if (!cat) {
     return {}
   }
@@ -56,8 +71,11 @@ export async function generateMetadata({
     }
   }
 
-  const title = `${cat.name} Category`
-  const description = `${cat.name} Category - ${resolvedSiteName()}`
+  const site = resolvedSiteName()
+  const description =
+    plainCategoryDescription(cat.description) ??
+    t("metaDescriptionFallback", { site })
+  const title = t("metaTitle", { name: cat.name, site })
   const canonical = `${baseUrl}/${locale}/categories/${publicSlug}`
 
   return {
@@ -72,10 +90,10 @@ export async function generateMetadata({
     },
     robots: getIndexingRobots(),
     openGraph: {
-      title: `${title} | ${resolvedSiteName()}`,
+      title,
       description,
       url: canonical,
-      siteName: resolvedSiteName(),
+      siteName: site,
       type: "website",
     },
   }
@@ -93,6 +111,7 @@ async function Category({
 }) {
   const { category: categoryParam, locale } = await params
   const sp = await searchParams
+  const listingPage = parseProductListingPage(sp)
 
   /**
    * `/categories/search` non è una categoria: spesso confuso con la ricerca.
@@ -114,7 +133,22 @@ async function Category({
     return notFound()
   }
 
+  const { allCategoriesFlat } = await listCategories({ query: { limit: 2000 } })
+  const mergedForRibbon = mergeChildrenFromFlat(category, allCategoriesFlat)
+  const listingCategoryIds = collectCategorySubtreeIds(mergedForRibbon)
+  const ribbonSubcategories = primarySubcategoryNavItems(mergedForRibbon)
+  const activeRibbonChildHandle = categoryHandleMatchesUrlSegment(
+    mergedForRibbon.handle,
+    category.handle
+  )
+    ? null
+    : category.handle
+
+  /** Blocco SEO a fondo pagina: solo sulla URL della macro (non sulle sottocategorie). */
+  const isMacroCategoryPage = mergedForRibbon.id === category.id
+
   const categoryPath = categoryPublicHref(category.handle)
+  const t = await getTranslations({ locale, namespace: "CategoryPage" })
   const region = await getRegion(locale)
   const currency_code = region?.currency_code || "usd"
   const region_id = region?.id
@@ -122,10 +156,8 @@ async function Category({
   const bot = isBot(ua)
 
   const breadcrumbsItems = [
-    {
-      path: categoryPath,
-      label: category.name,
-    },
+    { path: "/", label: t("breadcrumbHome") },
+    { path: categoryPath, label: category.name },
   ]
 
   // Small cached list for JSON-LD itemList
@@ -135,7 +167,7 @@ async function Category({
   } = await listProducts({
     countryCode: locale,
     queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
-    category_id: category.id,
+    category_ids: listingCategoryIds,
   })
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
@@ -146,7 +178,8 @@ async function Category({
   }))
 
   return (
-    <main className="container">
+    <main className="flex flex-col">
+      <div className="container">
       <Script
         id="ld-breadcrumbs-category"
         type="application/ld+json"
@@ -158,6 +191,12 @@ async function Category({
               {
                 "@type": "ListItem",
                 position: 1,
+                name: t("breadcrumbHome"),
+                item: `${baseUrl}/${locale}`,
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
                 name: category.name,
                 item: `${baseUrl}/${locale}${categoryPath}`,
               },
@@ -176,47 +215,58 @@ async function Category({
           }),
         }}
       />
-      <div className="hidden md:block mb-2">
-        <Breadcrumbs items={breadcrumbsItems} />
+      <header className="flex flex-col items-center text-center">
+        <div className="mb-2 flex w-full justify-center">
+          <Breadcrumbs items={breadcrumbsItems} className="justify-center" />
+        </div>
+
+        <h1 id="category-heading" className="heading-xl uppercase">
+          {category.name}
+        </h1>
+
+        {ribbonSubcategories.length > 0 ? (
+          <div className="mb-4 mt-3 w-full max-w-4xl">
+            <SubcategoryRibbon
+              parentLabel={mergedForRibbon.name}
+              parentHandle={mergedForRibbon.handle}
+              subcategories={ribbonSubcategories}
+              activeChildHandle={activeRibbonChildHandle}
+              align="center"
+              ribbonSubheading={t("ribbonSubheading")}
+              overviewLinkLabel={t("overviewLink")}
+            />
+          </div>
+        ) : null}
+      </header>
+
+      <section aria-labelledby="category-heading">
+        <Suspense
+          fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}
+        >
+          {bot || !preferBackendProductSearchListing() ? (
+            <ProductListing
+              category_ids={listingCategoryIds}
+              locale={locale}
+              page={listingPage}
+            />
+          ) : (
+            <CatalogSearchListing
+              category_ids={listingCategoryIds}
+              locale={locale}
+              currency_code={currency_code}
+              region_id={region_id}
+            />
+          )}
+        </Suspense>
+      </section>
       </div>
 
-      <h1 className="heading-xl uppercase">{category.name}</h1>
-
-      <CategoryBanner
-        name={category.name}
-        handle={category.handle}
-        imageUrl={
-          category.metadata &&
-          typeof (category.metadata as { image_url?: unknown }).image_url ===
-            "string"
-            ? (category.metadata as { image_url: string }).image_url
-            : null
-        }
-      />
-
-      {category.category_children && category.category_children.length > 0 ? (
-        <div className="mb-4 mt-1 lg:hidden">
-          <SubcategoryRibbon
-            parentLabel={category.name}
-            parentHandle={category.handle}
-            subcategories={category.category_children}
-            activeChildHandle={null}
-          />
-        </div>
+      {isMacroCategoryPage ? (
+        <CategoryMacroSeoFooter
+          metadata={mergedForRibbon.metadata}
+          locale={locale}
+        />
       ) : null}
-
-      <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !preferBackendProductSearchListing() ? (
-          <ProductListing category_id={category.id} locale={locale} />
-        ) : (
-          <CatalogSearchListing
-            category_id={category.id}
-            locale={locale}
-            currency_code={currency_code}
-            region_id={region_id}
-          />
-        )}
-      </Suspense>
     </main>
   )
 }

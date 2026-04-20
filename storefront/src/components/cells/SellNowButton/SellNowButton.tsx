@@ -6,6 +6,7 @@ export const SellNowButton = () => {
   return (
     <Link
       href={process.env.NEXT_PUBLIC_VENDOR_URL || "https://vendor.mercurjs.com"}
+      prefetch={true}
     >
       <Button className="group uppercase !font-bold pl-12 gap-1 flex items-center">
         Sell now

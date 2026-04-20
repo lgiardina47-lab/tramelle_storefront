@@ -44,6 +44,8 @@ async function syncTramelleRegistrationViaApi(
     body.last_name = (formData.get('last_name') as string)?.trim() || '';
     const phone = (formData.get('phone') as string)?.trim();
     if (phone) body.phone = phone;
+    const country = (formData.get('country') as string)?.trim();
+    if (country) body.country = country;
   }
 
   try {
@@ -164,6 +166,15 @@ export async function signup(formData: FormData) {
     const phone = (formData.get('phone') as string)?.trim();
     if (phone) {
       customerForm.phone = phone;
+    }
+    const country = (formData.get('country') as string)?.trim();
+    if (country) {
+      customerForm.metadata = {
+        ...(typeof customerForm.metadata === 'object' && customerForm.metadata
+          ? customerForm.metadata
+          : {}),
+        tramelle_signup_country: country,
+      };
     }
   }
 

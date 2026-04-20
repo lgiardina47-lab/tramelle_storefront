@@ -24,6 +24,7 @@ export const listProducts = async ({
   countryCode,
   regionId,
   category_id,
+  category_ids,
   collection_id,
   forceCache = false,
   productFields
@@ -34,6 +35,8 @@ export const listProducts = async ({
       handle?: string[];
     };
   category_id?: string;
+  /** Più id → GET `/store/products` con `category_id` array (comportamento nativo Medusa v2). */
+  category_ids?: string[];
   collection_id?: string;
   countryCode?: string;
   regionId?: string;
@@ -73,13 +76,37 @@ export const listProducts = async ({
     };
   }
 
+  const mergedCategoryIds = [
+    ...new Set(
+      [...(category_ids ?? []), ...(category_id ? [category_id] : [])]
+        .map((id) => (typeof id === 'string' ? id.trim() : ''))
+        .filter(Boolean)
+    )
+  ] as string[];
+
+  /**
+   * Medusa `StoreGetProductParams`: `category_id` è string | string[].
+   * Con più id il modulo risolve prodotti in **qualsiasi** di quelle categorie (macro + foglie).
+   */
+  const category_id_for_query:
+    | string
+    | string[]
+    | undefined =
+    mergedCategoryIds.length > 1
+      ? mergedCategoryIds
+      : mergedCategoryIds.length === 1
+        ? mergedCategoryIds[0]
+        : undefined;
+
   const headers = {
     ...(await getAuthHeaders())
   };
 
   const listingFields = productFields ?? storefrontListingProductFields();
 
-  const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
+  const useCached =
+    forceCache ||
+    (limit <= 8 && !category_id_for_query && !collection_id);
 
   return sdk.client
     .fetch<{
@@ -89,7 +116,9 @@ export const listProducts = async ({
       method: 'GET',
       query: {
         country_code: medusaCountryCode ?? countryCode,
-        category_id,
+        ...(category_id_for_query != null
+          ? { category_id: category_id_for_query }
+          : {}),
         collection_id,
         limit,
         offset,
@@ -164,6 +193,7 @@ export const listProductsWithSort = async ({
   sortBy = 'created_at',
   countryCode,
   category_id,
+  category_ids,
   seller_id,
   collection_id
 }: {
@@ -172,6 +202,7 @@ export const listProductsWithSort = async ({
   sortBy?: SortOptions;
   countryCode: string;
   category_id?: string;
+  category_ids?: string[];
   seller_id?: string;
   collection_id?: string;
 }): Promise<{
@@ -211,20 +242,54 @@ export const listProductsWithSort = async ({
           country_code: medusaCc
         },
         headers,
-        cache: 'no-store'
+        cache: process.env.NODE_ENV === 'development' ? 'no-store' : 'force-cache',
+        next: process.env.NODE_ENV === 'development' ? undefined : { revalidate: 60 }
       })
       .catch(() => ({ products: [] as (HttpTypes.StoreProduct & { seller?: SellerProps })[], count: 0 }));
 
     products = pageResult.products || [];
     storeCount = pageResult.count ?? 0;
   } else {
+    const mergedCat = [
+      ...new Set(
+        [...(category_ids ?? []), ...(category_id ? [category_id] : [])]
+          .map((id) => (typeof id === 'string' ? id.trim() : ''))
+          .filter(Boolean)
+      )
+    ] as string[];
+
+    if (mergedCat.length > 1) {
+      const { response, nextPage: np } = await listProducts({
+        pageParam: Math.max(page, 1),
+        queryParams: {
+          ...queryParams,
+          limit
+        },
+        category_ids: mergedCat,
+        collection_id,
+        countryCode
+      });
+      const pricedProducts = response.products.filter((prod) =>
+        prod.variants?.some((variant) => variant.calculated_price !== null)
+      );
+      const sortedProducts = sortProducts(pricedProducts, sortBy);
+      return {
+        response: {
+          products: sortedProducts,
+          count: response.count
+        },
+        nextPage: np,
+        queryParams
+      };
+    }
+
     const { response } = await listProducts({
       pageParam: Math.max(page, 1),
       queryParams: {
         ...queryParams,
         limit: batchLimit
       },
-      category_id,
+      category_id: mergedCat.length === 1 ? mergedCat[0] : category_id,
       collection_id,
       countryCode
     });
@@ -401,8 +466,12 @@ export async function instantSearchProducts(params: {
 export async function fetchMedusaCatalogFallback(params: {
   countryCode: string;
   category_id?: string;
+  /** Stesso schema di `listProducts`: più id → array su `category_id` (Medusa store API). */
+  category_ids?: string[];
   collection_id?: string;
   region_id?: string;
+  /** Se valorizzato (scheda produttore), usa `/store/sellers/:id/products` invece del catalogo globale. */
+  seller_id?: string;
   limit: number;
   offset: number;
 }): Promise<{
@@ -412,10 +481,46 @@ export async function fetchMedusaCatalogFallback(params: {
   const headers = {
     ...(await getAuthHeaders())
   };
-  const fields = storefrontListingProductFields();
   const medusaCc = await resolveStorefrontLocaleToMedusaCountry(
     params.countryCode
   );
+
+  const sid = params.seller_id?.trim();
+  if (sid) {
+    const medusa = await sdk.client.fetch<{
+      products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
+      count: number;
+    }>(`/store/sellers/${encodeURIComponent(sid)}/products`, {
+      method: 'GET',
+      query: {
+        country_code: medusaCc,
+        limit: params.limit,
+        offset: params.offset
+      },
+      headers,
+      cache: 'no-store'
+    });
+    return { products: medusa.products ?? [], count: medusa.count ?? 0 };
+  }
+
+  const fields = storefrontListingProductFields();
+
+  const mergedCat = [
+    ...new Set(
+      [...(params.category_ids ?? []), ...(params.category_id ? [params.category_id] : [])]
+        .map((id) => (typeof id === 'string' ? id.trim() : ''))
+        .filter(Boolean)
+    )
+  ] as string[];
+  const categoryParam:
+    | string
+    | string[]
+    | undefined =
+    mergedCat.length > 1
+      ? mergedCat
+      : mergedCat.length === 1
+        ? mergedCat[0]
+        : undefined;
 
   const medusa = await sdk.client.fetch<{
     products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -424,7 +529,7 @@ export async function fetchMedusaCatalogFallback(params: {
     method: 'GET',
     query: {
       country_code: medusaCc,
-      ...(params.category_id ? { category_id: params.category_id } : {}),
+      ...(categoryParam != null ? { category_id: categoryParam } : {}),
       ...(params.collection_id ? { collection_id: params.collection_id } : {}),
       ...(params.region_id ? { region_id: params.region_id } : {}),
       limit: params.limit,

@@ -15,6 +15,8 @@ export const SellerInfoHeader = ({
   reviewCount,
   showArrow,
   bottomBorder = false,
+  /** Es. pagina venditore: logo già nel cover sopra, non duplicare sotto. */
+  hideLogo = false,
 }: {
   seller: Pick<SellerProps, "photo" | "handle" | "name" | "metadata">
   name: string
@@ -22,6 +24,7 @@ export const SellerInfoHeader = ({
   reviewCount: number
   showArrow: boolean
   bottomBorder?: boolean
+  hideLogo?: boolean
 }) => {
   const t = useTranslations("ProductSheet")
   const avatarSrc = sellerPrimaryLogoOrPhotoUrl(seller) || seller.photo || ""
@@ -29,13 +32,21 @@ export const SellerInfoHeader = ({
   <div
     className={clsx(
       "flex gap-4 w-full p-5 items-center",
+      hideLogo && "gap-0",
       bottomBorder && "border-b"
     )}
   >
-    <div className="rounded-sm">
-      <SellerAvatar photo={avatarSrc} size={56} alt={name} />
-    </div>
-    <div className="flex flex-col gap-1">
+    {!hideLogo ? (
+      <div className="rounded-sm">
+        <SellerAvatar photo={avatarSrc} size={88} alt={name} />
+      </div>
+    ) : null}
+    <div
+      className={clsx(
+        "flex flex-col gap-1",
+        hideLogo && "min-w-0 flex-1"
+      )}
+    >
       <h3 className="heading-sm text-primary">{name}</h3>
       <div className="flex items-center gap-2">
         <StarRating starSize={14} rate={rating || 0} />

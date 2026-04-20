@@ -6,6 +6,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { convertToLocale } from "@/lib/helpers/money"
 import { cn } from "@/lib/utils"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 
 export const OrderCancel = ({ order }: { order: any }) => {
   const [open, setOpen] = useState(false)
@@ -59,6 +60,7 @@ export const OrderCancel = ({ order }: { order: any }) => {
               {order.items.map((item: any) => {
                 const isSelected = selectedItems.includes(item)
                 const itemline = selectedItems.find((i) => i.id === item.id)
+                const thumb = resolveLineItemThumbnailSrc(item)
                 return (
                   <li
                     key={item.id}
@@ -73,9 +75,9 @@ export const OrderCancel = ({ order }: { order: any }) => {
                     />
                     <div className="flex gap-4 w-full">
                       <div className="w-16 rounded-sm border">
-                        {item.thumbnail ? (
+                        {thumb ? (
                           <Image
-                            src={item.thumbnail}
+                            src={thumb}
                             alt={item.subtitle}
                             width={60}
                             height={60}

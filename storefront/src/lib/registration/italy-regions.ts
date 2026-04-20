@@ -1,0 +1,23 @@
+/** Regioni italiane (denominazione) per form produttore quando Paese = IT. */
+export const TRAMELLE_ITALY_REGION_OPTIONS: { value: string; label: string }[] = [
+  { value: "Abruzzo", label: "Abruzzo" },
+  { value: "Basilicata", label: "Basilicata" },
+  { value: "Calabria", label: "Calabria" },
+  { value: "Campania", label: "Campania" },
+  { value: "Emilia-Romagna", label: "Emilia-Romagna" },
+  { value: "Friuli-Venezia Giulia", label: "Friuli-Venezia Giulia" },
+  { value: "Lazio", label: "Lazio" },
+  { value: "Liguria", label: "Liguria" },
+  { value: "Lombardia", label: "Lombardia" },
+  { value: "Marche", label: "Marche" },
+  { value: "Molise", label: "Molise" },
+  { value: "Piemonte", label: "Piemonte" },
+  { value: "Puglia", label: "Puglia" },
+  { value: "Sardegna", label: "Sardegna" },
+  { value: "Sicilia", label: "Sicilia" },
+  { value: "Toscana", label: "Toscana" },
+  { value: "Trentino-Alto Adige", label: "Trentino-Alto Adige" },
+  { value: "Umbria", label: "Umbria" },
+  { value: "Valle d'Aosta", label: "Valle d'Aosta" },
+  { value: "Veneto", label: "Veneto" },
+]

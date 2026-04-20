@@ -4,25 +4,27 @@ import Link from "next/link"
 import { useParams, usePathname } from "next/navigation"
 import React, { MouseEventHandler } from "react"
 
-/**
- * Use this component to create a Next.js `<LocalizedClientLink />` that persists the current country code in the url,
- * without having to explicitly pass it as a prop.
- */
-const LocalizedClientLink = ({
-  children,
-  href,
-  locale: localeProp,
-  ...props
-}: {
+type LocalizedClientLinkProps = Omit<
+  React.ComponentProps<typeof Link>,
+  "href" | "prefetch"
+> & {
   children?: React.ReactNode
   href: string
   /** Se passato (es. dalla Server Component Header), evita mismatch idratazione su locale. */
   locale?: string
   className?: string
   onClick?: MouseEventHandler<HTMLAnchorElement> | undefined
-  passHref?: true
-  [x: string]: any
-}) => {
+}
+
+/**
+ * Link localizzato (`/${locale}/…`). **Prefetch sempre attivo** per navigazione App Router più fluida.
+ */
+const LocalizedClientLink = ({
+  children,
+  href,
+  locale: localeProp,
+  ...rest
+}: LocalizedClientLinkProps) => {
   const params = useParams()
   const pathname = usePathname()
 
@@ -33,7 +35,7 @@ const LocalizedClientLink = ({
     "en"
 
   return (
-    <Link href={`/${locale}${href}`} {...props}>
+    <Link href={`/${locale}${href}`} prefetch={true} {...rest}>
       {children}
     </Link>
   )

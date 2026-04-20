@@ -5,7 +5,13 @@ import { SearchIcon } from "@/icons"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { useCartContext } from "@/components/providers"
 import { instantSearchProducts } from "@/lib/data/products"
-import { getProductPrice } from "@/lib/helpers/get-product-price"
+import {
+  getCheapestB2bOnlyCatalogPrice,
+  getProductPrice,
+} from "@/lib/helpers/get-product-price"
+import { useB2BPricingModal } from "@/components/providers/B2BPricingModal/B2BPricingModalProvider"
+import { useTranslations } from "next-intl"
+import { TramelleProductImage } from "@/components/atoms"
 import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
 import { SellerProps } from "@/types/seller"
@@ -26,6 +32,10 @@ type Props = {
   inputClassName?: string
   /** Stile compatto come MVP header (icona 16px, input senza bordo interno). */
   variant?: "default" | "gourmet"
+  /**
+   * Gourmet: `start` = lente a sinistra (desktop). `end` = bottone invio cerchio a destra (mobile stile marketplace).
+   */
+  submitAlign?: "start" | "end"
   placeholder?: string
   locale: string
   currency_code: string
@@ -37,11 +47,14 @@ export function HeaderSearch({
   className,
   inputClassName,
   variant = "default",
+  submitAlign = "start",
   placeholder = "Cerca un prodotto o un produttore…",
   locale,
   currency_code,
 }: Props) {
   const { wholesaleBuyer } = useCartContext()
+  const { open: openB2bModal } = useB2BPricingModal()
+  const tProduct = useTranslations("Product")
   const router = useRouter()
   const searchParams = useSearchParams()
   const [search, setSearch] = useState(searchParams.get("query") || "")
@@ -127,53 +140,64 @@ export function HeaderSearch({
     !loading &&
     results.length === 0
 
+  const gourmetEnd = variant === "gourmet" && submitAlign === "end"
+
+  const searchIconGourmet = (
+    <svg
+      className="h-4 w-4 shrink-0"
+      fill="none"
+      viewBox="0 0 16 16"
+      aria-hidden
+    >
+      <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M11.5 11.5L14 14"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+
   return (
-    <div ref={wrapRef} className={cn("relative w-full max-w-xl", className)}>
+    <div
+      ref={wrapRef}
+      className={cn(
+        "relative w-full",
+        variant === "gourmet" ? "max-w-none" : "max-w-xl",
+        className
+      )}
+    >
       <form
-        className="relative"
+        className={cn(
+          "relative",
+          variant === "gourmet" && "group",
+          gourmetEnd && "flex items-center gap-2"
+        )}
         onSubmit={(e) => {
           e.preventDefault()
           submit()
         }}
         data-testid="header-search-form"
       >
-        <button
-          type="submit"
-          className={cn(
-            "absolute left-3 top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full transition-colors",
-            variant === "gourmet"
-              ? "left-3 h-4 w-4 p-0 text-gray-400 hover:text-gray-600"
-              : "h-9 w-9 text-cortilia hover:bg-cortilia-muted/80"
-          )}
-          aria-label="Cerca"
-        >
-          {variant === "gourmet" ? (
-            <svg
-              className="h-4 w-4 shrink-0"
-              fill="none"
-              viewBox="0 0 16 16"
-              aria-hidden
-            >
-              <circle
-                cx="7"
-                cy="7"
-                r="5"
-                stroke="currentColor"
-                strokeWidth="1.4"
-              />
-              <path
-                d="M11.5 11.5L14 14"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          ) : (
-            <SearchIcon size={20} color="#000000" />
-          )}
-        </button>
+        {!gourmetEnd ? (
+          <button
+            type="submit"
+            className={cn(
+              "absolute top-1/2 flex -translate-y-1/2 items-center justify-center rounded-full transition-colors",
+              variant === "gourmet"
+                ? "left-0 h-5 w-5 p-0 text-[#B5B0A8] group-focus-within:text-[#0F0E0B] hover:text-[#8A8580]"
+                : "left-3 h-9 w-9 text-cortilia hover:bg-cortilia-muted/80"
+            )}
+            aria-label="Cerca"
+          >
+            {variant === "gourmet" ? searchIconGourmet : (
+              <SearchIcon size={20} color="#000000" />
+            )}
+          </button>
+        ) : null}
         <input
-          type="search"
+          type={variant === "gourmet" ? "text" : "search"}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value)
@@ -187,14 +211,92 @@ export function HeaderSearch({
           aria-autocomplete="list"
           className={cn(
             variant === "gourmet"
-              ? "h-9 w-full rounded-full border-0 bg-transparent py-0 pl-10 pr-3 text-[14px] font-medium leading-none text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-gray-900/15"
+              ? gourmetEnd
+                ? cn(
+                    "font-tramelle min-h-[44px] min-w-0 flex-1 rounded-none border-0 bg-transparent py-0 pl-3 pr-1 text-[13px] font-normal leading-snug text-[#0F0E0B] placeholder:text-[#B5B0A8] outline-none focus:border-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0",
+                    search.length > 0 ? "pr-1" : "pr-1"
+                  )
+                : cn(
+                    "font-tramelle min-h-0 w-full border-0 bg-transparent py-0 pl-8 text-[13px] font-normal leading-snug text-[#0F0E0B] placeholder:text-[#B5B0A8] outline-none focus:border-transparent focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0",
+                    search.length > 0 ? "pr-8" : "pr-0"
+                  )
               : "h-11 w-full rounded-full border border-neutral-200 bg-white py-2 pl-12 pr-4 text-sm text-primary placeholder:text-neutral-400 focus:border-cortilia focus:outline-none focus:ring-1 focus:ring-cortilia",
             inputClassName
           )}
           data-testid="header-search-input"
           autoComplete="off"
         />
-        <input type="submit" className="hidden" />
+        {variant === "gourmet" && search.length > 0 && !gourmetEnd ? (
+          <button
+            type="button"
+            className="absolute right-0 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-[#8A8580] transition-colors hover:text-[#0F0E0B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F0E0B]/20"
+            aria-label="Cancella ricerca"
+            onClick={(e) => {
+              e.preventDefault()
+              setSearch("")
+              setResults([])
+              setOpen(false)
+            }}
+          >
+            <svg
+              width={14}
+              height={14}
+              viewBox="0 0 14 14"
+              fill="none"
+              className="shrink-0"
+              aria-hidden
+            >
+              <path
+                d="M3.5 3.5l7 7M10.5 3.5l-7 7"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        ) : null}
+        {variant === "gourmet" && search.length > 0 && gourmetEnd ? (
+          <button
+            type="button"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8A8580] transition-colors hover:text-[#0F0E0B] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F0E0B]/20"
+            aria-label="Cancella ricerca"
+            onClick={(e) => {
+              e.preventDefault()
+              setSearch("")
+              setResults([])
+              setOpen(false)
+            }}
+          >
+            <svg
+              width={14}
+              height={14}
+              viewBox="0 0 14 14"
+              fill="none"
+              className="shrink-0"
+              aria-hidden
+            >
+              <path
+                d="M3.5 3.5l7 7M10.5 3.5l-7 7"
+                stroke="currentColor"
+                strokeWidth={1.5}
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        ) : null}
+        {gourmetEnd ? (
+          <button
+            type="submit"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#0F0E0B] text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F0E0B]/30"
+            aria-label="Cerca"
+          >
+            <span className="text-white [&_circle]:stroke-white [&_path]:stroke-white">
+              {searchIconGourmet}
+            </span>
+          </button>
+        ) : (
+          <input type="submit" className="hidden" />
+        )}
       </form>
 
       {(showPanel || showEmpty) && (
@@ -218,10 +320,20 @@ export function HeaderSearch({
                 product,
                 locale
               )
-              const { cheapestPrice } = getProductPrice({
+              const retail = getProductPrice({
                 product,
-                restrictToB2cVisible: !wholesaleBuyer,
+                restrictToB2cVisible: true,
               })
+              const all = getProductPrice({
+                product,
+                restrictToB2cVisible: false,
+              })
+              const display =
+                retail.cheapestPrice ??
+                (wholesaleBuyer ? all.cheapestPrice : null)
+              const b2bOnly = getCheapestB2bOnlyCatalogPrice(product)
+              const showSearchB2bLock =
+                !wholesaleBuyer && retail.cheapestPrice
               return (
                 <LocalizedClientLink
                   key={product.id}
@@ -234,10 +346,14 @@ export function HeaderSearch({
                 >
                   <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-neutral-100">
                     {thumb ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <TramelleProductImage
+                        layout="intrinsic"
                         src={thumb}
                         alt=""
+                        width={48}
+                        height={48}
+                        preset="header-search"
+                        quality={85}
                         className="h-full w-full object-cover"
                       />
                     ) : null}
@@ -251,10 +367,37 @@ export function HeaderSearch({
                         {product.seller.name}
                       </p>
                     ) : null}
-                    {cheapestPrice?.calculated_price ? (
+                    {display?.calculated_price ? (
                       <p className="mt-0.5 text-sm font-semibold text-primary">
-                        {cheapestPrice.calculated_price}
+                        {display.calculated_price}
                       </p>
+                    ) : null}
+                    {showSearchB2bLock ? (
+                      <button
+                        type="button"
+                        className="mt-1 inline-flex max-w-full items-center gap-1 rounded-full bg-[#F5F3F0] px-2 py-0.5 text-[9px] text-[#B5B0A8]"
+                        onMouseDown={(e: ReactMouseEvent) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                        }}
+                        onClick={(e: ReactMouseEvent) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          openB2bModal()
+                        }}
+                      >
+                        <span className="font-medium text-[#8A8580]">B2B</span>
+                        <span
+                          className="select-none font-medium blur-[3px] text-[#8A8580]"
+                          aria-hidden
+                        >
+                          {b2bOnly?.calculated_price ?? "€ ····"}
+                        </span>
+                        <span aria-hidden>·</span>
+                        <span className="font-medium text-[#8A8580]">
+                          {tProduct("cardB2bLogin")}
+                        </span>
+                      </button>
                     ) : null}
                   </div>
                 </LocalizedClientLink>

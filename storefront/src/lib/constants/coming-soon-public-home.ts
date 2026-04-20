@@ -121,6 +121,14 @@ export function effectiveRequestHostFromHeaders(
   return rawHost
 }
 
+/**
+ * In produzione (`NEXT_PUBLIC_COMING_SOON_HOME=false`) evita `headers()` su home/layout
+ * per non forzare work extra e consentire caching/streaming più aggressivo.
+ */
+export function comingSoonHomeDisabledByEnv(): boolean {
+  return process.env.NEXT_PUBLIC_COMING_SOON_HOME === "false"
+}
+
 export function shouldUseProductionComingSoonHome(
   hostHeader: string | null | undefined
 ): boolean {

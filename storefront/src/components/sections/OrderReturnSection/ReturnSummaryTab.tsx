@@ -1,6 +1,7 @@
 import { Button, Card } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
 import Image from "next/image"
+import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 
 export const ReturnSummaryTab = ({
   selectedItems,
@@ -32,16 +33,18 @@ export const ReturnSummaryTab = ({
       {selected.length ? (
         <Card className="p-4">
           <ul>
-            {selected.map((item) => (
+            {selected.map((item) => {
+              const thumb = resolveLineItemThumbnailSrc(item)
+              return (
               <li
                 key={item.id}
                 className="flex items-center gap-2 mb-4 justify-between w-full"
               >
                 <div className="flex items-center gap-2 font-semibold">
                   <div className="w-16 rounded-sm border">
-                    {item.thumbnail ? (
+                    {thumb ? (
                       <Image
-                        src={item.thumbnail}
+                        src={thumb}
                         alt={item.subtitle}
                         width={64}
                         height={64}
@@ -63,7 +66,8 @@ export const ReturnSummaryTab = ({
                   {convertToLocale({ amount: item.subtotal, currency_code })}
                 </div>
               </li>
-            ))}
+              )
+            })}
           </ul>
         </Card>
       ) : null}

@@ -1,5 +1,5 @@
 "use client"
-import Image from "next/image"
+import { TramelleProductImage } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
 import { EmblaCarouselType } from "embla-carousel"
 import { useCallback, useEffect, useState } from "react"
@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { Indicator } from "@/components/atoms"
 import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
 import useEmblaCarousel from "embla-carousel-react"
+import { cloudflareProductImageQuality } from "@/lib/helpers/cloudflare-images"
 
 export const ProductCarouselIndicator = ({
   slides = [],
@@ -16,6 +17,13 @@ export const ProductCarouselIndicator = ({
   embla?: EmblaCarouselType
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const [loadedById, setLoadedById] = useState<Record<string, boolean>>({})
+
+  const markLoaded = useCallback((id: string) => {
+    setLoadedById((prev) => (prev[id] ? prev : { ...prev, [id]: true }))
+  }, [])
+
+  const fallbackQuality = cloudflareProductImageQuality()
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     axis: "y",
@@ -61,29 +69,42 @@ export const ProductCarouselIndicator = ({
           ref={emblaRef}
         >
           <div className="embla__container h-[350px] lg:h-[680px] flex lg:block">
-            {(slides || []).map((slide, index) => (
-              <div
-                key={slide.id}
-                className="mb-3 rounded-sm cursor-pointer w-16 h-16 bg-primary hidden lg:block"
-                onClick={() => changeSlideHandler(index)}
-              >
-                <Image
-                  src={
-                    resolveProductThumbnailSrc(slide.url) ??
-                    decodeURIComponent(slide.url)
-                  }
-                  alt="Product carousel Indicator"
-                  width={64}
-                  height={64}
-                  className={cn(
-                    "rounded-sm border-2 transition-color duration-300 hidden lg:block w-16 h-16 object-cover",
-                    selectedIndex === index
-                      ? "border-primary"
-                      : "border-tertiary"
-                  )}
-                />
-              </div>
-            ))}
+            {(slides || []).map((slide, index) => {
+              const src =
+                resolveProductThumbnailSrc(slide.url) ??
+                decodeURIComponent(slide.url)
+              const showPulse = !loadedById[slide.id]
+
+              return (
+                <div
+                  key={slide.id}
+                  className="mb-3 rounded-sm cursor-pointer w-16 h-16 bg-neutral-100 relative overflow-hidden hidden lg:block shrink-0"
+                  onClick={() => changeSlideHandler(index)}
+                >
+                  {showPulse ? (
+                    <div
+                      className="absolute inset-0 z-[1] animate-pulse bg-neutral-200"
+                      aria-hidden
+                    />
+                  ) : null}
+                  <TramelleProductImage
+                    layout="fill"
+                    src={src}
+                    alt="Product carousel Indicator"
+                    preset="pdp-indicator"
+                    quality={fallbackQuality}
+                    className={cn(
+                      "relative z-[2] rounded-sm border-2 transition-color duration-300 object-cover bg-white",
+                      selectedIndex === index
+                        ? "border-primary"
+                        : "border-tertiary"
+                    )}
+                    onLoad={() => markLoaded(slide.id)}
+                    onError={() => markLoaded(slide.id)}
+                  />
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>

@@ -18,6 +18,7 @@ import { useCartContext } from "@/components/providers"
 import { parsePiecesPerCarton } from "@/lib/helpers/tramelle-variant-metadata"
 import { productProducerDisplayName } from "@/lib/helpers/product-producer-name"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { ProductB2bLockPdp } from "@/components/molecules/ProductB2bLockPdp/ProductB2bLockPdp"
 
 const optionsAsKeymap = (
   variantOptions: HttpTypes.StoreProductVariant["options"]
@@ -164,7 +165,12 @@ export const ProductDetailsHeader = ({
     <div className="border rounded-sm p-5" data-testid="product-details-header">
       <div className="flex justify-between">
         <div>
-          <h1 className="heading-lg text-primary" data-testid="product-title">{titleForUi}</h1>
+          <h1
+            className="heading-lg text-primary !font-bold"
+            data-testid="product-title"
+          >
+            {titleForUi}
+          </h1>
           {producerLabel ? (
             <div className="mt-1" data-testid="product-producer-name">
               {product.seller?.handle ? (
@@ -209,6 +215,9 @@ export const ProductDetailsHeader = ({
                 </p>
               )}
           </div>
+          {hasAnyPrice && variantPrice && !wholesaleBuyer ? (
+            <ProductB2bLockPdp product={product} />
+          ) : null}
         </div>
         <div>
           {/* Add to Wishlist */}

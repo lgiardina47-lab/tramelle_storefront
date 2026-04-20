@@ -4,7 +4,7 @@ import { Modal, ReportSellerForm } from "@/components/molecules"
 import { DoneIcon } from "@/icons"
 import { SingleProductSeller } from "@/types/product"
 import { SellerProps } from "@/types/seller"
-import { format } from "date-fns"
+import { formatDateSafe } from "@/lib/helpers/format-date-safe"
 import { useState } from "react"
 
 export const SellerFooter = ({ seller }: { seller: SellerProps }) => {
@@ -19,7 +19,7 @@ export const SellerFooter = ({ seller }: { seller: SellerProps }) => {
           </div>
         )} */}
         <Divider square />
-        <p>Joined {format(seller.created_at, "yyyy-MM-dd")}</p>
+        <p>Joined {formatDateSafe(seller.created_at, "yyyy-MM-dd")}</p>
         {/* <Divider square /> */}
         {/* <p>sold {seller.sold}</p> */}
       </div>

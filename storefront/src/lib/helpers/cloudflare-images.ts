@@ -6,8 +6,12 @@
  * della risposta. Il default è la variante **`tramelle`**: tetto 12000×12000 con `scale-down` (risoluzione = sorgente
  * se più piccola; niente upscale). **Uscita moderna:** Cloudflare risponde **AVIF o WebP** in base all’header `Accept`
  * del browser (negoziazione automatica — Core Web Vitals / peso byte senza `.webp` nell’URL).
- * Flexible variants restano disattivate: niente path parametrici, solo varianti nominate.
- * Override: env `…_VARIANT=public` (1366×768) o altro. Per `.webp` nel path dell’id: upload `--cf-id-extension .webp`.
+ * **Varianti flessibili** (dashboard Cloudflare Images → Delivery → “Flexible variants”): ultimo segmento path
+ * tipo `w=640,fit=scale-down,quality=…` — limita la **dimensione in pixel** senza crop lato CF (`scale-down` ≠ `cover`);
+ * ritaglio/composizione resta al CSS (`object-cover`). Così si evita un doppio crop + ricampionamento troppo morbido.
+ * Senza flexible attivo quelle URL rispondono 403: usare solo varianti nominate (`tramelle`, `public`, …) o
+ * impostare `NEXT_PUBLIC_CLOUDFLARE_IMAGES_FLEXIBLE_VARIANTS=0` e la fallback su variante nominata card.
+ * Override variante nominata: env `…_VARIANT=public` (1366×768) o altro.
  */
 
 const DEFAULT_HOST = "imagedelivery.net"
@@ -17,6 +21,95 @@ const DEFAULT_HOST = "imagedelivery.net"
  * Allineare eventuali override env tra storefront, backend e pannelli.
  */
 const DEFAULT_CLOUDFLARE_IMAGES_VARIANT = "tramelle"
+
+/**
+ * Griglie directory / card produttore: variante più piccola della delivery (non l’hero `tramelle` fino a 12000px).
+ * Override: `NEXT_PUBLIC_CLOUDFLARE_IMAGES_VARIANT_CARD`. Allineare al nome variante in Cloudflare Images.
+ */
+const DEFAULT_CLOUDFLARE_IMAGES_VARIANT_CARD = "public"
+
+/** Larghezze (px) per srcset card directory: margine retina (2×) su colonne larghe. */
+const DEFAULT_CLOUDFLARE_DIRECTORY_CARD_WIDTHS = [
+  560, 840, 1120, 1600, 1920,
+] as const
+
+function truthyEnv(raw: string | undefined): boolean | null {
+  const v = raw?.trim().toLowerCase() ?? ""
+  if (v === "1" || v === "true" || v === "on" || v === "yes") return true
+  if (v === "0" || v === "false" || v === "off" || v === "no") return false
+  return null
+}
+
+/**
+ * Richiede “Flexible variants” abilitato su Cloudflare Images.
+ * Default **off** finché l’account non è pronto (403 sulle URL `w=…`).
+ */
+export function cloudflareFlexibleVariantsEnabled(): boolean {
+  return (
+    truthyEnv(
+      process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_FLEXIBLE_VARIANTS
+    ) === true
+  )
+}
+
+function cloudflareDirectoryCardWidthsPx(): number[] {
+  const raw =
+    process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_CARD_WIDTHS?.trim() ?? ""
+  if (!raw) {
+    return [...DEFAULT_CLOUDFLARE_DIRECTORY_CARD_WIDTHS]
+  }
+  const parsed = raw
+    .split(/[,;\s]+/)
+    .map((s) => parseInt(s.trim(), 10))
+    .filter((n) => n > 0 && n <= 4096)
+  return parsed.length > 0 ? parsed : [...DEFAULT_CLOUDFLARE_DIRECTORY_CARD_WIDTHS]
+}
+
+function cloudflareFlexibleSharpen(): number {
+  const raw = process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_SHARPEN?.trim()
+  if (!raw) {
+    return 1
+  }
+  const n = parseFloat(raw)
+  if (!Number.isFinite(n)) {
+    return 1
+  }
+  return Math.min(10, Math.max(0, n))
+}
+
+/**
+ * Qualità URL flexible per **card produttori / directory** (1–100). Default **96**.
+ * I **prodotti** usano `cloudflareProductFlexibleQuality()` (default 100).
+ */
+export function cloudflareFlexibleImageQuality(): number {
+  const raw =
+    process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_FLEXIBLE_QUALITY?.trim()
+  if (!raw) {
+    return 96
+  }
+  const n = parseInt(raw, 10)
+  if (!Number.isFinite(n)) {
+    return 96
+  }
+  return Math.min(100, Math.max(1, n))
+}
+
+/**
+ * Qualità massima per immagini **prodotto** su CF (default **100**).
+ * `NEXT_PUBLIC_CLOUDFLARE_IMAGES_PRODUCT_QUALITY`
+ */
+export function cloudflareProductFlexibleQuality(): number {
+  const raw =
+    process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_PRODUCT_QUALITY?.trim()
+  if (!raw) {
+    return 100
+  }
+  const n = parseInt(raw, 10)
+  if (!Number.isFinite(n)) {
+    return 100
+  }
+  return Math.min(100, Math.max(1, n))
+}
 
 /** Host delivery: da env (`media.tramelle.com` per SEO / first-party) oppure `imagedelivery.net` se omesso. */
 function deliveryHostFromEnv(): string {
@@ -41,6 +134,13 @@ function cloudflareVariant(): string {
     process.env.CLOUDFLARE_IMAGES_VARIANT?.trim() ||
     DEFAULT_CLOUDFLARE_IMAGES_VARIANT
   )
+}
+
+/** Variante delivery per immagini in card directory / home featured (byte ridotti vs hero full). */
+export function cloudflareDirectoryCardVariant(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_VARIANT_CARD?.trim() ?? ""
+  return raw || DEFAULT_CLOUDFLARE_IMAGES_VARIANT_CARD
 }
 
 /**
@@ -158,6 +258,298 @@ export function rewriteCfImagesDeliveryUrlStripPartnerPrefix(
 /** Su `imagedelivery.net` il path è `/<hash>/<id>/<variant>`. Su dominio proprio: `/cdn-cgi/imagedelivery/<hash>/<id>/<variant>`. */
 function isDefaultImagedeliveryHost(host: string): boolean {
   return host.toLowerCase() === "imagedelivery.net"
+}
+
+/**
+ * URL assoluto verso la delivery Cloudflare Images (custom domain o `imagedelivery.net`).
+ * Usato dal loader `next/image`: il browser carica direttamente da CF → `cf-cache-status` HIT sull’edge
+ * e `cache-control: public, max-age=…` da Images; evita `/_next/image` che su queste sorgenti non ridimensiona
+ * ma aggiunge un hop sull’origine (spesso `cf-cache-status: DYNAMIC` davanti al sito).
+ */
+export function isCloudflareImagesDeliveryAbsoluteUrl(raw: string): boolean {
+  let s = raw.trim()
+  if (!s) return false
+  if (s.startsWith("//")) {
+    s = `https:${s}`
+  }
+  try {
+    const u = new URL(s)
+    if (!/^https?:$/i.test(u.protocol)) {
+      return false
+    }
+    const path = u.pathname.toLowerCase()
+    if (path.includes("/cdn-cgi/imagedelivery/")) {
+      return true
+    }
+    if (isDefaultImagedeliveryHost(u.hostname)) {
+      const segments = u.pathname.replace(/^\/+|\/+$/g, "").split("/").filter(Boolean)
+      return segments.length >= 3
+    }
+    return false
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Sostituisce solo il segmento variante nell’URL delivery (stesso hash / id immagine).
+ */
+export function rewriteCfImagesDeliveryVariant(
+  absoluteUrl: string,
+  nextVariant: string
+): string {
+  const variant = nextVariant.trim()
+  if (!variant) {
+    return absoluteUrl
+  }
+  let u: URL
+  try {
+    u = new URL(absoluteUrl.trim())
+  } catch {
+    return absoluteUrl
+  }
+  const parsed = parseCfImagesDeliveryUrl(u)
+  if (!parsed) {
+    return absoluteUrl
+  }
+  if (parsed.variant === variant) {
+    return absoluteUrl
+  }
+  const idPath = encodeCfImageIdPath(parsed.imageId)
+  if (isDefaultImagedeliveryHost(u.hostname)) {
+    u.pathname = `/${parsed.hash}/${idPath}/${variant}`
+  } else {
+    u.pathname = `/cdn-cgi/imagedelivery/${parsed.hash}/${idPath}/${variant}`
+  }
+  return u.toString()
+}
+
+/**
+ * Solo URL Cloudflare Images: se la variante “card” differisce da quella principale, usa quella card (thumbnail).
+ */
+export function applyCloudflareDirectoryCardVariantIfCf(url: string): string {
+  if (cloudflareFlexibleVariantsEnabled()) {
+    return url
+  }
+  const cardV = cloudflareDirectoryCardVariant()
+  const primaryV = cloudflareVariant()
+  if (cardV === primaryV) {
+    return url
+  }
+  if (!isCloudflareImagesDeliveryAbsoluteUrl(url)) {
+    return url
+  }
+  return rewriteCfImagesDeliveryVariant(url, cardV)
+}
+
+const DIRECTORY_CARD_HERO_SIZES =
+  "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+
+/**
+ * Hero card griglia: `fit=scale-down` (tetto larghezza, niente crop CF), `quality` + `sharpen`.
+ * `null` se non è URL delivery CF o flexible disattivato in env.
+ */
+export function cloudflareDirectoryCardHeroResponsive(
+  deliveryAbsoluteUrl: string
+): { src: string; srcSet: string; sizes: string } | null {
+  const base = deliveryAbsoluteUrl.trim()
+  if (!base || !cloudflareFlexibleVariantsEnabled()) {
+    return null
+  }
+  if (!isCloudflareImagesDeliveryAbsoluteUrl(base)) {
+    return null
+  }
+  const q = cloudflareFlexibleImageQuality()
+  const sh = cloudflareFlexibleSharpen()
+  const seg = (w: number) =>
+    `w=${w},fit=scale-down,quality=${q},sharpen=${sh}`
+  const widths = cloudflareDirectoryCardWidthsPx()
+  const urls = widths.map((w) => rewriteCfImagesDeliveryVariant(base, seg(w)))
+  const mid = widths[Math.floor(widths.length / 2)]!
+  const src = rewriteCfImagesDeliveryVariant(base, seg(mid))
+  const srcSet = widths.map((w, i) => `${urls[i]!} ${w}w`).join(", ")
+  return { src, srcSet, sizes: DIRECTORY_CARD_HERO_SIZES }
+}
+
+/**
+ * Logo badge card (~36px, 2x retina): una richiesta CF piccola.
+ */
+export function cloudflareDirectoryCardLogoDeliveryUrl(
+  deliveryAbsoluteUrl: string
+): string | null {
+  const base = deliveryAbsoluteUrl.trim()
+  if (!base || !cloudflareFlexibleVariantsEnabled()) {
+    return null
+  }
+  if (!isCloudflareImagesDeliveryAbsoluteUrl(base)) {
+    return null
+  }
+  const q = cloudflareFlexibleImageQuality()
+  const sh = cloudflareFlexibleSharpen()
+  return rewriteCfImagesDeliveryVariant(
+    base,
+    `w=96,fit=scale-down,quality=${q},sharpen=${sh}`
+  )
+}
+
+function parseWidthsListFromEnv(
+  envValue: string | undefined,
+  fallback: readonly number[]
+): number[] {
+  const raw = envValue?.trim() ?? ""
+  if (!raw) {
+    return [...fallback]
+  }
+  const parsed = raw
+    .split(/[,;\s]+/)
+    .map((s) => parseInt(s.trim(), 10))
+    .filter((n) => n > 0 && n <= 8192)
+  return parsed.length > 0 ? parsed : [...fallback]
+}
+
+/** Qualità per fallback `next/image` e riferimenti legacy: stessa dei prodotti CF. */
+export function cloudflareProductImageQuality(): number {
+  return cloudflareProductFlexibleQuality()
+}
+
+export type CloudflareProductImagePreset =
+  | "listing-card"
+  | "pdp-gallery"
+  | "pdp-indicator"
+  | "header-search"
+  | "cart-line"
+  | "cart-dropdown"
+  | "wishlist-card"
+  | "order-list-thumb"
+
+/** Stesso schema srcset delle card seller (directory). */
+const DEFAULT_PRODUCT_CARD_WIDTHS = DEFAULT_CLOUDFLARE_DIRECTORY_CARD_WIDTHS
+const DEFAULT_PRODUCT_GALLERY_WIDTHS = [
+  640, 960, 1280, 1600, 2200,
+] as const
+
+export function cloudflareProductImagePresetConfig(
+  preset: CloudflareProductImagePreset
+): {
+  widths: number[]
+  sizes: string
+  fit: "scale-down"
+} {
+  switch (preset) {
+    case "listing-card":
+      return {
+        widths: parseWidthsListFromEnv(
+          process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_PRODUCT_CARD_WIDTHS,
+          DEFAULT_PRODUCT_CARD_WIDTHS
+        ),
+        sizes:
+          "(min-width: 1280px) 280px, (min-width: 1024px) 24vw, (min-width: 640px) 45vw, 88vw",
+        fit: "scale-down",
+      }
+    case "pdp-gallery":
+      return {
+        widths: parseWidthsListFromEnv(
+          process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_PRODUCT_GALLERY_WIDTHS,
+          DEFAULT_PRODUCT_GALLERY_WIDTHS
+        ),
+        /**
+         * Larghezza reale ≈ colonna galleria (`md:w-1/2` + `max-w-[698px]` nel carousel).
+         * `min(698px, 50vw)` evita sottostima rispetto al box (immagine troppo piccola / sfocata).
+         */
+        sizes:
+          "(min-width: 1024px) min(698px, 50vw), calc(100vw - 2rem)",
+        fit: "scale-down",
+      }
+    case "pdp-indicator":
+      return {
+        widths: [64, 128, 192],
+        sizes: "64px",
+        fit: "scale-down",
+      }
+    case "header-search":
+      return {
+        widths: [48, 96, 144],
+        sizes: "48px",
+        fit: "scale-down",
+      }
+    case "cart-line":
+      return {
+        widths: [100, 200, 300],
+        sizes: "100px",
+        fit: "scale-down",
+      }
+    case "cart-dropdown":
+      return {
+        widths: [80, 160, 240],
+        sizes: "80px",
+        fit: "scale-down",
+      }
+    case "wishlist-card":
+      return {
+        widths: [250, 375, 500, 720],
+        sizes: "(max-width: 1024px) 250px, 360px",
+        fit: "scale-down",
+      }
+    case "order-list-thumb":
+      return {
+        widths: [66, 132, 198],
+        sizes: "66px",
+        fit: "scale-down",
+      }
+    default: {
+      const _x: never = preset
+      return _x
+    }
+  }
+}
+
+/**
+ * Srcset verso Cloudflare flexible (`w=`, `fit=`, `quality=`, `sharpen=1`). Solo URL delivery CF + flexible ON.
+ */
+export function cloudflareFlexibleImageResponsive(
+  deliveryAbsoluteUrl: string,
+  params: {
+    widths: number[]
+    sizes: string
+    fit: "scale-down" | "cover"
+    /** Override qualità (es. prodotti = `cloudflareProductFlexibleQuality()`). */
+    quality?: number
+  }
+): { src: string; srcSet: string; sizes: string } | null {
+  const base = deliveryAbsoluteUrl.trim()
+  if (!base || !cloudflareFlexibleVariantsEnabled()) {
+    return null
+  }
+  if (!isCloudflareImagesDeliveryAbsoluteUrl(base)) {
+    return null
+  }
+  const q = params.quality ?? cloudflareFlexibleImageQuality()
+  const sh = cloudflareFlexibleSharpen()
+  const widths = [...new Set(params.widths)]
+    .filter((n) => n > 0)
+    .sort((a, b) => a - b)
+  if (widths.length === 0) {
+    return null
+  }
+  const seg = (w: number) =>
+    `w=${w},fit=${params.fit},quality=${q},sharpen=${sh}`
+  const urls = widths.map((w) =>
+    rewriteCfImagesDeliveryVariant(base, seg(w))
+  )
+  const mid = widths[Math.floor(widths.length / 2)]!
+  const src = rewriteCfImagesDeliveryVariant(base, seg(mid))
+  const srcSet = widths.map((w, i) => `${urls[i]!} ${w}w`).join(", ")
+  return { src, srcSet, sizes: params.sizes }
+}
+
+export function cloudflareProductImageResponsive(
+  url: string,
+  preset: CloudflareProductImagePreset
+): { src: string; srcSet: string; sizes: string } | null {
+  return cloudflareFlexibleImageResponsive(url, {
+    ...cloudflareProductImagePresetConfig(preset),
+    quality: cloudflareProductFlexibleQuality(),
+  })
 }
 
 export function cloudflareImagesDeliveryUrl(imageId: string): string | null {

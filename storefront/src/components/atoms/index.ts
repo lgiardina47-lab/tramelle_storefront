@@ -17,6 +17,7 @@ import { Label } from "./Label/Label"
 import { TabsTrigger } from "./TabsTrigger/TabsTrigger"
 import { NavigationItem } from "./NavigationItem/NavigationItem"
 import { LogoutButton } from "./LogoutButton/LogoutButton"
+import { TramelleProductImage } from "./TramelleProductImage/TramelleProductImage"
 
 export {
   Button,
@@ -38,4 +39,5 @@ export {
   TabsTrigger,
   NavigationItem,
   LogoutButton,
+  TramelleProductImage,
 }

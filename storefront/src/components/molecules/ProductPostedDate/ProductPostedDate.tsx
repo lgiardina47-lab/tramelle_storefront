@@ -1,7 +1,7 @@
 "use client"
 
 import { de, enUS, es, fr, it } from "date-fns/locale"
-import { formatDistanceToNow } from "date-fns"
+import { formatDistanceToNowSafe } from "@/lib/helpers/format-date-safe"
 import type { Locale } from "date-fns"
 import { useLocale, useTranslations } from "next-intl"
 
@@ -21,7 +21,7 @@ export const ProductPostedDate = ({
   const locale = useLocale()
   const t = useTranslations("ProductSheet")
   const dfLoc = dfLocales[locale] ?? enUS
-  const postedDate = formatDistanceToNow(new Date(posted || ""), {
+  const postedDate = formatDistanceToNowSafe(posted, {
     addSuffix: true,
     locale: dfLoc,
   })

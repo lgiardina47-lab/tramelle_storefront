@@ -110,3 +110,7 @@ yarn dev
 ### Product search (Meilisearch)
 
 Listing search calls the backend `POST /store/products/search`, backed by Meilisearch. Set `MEILISEARCH_HOST` and `MEILI_MASTER_KEY` in `backend/.env`, then from `/backend` run `yarn meilisearch:sync`. Index settings live in `backend/src/lib/meilisearch/index-settings.ts`.
+
+## Deploy produzione (Tramelle)
+
+Il deploy dello storefront **è sul server** (build, `sync-standalone-assets`, riavvio, CDN). Istruzioni e file compose: vedi **`../README.md`** sezione *Deploy in produzione (storefront Tramelle)*.

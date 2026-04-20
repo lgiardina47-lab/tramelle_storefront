@@ -2,6 +2,7 @@
 
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import Image from "next/image"
+import { TramelleProductImage } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
 import { WishlistButton } from "../WishlistButton/WishlistButton"
 import { Wishlist } from "@/types/wishlist"
@@ -53,15 +54,15 @@ export const WishlistItem = ({
           />
         </div>
         <LocalizedClientLink href={`/products/${product.handle}`}>
-          <div className="overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
+          <div className="relative overflow-hidden rounded-sm w-full h-full flex justify-center align-center ">
             {thumbnailSrc ? (
-              <Image
+              <TramelleProductImage
+                layout="fill"
                 src={thumbnailSrc}
                 alt={product.title}
-                width={360}
-                height={360}
+                preset="wishlist-card"
+                quality={85}
                 className="object-cover aspect-square w-full object-center h-full lg:group-hover:-mt-14 transition-all duration-300 rounded-xs"
-                priority
                 data-testid={testIdPrefix ? `${testIdPrefix}-thumbnail` : undefined}
               />
             ) : (

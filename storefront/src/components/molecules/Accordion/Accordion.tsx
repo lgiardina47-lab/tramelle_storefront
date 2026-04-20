@@ -30,12 +30,12 @@ export const Accordion = ({
   }
 
   return (
-    <Card>
+    <Card className="border-[#E8E4DE] bg-white py-3 shadow-none rounded-[10px]">
       <div
         onClick={openHandler}
-        className="flex justify-between items-center cursor-pointer px-2"
+        className="flex cursor-pointer items-center justify-between gap-2 px-3"
       >
-        <h4 className="label-lg uppercase">{heading}</h4>
+        <h4 className="tramelle-filter-heading">{heading}</h4>
         <CollapseIcon
           size={20}
           className={cn("transition-all duration-300", isOpen && "rotate-180")}
