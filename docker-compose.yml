@@ -1,10 +1,8 @@
-# Stack sviluppo con HMR: volumi sul monorepo, `yarn dev` / `medusa develop`.
-# Porte fisse: 3000 / 9000 / 7000 / 5173 / 6379 (deploy/monorepo-default-ports.cjs); Meilisearch 7700.
-# Tunnel SSH dal PC: mappa le stesse porte su localhost; Vite HMR (admin/vendor) usa ws → localhost.
-# Se apri admin/vendor dal browser su IP pubblico (es. http://SERVER:7000), imposta nel file `.env` alla root:
-#   VITE_MEDUSA_BROWSER_BACKEND_URL=http://SERVER:9000
-#   VITE_MEDUSA_BROWSER_STOREFRONT_URL=http://SERVER:3000
-# (altrimenti il bundle usa localhost e le API vanno al PC, non al server).
+# Stack Docker: build + avvio in **produzione** (niente HMR: meno CPU/RAM rispetto a `yarn dev`).
+# Porte: 3000 (Next standalone) / 9000 (Medusa) / 7000 (admin) / 5173 (vendor) / 6379 / Meilisearch 7700
+#   (vedi deploy/monorepo-default-ports.cjs).
+# HMR in locale: avvia i singoli pacchetti fuori da Docker, es. `cd storefront && yarn dev`.
+# Per admin/vendor su IP pubblico, in `.env` in root vedi commenti in admin-panel e vendor-panel.
 #
 # Avvio: docker compose up -d
 # Log:   docker compose logs -f backend
@@ -19,7 +17,7 @@ services:
     ports:
       - "7700:7700"
     environment:
-      MEILI_ENV: development
+      MEILI_ENV: production
       MEILI_NO_ANALYTICS: "true"
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-tramelle_dev_meili_master}
     volumes:
@@ -47,7 +45,7 @@ services:
       - ./backend/.env
     environment:
       PORT: "9000"
-      NODE_ENV: development
+      NODE_ENV: production
       REDIS_URL: redis://redis:6379
       MEILISEARCH_HOST: http://meilisearch:7700
       MEILI_MASTER_KEY: ${MEILI_MASTER_KEY:-tramelle_dev_meili_master}
@@ -61,8 +59,10 @@ services:
         set -e
         apt-get update -qq && apt-get install -y -qq python3 make g++ git >/dev/null
         corepack enable
-        yarn install
-        yarn dev
+        NODE_ENV=development yarn install --non-interactive
+        export NODE_ENV=production
+        yarn build
+        exec yarn start
 
   storefront:
     image: node:20-bookworm-slim
@@ -76,12 +76,11 @@ services:
     env_file:
       - ./storefront/.env
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DOCKER: "1"
-      # Parità con deploy Cloudflare: niente override di MEDUSA_* — tutto da `storefront/.env` (tipicamente https://api.tramelle.com).
-      # Prima era forzato `backend:9000` e splash home: menu/catalogo diversi dalla produzione.
-      NEXT_PUBLIC_COMING_SOON_HOME: "false"
-      NEXT_PUBLIC_COMING_SOON_DEV_PREVIEW: "false"
+      # Stesso sorgente del blocco 3020 (`docker-compose.storefront-production.yml`) ma `dist` separato.
+      TRAMELLE_NEXT_DIST_DIR: .next-compose
+      # Parità con deploy: MEDUSA_* da `storefront/.env`.
     depends_on:
       - backend
     command:
@@ -89,10 +88,17 @@ services:
       - -lc
       - |
         set -e
+        export HOSTNAME=0.0.0.0
+        export PORT=3000
+        export TRAMELLE_NEXT_DIST_DIR=.next-compose
+        export CI=1
         apt-get update -qq && apt-get install -y -qq git >/dev/null
         corepack enable
-        yarn install
-        yarn dev
+        NODE_ENV=development yarn install --non-interactive
+        export NODE_ENV=production
+        yarn build
+        node scripts/sync-standalone-assets.mjs
+        exec node .next-compose/standalone/server.js
 
   vendor-panel:
     image: node:20-bookworm-slim
@@ -106,7 +112,7 @@ services:
     env_file:
       - ./vendor-panel/.env
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DOCKER: "1"
       PORT: "5173"
       VITE_MEDUSA_PROJECT: /workspace/backend
@@ -119,10 +125,13 @@ services:
       - -lc
       - |
         set -e
+        export CI=1
         apt-get update -qq && apt-get install -y -qq git >/dev/null
         corepack enable
-        yarn install
-        yarn dev
+        NODE_ENV=development yarn install --non-interactive
+        export NODE_ENV=production
+        yarn build
+        exec yarn start
 
   tramelle-admin:
     image: node:20-bookworm-slim
@@ -136,7 +145,7 @@ services:
     env_file:
       - ./admin-panel/.env
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DOCKER: "1"
       PORT: "7000"
       VITE_MEDUSA_BACKEND_URL: ${VITE_MEDUSA_BROWSER_BACKEND_URL:-http://localhost:9000}
@@ -148,10 +157,13 @@ services:
       - -lc
       - |
         set -e
+        export CI=1
         apt-get update -qq && apt-get install -y -qq git >/dev/null
         corepack enable
-        yarn install
-        yarn dev
+        NODE_ENV=development yarn install --non-interactive
+        export NODE_ENV=production
+        yarn build && yarn build:preview
+        exec yarn start
 
 volumes:
   meilisearch-data:

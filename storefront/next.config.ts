@@ -27,7 +27,16 @@ const extraAllowedDevOrigins = (process.env.NEXT_DEV_ALLOWED_ORIGINS ?? '')
 const allowSearchIndexing =
   process.env.NEXT_PUBLIC_ALLOW_SEARCH_INDEXING === 'true';
 
+/**
+ * Stesso `distDir` in tutta la pipeline: `docker-compose.storefront-production.yml` imposta
+ * `TRAMELLE_NEXT_DIST_DIR=.next-production` (separato da `.next` usato da `next dev` sullo stesso mount).
+ * Senza `distDir` qui, `yarn build` scrive sempre in `.next` mentre l'avvio punta a `.next-production/standalone` → moduli mancanti (ENOENT) in fase build/runtime.
+ */
+const distDir =
+  process.env.TRAMELLE_NEXT_DIST_DIR?.trim() || '.next';
+
 const nextConfig: NextConfig = {
+  distDir,
   /**
    * HMR: su Docker bind mount / SSH / FS che non notificano, senza poll il dev server non vede i salvataggi.
    * Default in `next dev`: poll ogni ~1s (disattiva con `NEXT_DEV_POLLING_OFF=true` in `.env.local` su Mac veloce).

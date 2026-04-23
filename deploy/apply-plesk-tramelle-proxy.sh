@@ -4,6 +4,11 @@
 
 set -euo pipefail
 
+ROOT_MONO="$(cd "$(dirname "$0")/.." && pwd)"
+STOREFRONT_PROD_PORT="$(
+  cd "$ROOT_MONO" && node -e "console.log(require('./deploy/monorepo-default-ports.cjs').STOREFRONT_PRODUCTION)"
+)"
+
 PROXY_BODY='proxy_http_version 1.1;
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
@@ -27,7 +32,7 @@ write_vhost() {
   chmod 640 "$path"
 }
 
-write_vhost /var/www/vhosts/system/tramelle.com/conf/vhost_nginx.conf 3000
+write_vhost /var/www/vhosts/system/tramelle.com/conf/vhost_nginx.conf "${STOREFRONT_PROD_PORT}"
 write_vhost /var/www/vhosts/system/api.tramelle.com/conf/vhost_nginx.conf 9000
 write_vhost /var/www/vhosts/system/vendor.tramelle.com/conf/vhost_nginx.conf 5173
 write_vhost /var/www/vhosts/system/manage.tramelle.com/conf/vhost_nginx.conf 7000

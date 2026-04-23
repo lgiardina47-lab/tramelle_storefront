@@ -1,10 +1,8 @@
 import { Suspense } from 'react';
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { Footer, Header } from '@/components/organisms';
 import { HeaderShellFallback } from '@/components/organisms/Header/HeaderShellFallback';
-import { comingSoonHomeDisabledByEnv } from '@/lib/constants/coming-soon-public-home';
 import { TalkJsProvider } from '@/components/providers';
 import { CustomerStorefrontLocaleSync } from '@/components/utilities/CustomerStorefrontLocaleSync/CustomerStorefrontLocaleSync';
 import { retrieveCustomer } from '@/lib/data/customer';
@@ -20,10 +18,9 @@ export default async function RootLayout({
   const APP_ID = process.env.NEXT_PUBLIC_TALKJS_APP_ID;
   const { locale } = await params;
 
-  const [user, regionCheck, headerList] = await Promise.all([
+  const [user, regionCheck] = await Promise.all([
     retrieveCustomer(),
     checkRegion(locale),
-    headers(),
   ]);
 
   if (!regionCheck) {
@@ -38,18 +35,6 @@ export default async function RootLayout({
       isLoggedIn={Boolean(user?.id)}
     />
   );
-
-  const minimalHome = comingSoonHomeDisabledByEnv()
-    ? false
-    : headerList.get('x-tramelle-minimal-home') === '1';
-  if (minimalHome) {
-    return (
-      <>
-        {localeSync}
-        {children}
-      </>
-    );
-  }
 
   if (!APP_ID || !user || !user.id || !user.email)
     return (

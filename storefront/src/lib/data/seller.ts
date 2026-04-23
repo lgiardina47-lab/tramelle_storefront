@@ -139,6 +139,32 @@ export async function listStoreSellers(params?: {
 }
 
 /**
+ * Elenco produttori senza cache HTTP (hero slideshow / API che avanzano per `offset`).
+ */
+export async function listStoreSellersNoStore(params: {
+  limit: number
+  offset: number
+  contentLocale?: string
+}): Promise<StoreSellersListResponse | null> {
+  /** Allineato a `GET /store/sellers` (max 100). */
+  const limit = Math.max(1, Math.min(100, params.limit))
+  const offset = Math.max(0, params.offset)
+  const contentLocale = normalizeListingContentLocale(params.contentLocale)
+  try {
+    return await sdk.client.fetch<StoreSellersListResponse>(`/store/sellers`, {
+      query: {
+        limit,
+        offset,
+        ...(contentLocale ? { content_locale: contentLocale } : {}),
+      },
+      cache: "no-store",
+    })
+  } catch {
+    return null
+  }
+}
+
+/**
  * Seller con macro Tramelle dichiarata in `taste_category_handles` (listing).
  * Usato per mega-menu header (prima dei produttori da catalogo).
  */

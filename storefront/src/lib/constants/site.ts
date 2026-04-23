@@ -2,13 +2,6 @@ import type { Metadata } from "next"
 
 export { DEFAULT_PUBLIC_SITE_ORIGIN, publicSiteOrigin } from "./site-url"
 
-export {
-  TRAMELLE_COMING_SOON_CANONICAL_HOSTS,
-  effectiveRequestHostFromHeaders,
-  requestShowsComingSoonHome,
-  shouldUseProductionComingSoonHome,
-} from "./coming-soon-public-home"
-
 /** Default branding when env vars are unset (must match .env.local.example). */
 export const DEFAULT_SITE_NAME = "Tramelle Source Gourmet"
 

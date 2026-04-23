@@ -14,7 +14,12 @@
  */
 const path = require('path')
 
-const { STOREFRONT, BACKEND, ADMIN, VENDOR } = require('./deploy/monorepo-default-ports.cjs')
+const {
+  STOREFRONT_PRODUCTION,
+  BACKEND,
+  ADMIN,
+  VENDOR,
+} = require('./deploy/monorepo-default-ports.cjs')
 
 const root = __dirname
 
@@ -40,10 +45,10 @@ module.exports = {
       script: path.join(root, 'storefront/start-production.sh'),
       interpreter: '/bin/bash',
       env: {
-        PORT: String(STOREFRONT),
+        PORT: String(STOREFRONT_PRODUCTION),
         HOSTNAME: '0.0.0.0',
         NODE_ENV: 'production',
-        NEXT_PUBLIC_COMING_SOON_HOME: 'false',
+        TRAMELLE_NEXT_DIST_DIR: '.next-production',
       },
       autorestart: true,
       max_restarts: 30,

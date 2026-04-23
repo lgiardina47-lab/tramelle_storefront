@@ -232,3 +232,33 @@ button:disabled svg path {
   height: auto;
   max-width: 120px;
 }
+
+/* Hero home: transizione leggera tra cover (frecce / autoplay; no swipe) */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tramelle-hero-in-next {
+    from {
+      transform: translateX(3%);
+      opacity: 0.92;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes tramelle-hero-in-prev {
+    from {
+      transform: translateX(-3%);
+      opacity: 0.92;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  .tramelle-hero-slide-in-next {
+    animation: tramelle-hero-in-next 0.55s ease-out both;
+  }
+  .tramelle-hero-slide-in-prev {
+    animation: tramelle-hero-in-prev 0.55s ease-out both;
+  }
+}

@@ -1,6 +1,6 @@
 /**
- * Next.js standalone: dopo `next build` copia `public` e `.next/static`
- * dentro `.next/standalone`, altrimenti in produzione il sito è HTML senza CSS/asset.
+ * Next.js standalone: dopo `next build` copia `public` e `{distDir}/static`
+ * dentro `{distDir}/standalone` (nella sottocartella con lo stesso nome di `distDir`), altrimenti in produzione il sito è HTML senza CSS/asset.
  */
 import fs from "fs"
 import path from "path"
@@ -8,9 +8,10 @@ import { fileURLToPath } from "url"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.join(__dirname, "..")
-const standalone = path.join(root, ".next", "standalone")
-const staticSrc = path.join(root, ".next", "static")
-const staticDest = path.join(standalone, ".next", "static")
+const distDir = (process.env.TRAMELLE_NEXT_DIST_DIR || ".next").trim() || ".next"
+const standalone = path.join(root, distDir, "standalone")
+const staticSrc = path.join(root, distDir, "static")
+const staticDest = path.join(standalone, distDir, "static")
 const publicSrc = path.join(root, "public")
 const publicDest = path.join(standalone, "public")
 
@@ -42,10 +43,10 @@ if (!fs.existsSync(publicSrc)) {
 rmrf(publicDest)
 cpDir(publicSrc, publicDest)
 
-fs.mkdirSync(path.join(standalone, ".next"), { recursive: true })
+fs.mkdirSync(path.join(standalone, distDir), { recursive: true })
 rmrf(staticDest)
 cpDir(staticSrc, staticDest)
 
 console.log(
-  "sync-standalone-assets: OK — public e .next/static copiati in .next/standalone/"
+  `sync-standalone-assets: OK — public e ${distDir}/static copiati in ${distDir}/standalone/`
 )

@@ -1,5 +1,5 @@
 /**
- * Dopo `next build`: copia `public` e `.next/static` in `.next/standalone`
+ * Dopo `next build`: copia `public` e `{TRAMELLE_NEXT_DIST_DIR||.next}/static` in standalone
  * (PM2/Hetzner). Anche la pipeline `@opennextjs/cloudflare` esegue `yarn build` prima del bundle Worker.
  */
 import { spawnSync } from "node:child_process"

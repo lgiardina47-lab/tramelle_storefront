@@ -9,21 +9,15 @@ import {
   HomeCinematicHero,
   HomeCinematicHeroSkeleton,
 } from "@/components/sections/HomeCinematicHero/HomeCinematicHero"
-import { ProductionComingSoonHome } from "@/components/sections/ProductionComingSoonHome/ProductionComingSoonHome"
 import { HomeFeaturedSellersSection } from "@/components/sections/HomeFeaturedSellersSection/HomeFeaturedSellersSection"
 import { HomeHowItWorksSection } from "@/components/sections/HomeHowItWorksSection/HomeHowItWorksSection"
 
 import type { Metadata } from "next"
-import { headers } from "next/headers"
 import Script from "next/script"
 import { Suspense } from "react"
 import { getTranslations } from "next-intl/server"
 import { getCachedHomeHreflangLanguages } from "@/lib/data/home-hreflang-alternates"
 import { toHreflang } from "@/lib/helpers/hreflang"
-import {
-  comingSoonHomeDisabledByEnv,
-  requestShowsComingSoonHome,
-} from "@/lib/constants/coming-soon-public-home"
 import {
   getIndexingRobots,
   publicSiteOrigin,
@@ -110,45 +104,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ locale: string }>
 }): Promise<Metadata> {
-  const [{ locale }, h] = await Promise.all([params, headers()])
+  const { locale } = await params
 
   const baseUrl = publicSiteOrigin()
-
-  let showComingSoon = false
-  if (!comingSoonHomeDisabledByEnv()) {
-    showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
-  }
-
-  if (showComingSoon) {
-    const title = "Tramelle Source Gourmet"
-    const description =
-      "Tramelle.com: l'eccellenza non ha più confini. La vetrina globale per i maestri del Gourmet — B2C e B2B, 6 lingue, un'unica piattaforma."
-    const canonical = `${baseUrl}/${locale}`
-    const ogTitle = `${title} · ${resolvedSiteName()}`
-    return {
-      title: { absolute: title },
-      description,
-      robots: getIndexingRobots({ googleBotRich: true }),
-      icons: {
-        icon: [{ url: "/tramelle_icon.svg", type: "image/svg+xml" }],
-        apple: "/tramelle_icon.svg",
-        shortcut: "/tramelle_icon.svg",
-      },
-      alternates: { canonical },
-      openGraph: {
-        title: ogTitle,
-        description,
-        url: canonical,
-        siteName: resolvedSiteName(),
-        type: "website",
-      },
-      twitter: {
-        card: "summary_large_image",
-        title: ogTitle,
-        description,
-      },
-    }
-  }
 
   let languages: Record<string, string> = {}
   try {
@@ -211,46 +169,6 @@ export default async function Home({
   const baseUrl = publicSiteOrigin()
 
   const siteName = resolvedSiteName()
-
-  let showComingSoon = false
-  if (!comingSoonHomeDisabledByEnv()) {
-    const h = await headers()
-    showComingSoon = requestShowsComingSoonHome((name) => h.get(name))
-  }
-
-  if (showComingSoon) {
-    return (
-      <>
-        <Script
-          id="ld-org"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: siteName,
-              url: `${baseUrl}/${locale}`,
-              logo: `${baseUrl}/tramelle.svg`,
-            }),
-          }}
-        />
-        <Script
-          id="ld-website"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: siteName,
-              url: `${baseUrl}/${locale}`,
-              inLanguage: toHreflang(locale),
-            }),
-          }}
-        />
-        <ProductionComingSoonHome />
-      </>
-    )
-  }
 
   const tHome = await getTranslations("Home")
 

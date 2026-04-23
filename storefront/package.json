@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "dev:clean": "rm -rf .next && next dev --webpack -H 0.0.0.0 -p 3000",
-    "build": "node scripts/verify-coming-soon-invariants.cjs && next build && node scripts/post-next-build.mjs",
+    "build": "next build && node scripts/post-next-build.mjs",
     "build:cloudflare": "NODE_ENV=production opennextjs-cloudflare build",
     "pages:build": "NODE_ENV=production opennextjs-cloudflare build",
     "preview:cloudflare": "NODE_ENV=production opennextjs-cloudflare build && opennextjs-cloudflare preview",

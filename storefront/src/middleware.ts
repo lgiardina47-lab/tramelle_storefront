@@ -9,7 +9,6 @@ import {
   STOREFRONT_EN_URL_SEGMENT,
   isStorefrontPermissiveLocalePath,
 } from './lib/i18n/storefront-path-locale';
-import { requestShowsComingSoonHome } from './lib/constants/coming-soon-public-home';
 import { MEDUSA_BACKEND_URL } from './lib/medusa-backend-url';
 import { TRAMELLE_CATEGORY_HANDLE_PREFIX } from './lib/helpers/category-public-url';
 
@@ -167,42 +166,6 @@ async function getCountryCode(
   }
 }
 
-const MINIMAL_HOME_HEADER = 'x-tramelle-minimal-home';
-
-function isLocaleOnlyHomePath(pathname: string): boolean {
-  const trimmed = pathname.replace(/\/$/, '') || '/';
-  const segments = trimmed.split('/').filter(Boolean);
-  return segments.length === 1 && /^[a-z]{2}$/i.test(segments[0]!);
-}
-
-/**
- * Home `/[locale]`: header per layout senza Header/Footer solo dove vale la splash (vedi {@link requestShowsComingSoonHome}).
- */
-function withProdMinimalHomeHeader(
-  request: NextRequest,
-  response: NextResponse
-): NextResponse {
-  if (
-    !isLocaleOnlyHomePath(request.nextUrl.pathname) ||
-    !requestShowsComingSoonHome((name) => request.headers.get(name))
-  ) {
-    return response;
-  }
-
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set(MINIMAL_HOME_HEADER, '1');
-
-  const out = NextResponse.next({
-    request: { headers: requestHeaders }
-  });
-
-  response.cookies.getAll().forEach(c => {
-    out.cookies.set(c.name, c.value);
-  });
-
-  return out;
-}
-
 export async function middleware(request: NextRequest) {
   // Short-circuit static assets
   if (request.nextUrl.pathname.includes('.')) {
@@ -254,7 +217,7 @@ export async function middleware(request: NextRequest) {
 
   // Fast path: URL already has a locale segment and cache cookie exists
   if (looksLikeLocale && cacheIdCookie) {
-    return withProdMinimalHomeHeader(request, NextResponse.next());
+    return NextResponse.next();
   }
 
   let response = NextResponse.next();
@@ -317,7 +280,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return withProdMinimalHomeHeader(request, response);
+  return response;
 }
 
 export const config = {
