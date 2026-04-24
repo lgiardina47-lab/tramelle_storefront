@@ -95,10 +95,11 @@ export const getCartId = async () => {
 
 export const setCartId = async (cartId: string) => {
   const cookies = await nextCookies();
+  /** `strict` non invia il cookie al primo GET cross-site (es. link da mail) → checkout/carrello sembrano vuoti. Allineato al JWT (`lax`). */
   cookies.set('_medusa_cart_id', cartId, {
     maxAge: 60 * 60 * 24 * 7,
     httpOnly: true,
-    sameSite: 'strict',
+    sameSite: 'lax',
     secure: await cookieSecureFlag(),
   });
 };

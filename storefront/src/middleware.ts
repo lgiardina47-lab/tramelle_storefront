@@ -200,18 +200,6 @@ export async function middleware(request: NextRequest) {
 
   const pathnameWithoutLocale = looksLikeLocale ? pathname.replace(/^\/[^/]+/, '') : pathname;
 
-  /** Senza `_medusa_cart_id` il checkout rispondeva 200 + RSC redirect e alcuni client mostravano il default not-found. */
-  if (pathnameWithoutLocale === '/checkout') {
-    const localeForRedirect =
-      looksLikeLocale && urlSegment ? urlSegment.toLowerCase() : DEFAULT_REGION;
-    if (!request.cookies.get('_medusa_cart_id')?.value?.trim()) {
-      return NextResponse.redirect(
-        new URL(`/${localeForRedirect}/cart${request.nextUrl.search}`, request.url),
-        307
-      );
-    }
-  }
-
   const isProtectedRoute = PROTECTED_ROUTES.some(route => pathnameWithoutLocale.startsWith(route));
 
   if (isProtectedRoute) {

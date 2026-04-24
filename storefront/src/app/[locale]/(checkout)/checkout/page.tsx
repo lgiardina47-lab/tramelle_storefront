@@ -75,8 +75,11 @@ export default async function CheckoutPage({
   const { locale } = await params;
   const cart = await retrieveCart();
 
-  /** Fuori da Suspense: così `redirect()` è una risposta HTTP pulita, non stream + fallback 404. */
-  if (!cart || !cart.items?.length) {
+  /** Solo carrello assente o confermato vuoto — evita redirect se `items` non è nell'espansione API. */
+  if (!cart) {
+    redirect(`/${locale}/cart`);
+  }
+  if (Array.isArray(cart.items) && cart.items.length === 0) {
     redirect(`/${locale}/cart`);
   }
 

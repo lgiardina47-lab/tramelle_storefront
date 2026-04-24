@@ -14,7 +14,8 @@ import {
   getCartId,
   removeAuthToken,
   removeCartId,
-  setAuthToken
+  setAuthToken,
+  setCartId
 } from './cookies';
 
 /**
@@ -109,8 +110,8 @@ const retrieveCustomerUncached =
         method: 'GET',
         query: {
           // `*groups` non è ammesso su /store/customers/me in Mercur/Medusa → 400 e la sessione sembra assente.
-          // Senza `*orders`: ordini da `listOrders`; meno payload su ogni richiesta RSC.
-          fields: '*metadata',
+          // `*addresses` serve al checkout (indirizzi salvati); senza `*orders` (ordini da `listOrders`).
+          fields: '*addresses,*metadata',
         },
         headers,
         cache: 'no-store'
@@ -270,7 +271,15 @@ export async function transferCart(authOverride?: {
     authOverride ??
     ((await getAuthHeaders()) as { authorization: string } | Record<string, never>);
 
-  await sdk.store.cart.transferCart(cartId, {}, headers);
+  const { cart: transferred } = await sdk.store.cart.transferCart(
+    cartId,
+    {},
+    headers
+  );
+
+  if (transferred?.id) {
+    await setCartId(transferred.id);
+  }
 
   const cartCacheTag = await getCacheTag('carts');
   revalidateTag(cartCacheTag);
