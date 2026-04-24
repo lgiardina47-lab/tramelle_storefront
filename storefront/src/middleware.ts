@@ -9,6 +9,7 @@ import {
   STOREFRONT_EN_URL_SEGMENT,
   isStorefrontPermissiveLocalePath,
 } from './lib/i18n/storefront-path-locale';
+import { fetchWithTimeout } from './lib/helpers/fetch-with-timeout';
 import { MEDUSA_BACKEND_URL } from './lib/medusa-backend-url';
 import { TRAMELLE_CATEGORY_HANDLE_PREFIX } from './lib/helpers/category-public-url';
 
@@ -59,11 +60,14 @@ async function getRegionMap(_cacheId: string) {
     // Fetch regions from the commerce backend. Edge middleware cannot use the JS SDK (Node-only).
     // Edge middleware: avoid Next.js fetch cache options here — they can break or behave inconsistently on the Edge runtime.
     const regionsUrl = `${BACKEND_URL.replace(/\/$/, '')}/store/regions`;
-    const { regions } = await fetch(regionsUrl, {
-      headers: {
-        'x-publishable-api-key': PUBLISHABLE_API_KEY
+    const { regions } = await fetchWithTimeout(
+      regionsUrl,
+      {
+        headers: {
+          'x-publishable-api-key': PUBLISHABLE_API_KEY
+        }
       }
-    }).then(async response => {
+    ).then(async response => {
       const text = await response.text();
       const trimmed = text.trimStart();
       if (trimmed.startsWith('<')) {
@@ -195,6 +199,18 @@ export async function middleware(request: NextRequest) {
   const looksLikeLocale = /^[a-z]{2}$/i.test(urlSegment || '');
 
   const pathnameWithoutLocale = looksLikeLocale ? pathname.replace(/^\/[^/]+/, '') : pathname;
+
+  /** Senza `_medusa_cart_id` il checkout rispondeva 200 + RSC redirect e alcuni client mostravano il default not-found. */
+  if (pathnameWithoutLocale === '/checkout') {
+    const localeForRedirect =
+      looksLikeLocale && urlSegment ? urlSegment.toLowerCase() : DEFAULT_REGION;
+    if (!request.cookies.get('_medusa_cart_id')?.value?.trim()) {
+      return NextResponse.redirect(
+        new URL(`/${localeForRedirect}/cart${request.nextUrl.search}`, request.url),
+        307
+      );
+    }
+  }
 
   const isProtectedRoute = PROTECTED_ROUTES.some(route => pathnameWithoutLocale.startsWith(route));
 

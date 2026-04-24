@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 
+import type { HttpTypes } from '@medusajs/types';
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
 import PaymentWrapper from '@/components/organisms/PaymentContainer/PaymentWrapper';
-import { TranslatedPageLoading } from '@/components/molecules/TranslatedPageLoading/TranslatedPageLoading';
 import { CartAddressSection } from '@/components/sections/CartAddressSection/CartAddressSection';
 import CartPaymentSection from '@/components/sections/CartPaymentSection/CartPaymentSection';
 import CartReview from '@/components/sections/CartReview/CartReview';
@@ -31,46 +31,69 @@ export async function generateMetadata({
   };
 }
 
-export default async function CheckoutPage({}) {
+/** Skeleton per i blocchi indirizzo / consegna / pagamento (dati in streaming). */
+function CheckoutStepSkeleton() {
   return (
-    <Suspense
-      fallback={
-        <TranslatedPageLoading namespace="Checkout" testId="checkout-page-loading" />
-      }
+    <div
+      className="min-h-[100px] animate-pulse rounded-sm border border-ui-border-base bg-ui-bg-subtle p-4"
+      data-testid="checkout-step-skeleton"
+      aria-busy
     >
-      <CheckoutPageContent />
-    </Suspense>
+      <div className="h-5 w-36 rounded-md bg-ui-bg-component-hover" />
+      <div className="mt-4 h-16 rounded-md bg-ui-bg-component-hover/80" />
+    </div>
   );
 }
 
-async function CheckoutPageContent({}) {
+async function CheckoutAddressStep({ cart }: { cart: HttpTypes.StoreCart }) {
+  const customer = await retrieveCustomer();
+  return <CartAddressSection cart={cart} customer={customer} />;
+}
+
+async function CheckoutDeliveryStep({ cart }: { cart: HttpTypes.StoreCart }) {
+  const shippingMethods = await listCartShippingMethods(cart.id, false);
+  return (
+    <CartShippingMethodsSection
+      cart={cart}
+      availableShippingMethods={shippingMethods as any}
+    />
+  );
+}
+
+async function CheckoutPaymentStep({ cart }: { cart: HttpTypes.StoreCart }) {
+  const paymentMethods = await listCartPaymentMethods(cart.region?.id ?? '');
+  return (
+    <CartPaymentSection cart={cart} availablePaymentMethods={paymentMethods} />
+  );
+}
+
+export default async function CheckoutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
   const cart = await retrieveCart();
 
-  if (!cart) {
-    return notFound();
+  /** Fuori da Suspense: così `redirect()` è una risposta HTTP pulita, non stream + fallback 404. */
+  if (!cart || !cart.items?.length) {
+    redirect(`/${locale}/cart`);
   }
-
-  const shippingMethods = await listCartShippingMethods(cart.id, false);
-  const paymentMethods = await listCartPaymentMethods(cart.region?.id ?? '');
-  const customer = await retrieveCustomer();
 
   return (
     <PaymentWrapper cart={cart}>
       <main className="container" data-testid="checkout-page">
         <div className="grid gap-8 lg:grid-cols-11">
           <div className="flex flex-col gap-4 lg:col-span-6" data-testid="checkout-steps-container">
-            <CartAddressSection
-              cart={cart}
-              customer={customer}
-            />
-            <CartShippingMethodsSection
-              cart={cart}
-              availableShippingMethods={shippingMethods as any}
-            />
-            <CartPaymentSection
-              cart={cart}
-              availablePaymentMethods={paymentMethods}
-            />
+            <Suspense fallback={<CheckoutStepSkeleton />}>
+              <CheckoutAddressStep cart={cart} />
+            </Suspense>
+            <Suspense fallback={<CheckoutStepSkeleton />}>
+              <CheckoutDeliveryStep cart={cart} />
+            </Suspense>
+            <Suspense fallback={<CheckoutStepSkeleton />}>
+              <CheckoutPaymentStep cart={cart} />
+            </Suspense>
           </div>
 
           <div className="lg:col-span-5" data-testid="checkout-review-container">
