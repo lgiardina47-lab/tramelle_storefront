@@ -91,6 +91,16 @@ async function listStoreSellersFacetsUncached(params?: {
   }
 }
 
+/**
+ * Stessa fetch dei facets **senza** `cache(React)`: usare in Route Handler / script
+ * dove `cache` non è disponibile o non è adatto.
+ */
+export async function fetchStoreSellersFacetsRaw(
+  params?: { contentLocale?: string }
+): Promise<StoreSellersFacetsResponse | null> {
+  return listStoreSellersFacetsUncached(params)
+}
+
 /** Paesi, regioni e categorie per filtri directory (`content_locale` solo se passato in `params`). */
 export const listStoreSellersFacets = cache(listStoreSellersFacetsUncached)
 

@@ -1,20 +1,11 @@
 "use client"
 
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import type { HeroCoverSlide } from "@/types/hero"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
-export type HeroCoverSlide = {
-  src: string
-  alt: string
-  /** Presente per le cover da catalogo produttori; assente sul fallback statico. */
-  handle?: string
-  displayName?: string
-  locationLine?: string
-  logoSrc?: string
-  /** Posizione 1-based nel listing API (solo slide da catalogo). */
-  catalogIndex1Based?: number
-}
+export type { HeroCoverSlide }
 
 /**
  * Ordine per indice catalogo (lineare); punto di partenza casuale al mount client,
@@ -152,7 +143,7 @@ export function HomeCinematicHeroRotatingBackdrop({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-[4]">
+      <div className="pointer-events-none absolute inset-0 z-[10]">
         {showCounter ? (
           <div
             className="pointer-events-auto absolute right-3 top-4 flex w-[min(220px,calc(100%-1.5rem))] max-w-[220px] items-center sm:right-8 sm:top-5 lg:right-14"

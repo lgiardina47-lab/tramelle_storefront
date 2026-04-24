@@ -2,166 +2,18 @@
 
 import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
-import type { TranslationValues } from "next-intl"
-import {
-  listStoreSellersFacets,
-  listStoreSellersNoStore,
-} from "@/lib/data/seller"
-import {
-  buildHeroCatalogSlideFromSeller,
-  type HeroCatalogSlide,
-} from "@/lib/helpers/hero-catalog-slide"
-import { normalizeListingContentLocale } from "@/lib/i18n/listing-content-locale"
-import { countryCodeToStorefrontMessagesLocale } from "@/lib/i18n/storefront-messages-locale"
-import { sellerListingRegionLabel } from "@/lib/helpers/seller-listing-region"
-import {
-  sellerDirectoryLogoImageCandidates,
-  sellerHeroImageCandidates,
-} from "@/lib/helpers/seller-media-url"
-import type { StoreSellerListItem } from "@/types/seller"
-import { withTimeout } from "@/lib/helpers/with-timeout"
+import type { HeroCatalogSlide } from "@/lib/helpers/hero-catalog-slide"
 import Link from "next/link"
 
 import { HomeCinematicHeroFrame } from "./HomeCinematicHeroFrame"
-import {
-  HomeCinematicHeroRotatingBackdrop,
-  type HeroCoverSlide,
-} from "./HomeCinematicHeroRotatingBackdrop"
+import { HomeCinematicHeroRotatingBackdrop } from "./HomeCinematicHeroRotatingBackdrop"
+import type { HeroCoverSlide } from "@/types/hero"
+import { normalizeListingContentLocale } from "@/lib/i18n/listing-content-locale"
 
-/** Max slide per il fallback cover (pagina singola API); il pool catalogo non è limitato. */
-const HERO_COVER_MAX_SLIDES = 28
-
-type HeroT = (key: string, values?: TranslationValues) => string
-
-/** Nome leggibile se l'API non espone `name` ma solo `handle` (slug). */
-function heroSellerDisplayName(s: StoreSellerListItem): string {
-  const n = s.name?.trim()
-  if (n) return n
-  const h = s.handle?.trim()
-  if (!h) return ""
-  return h
-    .split("-")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(" ")
-}
-
-function buildHeroLocationLine(s: StoreSellerListItem): string {
-  const country = s.country_code?.trim().toUpperCase() || ""
-  const region = sellerListingRegionLabel(s)
-  if (country && region) return `${country} · ${region}`
-  return country || region || ""
-}
-
-function buildHeroCoverSlides(
-  sellers: StoreSellerListItem[],
-  t: HeroT,
-  /** Offset API della prima riga in `sellers` (per contatore `n / totale`). */
-  listBaseOffset: number
-): HeroCoverSlide[] {
-  const seen = new Set<string>()
-  const out: HeroCoverSlide[] = []
-  const order = sellers.map((_, i) => i)
-  shuffleInPlace(order)
-
-  for (const idx of order) {
-    const s = sellers[idx]!
-    const raw = sellerHeroImageCandidates(s)[0]
-    if (!raw) continue
-    const url = raw.trim()
-    if (!url || seen.has(url)) continue
-    seen.add(url)
-    const displayName = heroSellerDisplayName(s)
-    const alt = displayName
-      ? t("cinematicImageAlt", { name: displayName })
-      : t("cinematicImageAltFallback")
-
-    const logoRaw = (sellerDirectoryLogoImageCandidates(s)[0] || "").trim()
-
-    out.push({
-      src: url,
-      alt,
-      handle: s.handle,
-      displayName,
-      locationLine: buildHeroLocationLine(s),
-      logoSrc: logoRaw || undefined,
-      catalogIndex1Based: listBaseOffset + idx + 1,
-    })
-    if (out.length >= HERO_COVER_MAX_SLIDES) break
-  }
-
-  if (!out.length) {
-    out.push({
-      src: "/images/hero/Image.jpg",
-      alt: t("cinematicImageAltFallback"),
-    })
-  }
-  return out
-}
-
-function shuffleInPlace<T>(a: T[]): T[] {
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j]!, a[i]!]
-  }
-  return a
-}
-
-/**
- * Prima slide hero: offset casuale nel listing **per lingua** (`content_locale` come directory),
- * poi avanzamento lineare lato client (`/api/tramelle/hero-seller-slide`).
- */
-async function pickInitialHeroCatalogSlide(
-  total: number,
-  t: HeroT,
-  intlLocales: readonly string[],
-  listingContentLocale: string | undefined
-): Promise<{ offset0: number; slide: HeroCatalogSlide } | null> {
-  if (total <= 0) return null
-
-  const tSlide = {
-    altForName: (name: string) => t("cinematicImageAlt", { name }),
-    altFallback: () => t("cinematicImageAltFallback"),
-  }
-
-  /** Prima era fino a 48 GET con `limit=1` in serie (chiudeva tardi lo stream RSC → rotellina). */
-  const CHUNK = 48
-  const nChunks = Math.max(1, Math.ceil(total / CHUNK))
-  /** Pochi tentativi = meno attese in serie su `/store/sellers` (hero già in Suspense). */
-  const maxChunkAttempts = Math.min(nChunks, 3)
-  const firstChunk = Math.floor(Math.random() * nChunks)
-
-  for (let a = 0; a < maxChunkAttempts; a++) {
-    const ci = (firstChunk + a) % nChunks
-    const off = ci * CHUNK
-    if (off >= total) continue
-    const limit = Math.min(CHUNK, total - off)
-
-    const row = await listStoreSellersNoStore({
-      limit,
-      offset: off,
-      ...(listingContentLocale ? { contentLocale: listingContentLocale } : {}),
-    })
-    const sellers = row?.sellers ?? []
-    if (!sellers.length) continue
-
-    const order = sellers.map((_, i) => i)
-    shuffleInPlace(order)
-
-    for (const idx of order) {
-      const s = sellers[idx]!
-      const offset0 = off + idx
-      const slide = buildHeroCatalogSlideFromSeller(
-        s,
-        tSlide,
-        intlLocales,
-        offset0 + 1
-      )
-      if (slide) return { offset0, slide }
-    }
-  }
-
-  return null
+type HeroStateJson = {
+  total: number
+  heroInit: { offset0: number; slide: HeroCatalogSlide } | null
+  coverSlides: HeroCoverSlide[]
 }
 
 /** Altezza hero home (cover alta; trust bar assoluta in basso). */
@@ -176,9 +28,9 @@ export function HomeCinematicHeroSkeleton() {
     >
       <div className="absolute inset-0 animate-pulse bg-neutral-800" />
       <div
-        className={`relative z-[2] flex ${HERO_MIN_H} flex-col justify-center px-4 pb-24 pt-8 sm:px-8 sm:pb-24 sm:pt-10 lg:px-14`}
+        className={`pointer-events-none relative z-[2] flex ${HERO_MIN_H} flex-col justify-center px-4 pb-24 pt-8 sm:px-8 sm:pb-24 sm:pt-10 lg:px-14`}
       >
-        <div className="max-w-[620px] space-y-5">
+        <div className="pointer-events-auto max-w-[620px] space-y-5">
           <div className="h-3 w-48 rounded bg-white/20" />
           <div className="space-y-3">
             <div className="h-12 w-full max-w-md rounded bg-white/15" />
@@ -210,13 +62,11 @@ export function HomeCinematicHeroSkeleton() {
 }
 
 /**
- * Dati Medusa in **client** (useEffect): lo stream RSC non attende facet/seller/hero;
- * first paint: skeleton, poi sostituzione con contenuto reale.
+ * Dati Medusa: **non** chiamare l’SDK dal browser (cache React + `next` su fetch incompatibili col client).
+ * Carichiamo lo stato con `GET /api/tramelle/hero-home-state` (stessa logica server di prima).
  */
 export function HomeCinematicHero({ locale }: { locale: string }) {
   const t = useTranslations("Hero")
-  const ui = countryCodeToStorefrontMessagesLocale(locale)
-  const intlLocales = [ui, "it"] as const
 
   const [ready, setReady] = useState(false)
   const [total, setTotal] = useState(0)
@@ -229,70 +79,24 @@ export function HomeCinematicHero({ locale }: { locale: string }) {
   useEffect(() => {
     setReady(false)
     let cancelled = false
-    const intlLocalesLocal = intlLocales
-    ;(async () => {
-      const listingContentLocale = normalizeListingContentLocale(locale)
+    const q = new URLSearchParams({ locale })
+    void (async () => {
       try {
-        const facets = await withTimeout(
-          listStoreSellersFacets(
-            listingContentLocale ? { contentLocale: listingContentLocale } : {}
-          ),
-          14_000,
-          null
+        const res = await fetch(
+          `/api/tramelle/hero-home-state?${q.toString()}`,
+          { cache: "no-store" }
         )
-        const tot = facets?.totalSellerCount ?? 0
+        if (!res.ok) throw new Error(String(res.status))
+        const data = (await res.json()) as HeroStateJson
         if (cancelled) return
-        setTotal(tot)
-
-        const hi =
-          tot > 0
-            ? await withTimeout(
-                pickInitialHeroCatalogSlide(
-                  tot,
-                  t,
-                  intlLocalesLocal,
-                  listingContentLocale
-                ),
-                22_000,
-                null
-              )
-            : null
-        if (cancelled) return
-        setHeroInit(hi)
-
-        let nextCover: HeroCoverSlide[] = []
-        if (!hi) {
-          const coverPageSize = 72
-          const coverOffset =
-            tot > coverPageSize
-              ? Math.floor(Math.random() * (tot - coverPageSize + 1))
-              : 0
-          const list =
-            tot > 0
-              ? await withTimeout(
-                  listStoreSellersNoStore({
-                    limit: coverPageSize,
-                    offset: coverOffset,
-                    ...(listingContentLocale
-                      ? { contentLocale: listingContentLocale }
-                      : {}),
-                  }),
-                  18_000,
-                  null
-                )
-              : null
-          const sellers = list?.sellers ?? []
-          nextCover = buildHeroCoverSlides(sellers, t, coverOffset)
-        }
-        if (cancelled) return
-        setCoverSlides(nextCover)
+        setTotal(data.total)
+        setHeroInit(data.heroInit)
+        setCoverSlides(data.coverSlides ?? [])
       } catch {
         if (!cancelled) {
           setTotal(0)
           setHeroInit(null)
-          setCoverSlides(
-            buildHeroCoverSlides([], t, 0)
-          )
+          setCoverSlides([])
         }
       } finally {
         if (!cancelled) setReady(true)
@@ -301,8 +105,6 @@ export function HomeCinematicHero({ locale }: { locale: string }) {
     return () => {
       cancelled = true
     }
-    // t da next-intl è stabile per namespace; intlLocales dipende da locale
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-fetch when cambia `locale` (URL)
   }, [locale])
 
   if (!ready) {
@@ -346,9 +148,9 @@ export function HomeCinematicHero({ locale }: { locale: string }) {
       />
 
       <div
-        className={`relative z-[2] flex ${HERO_MIN_H} flex-col justify-center px-4 pb-24 pt-8 sm:px-8 sm:pb-24 sm:pt-10 lg:px-14`}
+        className={`pointer-events-none relative z-[2] flex ${HERO_MIN_H} flex-col justify-center px-4 pb-24 pt-8 sm:px-8 sm:pb-24 sm:pt-10 lg:px-14`}
       >
-        <div className="max-w-[620px]">
+        <div className="pointer-events-auto max-w-[620px]">
           <div className="font-tramelle mb-3 text-[10px] font-normal uppercase leading-snug tracking-[0.22em] text-white sm:mb-3.5">
             <p>{t("cinematicEyebrowLine1")}</p>
           </div>

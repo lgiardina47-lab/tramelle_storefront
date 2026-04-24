@@ -192,7 +192,7 @@ export function HomeCinematicHeroFrame({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-0 z-[4]">
+      <div className="pointer-events-none absolute inset-0 z-[10]">
         <div
           className="pointer-events-auto absolute right-3 top-4 flex w-[min(220px,calc(100%-1.5rem))] max-w-[220px] items-center sm:right-8 sm:top-5 lg:right-14"
           aria-live="polite"
