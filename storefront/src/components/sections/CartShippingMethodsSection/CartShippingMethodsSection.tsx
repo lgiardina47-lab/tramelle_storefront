@@ -1,23 +1,21 @@
 'use client';
 
-import { Fragment, useEffect, useState, useTransition, type FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 
-import { Listbox, Transition } from '@headlessui/react';
-import { CheckCircleSolid, ChevronUpDown, Loader } from '@medusajs/icons';
+import { RadioGroup } from '@headlessui/react';
+import { CheckCircleSolid } from '@medusajs/icons';
 import type { HttpTypes } from '@medusajs/types';
-import { clx, Heading, Text } from '@medusajs/ui';
+import { Heading, Text } from '@medusajs/ui';
 import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 
 import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
-import { removeShippingMethod, setShippingMethod } from '@/lib/data/cart';
+import { setShippingMethod } from '@/lib/data/cart';
 import { calculatePriceForShippingOption } from '@/lib/data/fulfillment';
 import { convertToLocale } from '@/lib/helpers/money';
 
-import { CartShippingMethodRow } from './CartShippingMethodRow';
 import { useTranslations } from 'next-intl';
 
-// Extended cart item product type to include seller
 type ExtendedStoreProduct = HttpTypes.StoreProduct & {
   seller?: {
     id: string;
@@ -25,10 +23,8 @@ type ExtendedStoreProduct = HttpTypes.StoreProduct & {
   };
 };
 
-// Cart item type definition
 type CartItem = {
   product?: ExtendedStoreProduct;
-  // Include other cart item properties as needed
 };
 
 export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {
@@ -39,6 +35,31 @@ export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {
     };
   };
 };
+
+/** L'API salva le opzioni con `option_id`; sul carrello il metodo espone `shipping_option_id` (non `id` del metodo). */
+function shippingOptionIdFromCartMethod(
+  method: HttpTypes.StoreCartShippingMethod | undefined
+): string | undefined {
+  if (!method) return undefined;
+  const m = method as Record<string, unknown>;
+  const a = m.shipping_option_id;
+  const b = m.option_id;
+  if (typeof a === 'string' && a.length > 0) return a;
+  if (typeof b === 'string' && b.length > 0) return b;
+  return undefined;
+}
+
+function selectedOptionIdForGroup(
+  cart: Omit<HttpTypes.StoreCart, 'items'> & { items?: CartItem[] },
+  options: StoreCardShippingMethod[]
+): string | null {
+  const ids = new Set(options.map(o => o.id));
+  for (const m of cart.shipping_methods ?? []) {
+    const oid = shippingOptionIdFromCartMethod(m);
+    if (oid && ids.has(oid)) return oid;
+  }
+  return null;
+}
 
 type ShippingProps = {
   cart: Omit<HttpTypes.StoreCart, 'items'> & {
@@ -61,8 +82,6 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [calculatedPricesMap, setCalculatedPricesMap] = useState<Record<string, number>>({});
   const [error, setError] = useState<string | null>(null);
-  const [, startTransitionDeleteRow] = useTransition();
-
   const router = useRouter();
 
   const hasCompleteAddress = Boolean(
@@ -77,15 +96,6 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const _shippingMethods = availableShippingMethods?.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
   );
-
-  useEffect(() => {
-    const set = new Set<string>();
-    cart.items?.forEach(item => {
-      if (item?.product?.seller?.id) {
-        set.add(item.product.seller.id);
-      }
-    });
-  }, [cart]);
 
   useEffect(() => {
     if (_shippingMethods?.length) {
@@ -108,10 +118,8 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     }
   }, [availableShippingMethods, _shippingMethods, cart.id]);
 
-  const handleSetShippingMethod = async (id: string | null) => {
-    if (!id) {
-      return;
-    }
+  const handleSetShippingMethod = async (id: string) => {
+    if (!id || !hasCompleteAddress) return;
 
     try {
       setError(null);
@@ -121,23 +129,17 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
         shippingMethodId: id
       });
       if (!res.ok) {
-        return setError(res.error?.message);
+        setError(res.error?.message ?? t('genericError'));
+        return;
       }
-    } catch (error: any) {
+    } catch (err: any) {
       setError(
-        error?.message?.replace('Error setting up the request: ', '') || t('genericError')
+        err?.message?.replace('Error setting up the request: ', '') || t('genericError')
       );
     } finally {
       setIsLoadingPrices(false);
       router.refresh();
     }
-  };
-
-  const handleRemoveShippingMethod = (methodId: string) => {
-    startTransitionDeleteRow(async () => {
-      await removeShippingMethod(methodId);
-    });
-    router.refresh();
   };
 
   useEffect(() => {
@@ -168,130 +170,117 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     key => (groupedBySellerId?.[key]?.length ?? 0) > 0
   );
 
+  const formatOptionPrice = (option: StoreCardShippingMethod) => {
+    if (option.price_type === 'flat') {
+      return convertToLocale({
+        amount: option.amount!,
+        currency_code: cart?.currency_code
+      });
+    }
+    if (calculatedPricesMap[option.id]) {
+      return convertToLocale({
+        amount: calculatedPricesMap[option.id],
+        currency_code: cart?.currency_code
+      });
+    }
+    if (isLoadingPrices) return '…';
+    return '—';
+  };
+
   return (
-    <div className="bg-ui-bg-interactive rounded-sm border p-4">
-      <div className="mb-6 flex flex-row items-center justify-between">
+    <div
+      className="rounded-lg border border-[#d9d9d9] bg-white p-5 lg:p-6 shadow-sm"
+      data-testid="checkout-step-delivery"
+    >
+      <div className="mb-5 flex flex-row items-center justify-between">
         <Heading
           level="h2"
-          className="text-3xl-regular flex flex-row items-baseline gap-x-2"
+          className="flex flex-row items-baseline gap-x-2 text-lg font-semibold text-[#202223]"
         >
-          {(cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
+          {(cart.shipping_methods?.length ?? 0) > 0 && (
+            <CheckCircleSolid className="text-[#1773b0]" />
+          )}
           {t('delivery')}
         </Heading>
       </div>
-      <>
-        <div className="grid">
-          <div data-testid="delivery-options-container">
-            <div className="pb-8 pt-2 md:pt-0">
-              {!hasCompleteAddress ? (
-                <Text className="txt-medium text-ui-fg-subtle mb-4 block">
-                  {t('shippingNeedsAddress')}
-                </Text>
-              ) : null}
-              {filteredGroupedBySellerId.length === 0
-                ? hasCompleteAddress
-                  ? t('noShippingOptions')
-                  : null
-                : filteredGroupedBySellerId.map(key => (
-                      <div
-                        key={key}
-                        className="mb-4"
-                      >
-                        <Heading
-                          level="h3"
-                          className="mb-2"
-                        >
-                          {groupedBySellerId[key][0].seller_name ||
-                            groupedBySellerId[key][0].name ||
-                            t('sellerShippingGroup')}
-                        </Heading>
-                        <Listbox
-                          value={cart.shipping_methods?.[0]?.id}
-                          onChange={value => {
-                            handleSetShippingMethod(value);
-                          }}
-                          disabled={!hasCompleteAddress}
-                        >
-                          <div className="relative">
-                            <Listbox.Button
-                              className={clsx(
-                                'text-base-regular relative flex h-12 w-full cursor-default items-center justify-between rounded-lg border bg-component-secondary px-4 text-left focus:outline-none focus-visible:border-gray-300 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-300'
-                              )}
-                            >
-                              {({ open }) => (
-                                <>
-                                  <span className="block truncate">{t('chooseDeliveryOption')}</span>
-                                  <ChevronUpDown
-                                    className={clx('transition-rotate duration-200', {
-                                      'rotate-180 transform': open
-                                    })}
-                                  />
-                                </>
-                              )}
-                            </Listbox.Button>
-                            <Transition
-                              as={Fragment}
-                              leave="transition ease-in duration-100"
-                              leaveFrom="opacity-100"
-                              leaveTo="opacity-0"
-                            >
-                              <Listbox.Options
-                                className="text-small-regular border-top-0 absolute z-20 max-h-60 w-full overflow-auto rounded-lg border bg-white focus:outline-none sm:text-sm"
-                                data-testid="shipping-address-options"
-                              >
-                                {groupedBySellerId[key].map((option: any) => (
-                                  <Listbox.Option
-                                    className="relative cursor-pointer select-none border-b py-4 pl-6 pr-10 hover:bg-gray-50"
-                                    value={option.id}
-                                    key={option.id}
-                                  >
-                                    {option.name}
-                                    {' - '}
-                                    {option.price_type === 'flat' ? (
-                                      convertToLocale({
-                                        amount: option.amount!,
-                                        currency_code: cart?.currency_code
-                                      })
-                                    ) : calculatedPricesMap[option.id] ? (
-                                      convertToLocale({
-                                        amount: calculatedPricesMap[option.id],
-                                        currency_code: cart?.currency_code
-                                      })
-                                    ) : isLoadingPrices ? (
-                                      <Loader />
-                                    ) : (
-                                      '-'
-                                    )}
-                                  </Listbox.Option>
-                                ))}
-                              </Listbox.Options>
-                            </Transition>
-                          </div>
-                        </Listbox>
-                      </div>
-                    ))}
-                {!!cart?.shipping_methods?.length && (
-                  <div className="flex flex-col">
-                    {cart.shipping_methods?.map(method => (
-                      <CartShippingMethodRow
-                        key={method.id}
-                        method={method}
-                        currency_code={cart.currency_code}
-                        onRemoveShippingMethod={handleRemoveShippingMethod}
-                      />
-                    ))}
-                  </div>
-                )}
+      <div className="grid">
+        <div data-testid="delivery-options-container">
+          <div className="pb-2 pt-0 md:pt-0">
+            {!hasCompleteAddress ? (
+              <div className="mb-4 rounded-md bg-[#f5f5f5] px-4 py-3 text-sm text-[#6d7175]">
+                {t('shippingNeedsAddress')}
               </div>
-            </div>
+            ) : null}
+            {filteredGroupedBySellerId.length === 0
+              ? hasCompleteAddress
+                ? (
+                    <Text className="text-sm text-[#6d7175]">{t('noShippingOptions')}</Text>
+                  )
+                : null
+              : filteredGroupedBySellerId.map(key => {
+                  const options = groupedBySellerId[key] as StoreCardShippingMethod[];
+                  const selectedId = selectedOptionIdForGroup(cart, options);
+
+                  return (
+                    <div key={key} className="mb-6 last:mb-0">
+                      <h3 className="mb-3 text-sm font-medium text-[#202223]">
+                        {options[0]?.seller_name ||
+                          options[0]?.name ||
+                          t('sellerShippingGroup')}
+                      </h3>
+                      <RadioGroup
+                        value={selectedId ?? undefined}
+                        onChange={handleSetShippingMethod}
+                        disabled={!hasCompleteAddress}
+                        className="space-y-2"
+                      >
+                        {options.map((option: StoreCardShippingMethod) => (
+                          <RadioGroup.Option
+                            key={option.id}
+                            value={option.id}
+                            className={({ checked, disabled }) =>
+                              clsx(
+                                'relative flex cursor-pointer rounded-lg border px-4 py-3 text-left transition-colors',
+                                disabled && 'cursor-not-allowed opacity-60',
+                                checked
+                                  ? 'border-[#1773b0] bg-white shadow-[inset_0_0_0_1px_rgba(23,115,176,0.35)]'
+                                  : 'border-[#d9d9d9] bg-white hover:border-[#8c9196]'
+                              )
+                            }
+                          >
+                            {({ checked }) => (
+                              <div className="flex w-full items-start gap-3">
+                                <span
+                                  className={clsx(
+                                    'mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2',
+                                    checked ? 'border-[#1773b0]' : 'border-[#8c9196]'
+                                  )}
+                                  aria-hidden
+                                >
+                                  {checked ? (
+                                    <span className="h-2 w-2 rounded-full bg-[#1773b0]" />
+                                  ) : null}
+                                </span>
+                                <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
+                                  <span className="text-sm font-medium text-[#202223]">
+                                    {option.name}
+                                  </span>
+                                  <span className="shrink-0 text-sm font-medium text-[#202223]">
+                                    {formatOptionPrice(option)}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </RadioGroup.Option>
+                        ))}
+                      </RadioGroup>
+                    </div>
+                  );
+                })}
           </div>
-          <div>
-            <ErrorMessage
-              error={error}
-              data-testid="delivery-option-error-message"
-            />
-          </div>
-        </>
+        </div>
+        <ErrorMessage error={error} data-testid="delivery-option-error-message" />
+      </div>
     </div>
   );
 };

@@ -45,7 +45,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )
     default:
       return (
-        <Button disabled className="w-full">
+        <Button
+          disabled
+          className="w-full rounded-md !bg-[#1773b0]/40 py-3.5 text-base font-semibold !text-white"
+        >
           {t("selectPaymentMethod")}
         </Button>
       )
@@ -158,7 +161,7 @@ const StripePaymentButton = ({
         disabled={disabled || notReady}
         onClick={handlePayment}
         loading={submitting}
-        className="w-full"
+        className="w-full rounded-md !bg-[#1773b0] py-3.5 text-base font-semibold !text-white hover:!bg-[#135d91] disabled:!bg-[#b5b5b5]"
       >
         {t("placeOrder")}
       </Button>
@@ -201,7 +204,7 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
       <Button
         disabled={notReady}
         onClick={handlePayment}
-        className="w-full"
+        className="w-full rounded-md !bg-[#1773b0] py-3.5 text-base font-semibold !text-white hover:!bg-[#135d91] disabled:!bg-[#b5b5b5]"
         loading={submitting}
       >
         {t("placeOrder")}

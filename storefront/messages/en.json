@@ -160,6 +160,7 @@
     "shippingAddress": "Shipping address",
     "delivery": "Delivery",
     "payment": "Payment",
+    "paymentSecureHint": "All transactions are secure and encrypted.",
     "edit": "Edit",
     "save": "Save",
     "continueToDelivery": "Continue to delivery",

@@ -3,7 +3,6 @@ import { Text, clx } from "@medusajs/ui"
 import React, { useContext, useMemo, type JSX } from "react"
 
 import { isManual } from "../../../lib/constants"
-import SkeletonCardDetails from "./SkeletonCardDetails"
 import { CardElement } from "@stripe/react-stripe-js"
 import { StripeCardElementOptions } from "@stripe/stripe-js"
 import PaymentTest from "./PaymentTest"
@@ -32,9 +31,10 @@ const PaymentContainer: React.FC<PaymentContainerProps> = ({
       value={paymentProviderId}
       disabled={disabled}
       className={clx(
-        "rounded-sm flex flex-col gap-y-2 text-small-regular cursor-pointer py-4 border rounded-rounded px-8 mb-2 hover:shadow-borders-interactive-with-active",
+        "checkout-payment-option flex flex-col gap-y-2 text-small-regular cursor-pointer rounded-lg border border-[#d9d9d9] px-5 py-4 mb-2 transition-colors hover:border-[#8c9196]",
         {
-          "border-primary/20": selectedPaymentOptionId === paymentProviderId,
+          "border-[#1773b0] shadow-[inset_0_0_0_1px_rgba(23,115,176,0.35)]":
+            selectedPaymentOptionId === paymentProviderId,
         }
       )}
     >
@@ -118,9 +118,7 @@ export const StripeCardContainer = ({
               }}
             />
           </div>
-        ) : (
-          <SkeletonCardDetails />
-        ))}
+        ) : null)}
     </PaymentContainer>
   )
 }

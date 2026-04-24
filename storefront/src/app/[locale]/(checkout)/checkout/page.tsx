@@ -35,12 +35,12 @@ export async function generateMetadata({
 function CheckoutStepSkeleton() {
   return (
     <div
-      className="min-h-[100px] animate-pulse rounded-sm border border-ui-border-base bg-ui-bg-subtle p-4"
+      className="min-h-[100px] animate-pulse rounded-lg border border-[#e8e8e8] bg-white p-5 shadow-sm"
       data-testid="checkout-step-skeleton"
       aria-busy
     >
-      <div className="h-5 w-36 rounded-md bg-ui-bg-component-hover" />
-      <div className="mt-4 h-16 rounded-md bg-ui-bg-component-hover/80" />
+      <div className="h-5 w-36 rounded-md bg-[#e8e8e8]" />
+      <div className="mt-4 h-16 rounded-md bg-[#f0f0f0]" />
     </div>
   );
 }
@@ -85,9 +85,15 @@ export default async function CheckoutPage({
 
   return (
     <PaymentWrapper cart={cart}>
-      <main className="container" data-testid="checkout-page">
-        <div className="grid gap-8 lg:grid-cols-11">
-          <div className="flex flex-col gap-4 lg:col-span-6" data-testid="checkout-steps-container">
+      <main
+        className="checkout-shopify mx-auto w-full max-w-[62rem] px-4 sm:px-6 py-6 lg:py-10"
+        data-testid="checkout-page"
+      >
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_min(100%,380px)] lg:items-start lg:gap-10">
+          <div
+            className="flex flex-col gap-5 bg-white lg:bg-transparent"
+            data-testid="checkout-steps-container"
+          >
             <Suspense fallback={<CheckoutStepSkeleton />}>
               <CheckoutAddressStep cart={cart} />
             </Suspense>
@@ -99,9 +105,12 @@ export default async function CheckoutPage({
             </Suspense>
           </div>
 
-          <div className="lg:col-span-5" data-testid="checkout-review-container">
+          <aside
+            className="lg:sticky lg:top-6 lg:self-start"
+            data-testid="checkout-review-container"
+          >
             <CartReview cart={cart} />
-          </div>
+          </aside>
         </div>
       </main>
     </PaymentWrapper>

@@ -43,13 +43,16 @@ export const CartAddressSection = ({
   const [message, formAction] = useActionState(setAddresses, sameAsBilling)
 
   return (
-    <div className="border p-4 rounded-sm bg-ui-bg-interactive" data-testid="checkout-step-address">
-      <div className="flex flex-row items-center justify-between mb-6">
+    <div
+      className="rounded-lg border border-[#d9d9d9] bg-white p-5 shadow-sm lg:p-6"
+      data-testid="checkout-step-address"
+    >
+      <div className="mb-5 flex flex-row items-center justify-between">
         <Heading
           level="h2"
-          className="flex flex-row text-3xl-regular gap-x-2 items-baseline items-center"
+          className="flex flex-row items-baseline gap-x-2 text-lg font-semibold text-[#202223]"
         >
-          {isAddress && <CheckCircleSolid />} {t("shippingAddress")}
+          {isAddress && <CheckCircleSolid className="text-[#1773b0]" />} {t("shippingAddress")}
         </Heading>
       </div>
       <form
@@ -61,11 +64,11 @@ export const CartAddressSection = ({
         <div className="pb-8">
           {!customer ? (
             <div
-              className="mb-6 rounded-sm border border-ui-border-base bg-ui-bg-subtle p-4 text-small-regular text-ui-fg-base"
+              className="mb-6 rounded-md border border-[#d9d9d9] bg-[#fafafa] p-4 text-sm text-[#202223]"
               data-testid="checkout-login-hint"
             >
               <p className="mb-2 font-medium">{t("alreadyHaveAccount")}</p>
-              <p className="mb-1 text-ui-fg-subtle">{t("inlineLoginHint")}</p>
+              <p className="mb-1 text-[#6d7175]">{t("inlineLoginHint")}</p>
               <CheckoutInlineLogin />
             </div>
           ) : null}
@@ -76,7 +79,7 @@ export const CartAddressSection = ({
             cart={cart}
           />
           <Button
-            className="mt-6"
+            className="mt-6 border border-[#d9d9d9] bg-[#f5f5f5] text-[#202223] hover:bg-[#ebebeb]"
             data-testid="submit-address-button"
             variant="tonal"
           >

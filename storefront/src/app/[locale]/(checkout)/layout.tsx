@@ -9,9 +9,9 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <>
-      <header>
-        <div className="relative w-full py-2 lg:px-8 px-4">
+    <div className="min-h-screen bg-[#f5f5f5]">
+      <header className="border-b border-[#e8e8e8] bg-white">
+        <div className="relative mx-auto w-full max-w-[62rem] py-3 lg:px-6 px-4">
           <div className="absolute top-3">
             <LocalizedClientLink href="/cart">
               <Button variant="tonal" className="flex items-center gap-2">
@@ -36,6 +36,6 @@ export default async function RootLayout({
         </div>
       </header>
       {children}
-    </>
+    </div>
   )
 }

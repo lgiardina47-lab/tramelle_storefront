@@ -67,8 +67,8 @@ export function CheckoutInlineLogin() {
         ) : null}
         <Button
           type="submit"
-          variant="tonal"
-          className="w-full sm:w-auto"
+          variant="filled"
+          className="w-full rounded-md !bg-[#1773b0] hover:!bg-[#135d91] !text-white sm:w-auto"
           disabled={pending}
           data-testid="checkout-inline-login-submit"
         >

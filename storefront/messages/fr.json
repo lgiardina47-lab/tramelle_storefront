@@ -160,6 +160,7 @@
     "shippingAddress": "Adresse de livraison",
     "delivery": "Livraison",
     "payment": "Paiement",
+    "paymentSecureHint": "Toutes les transactions sont sécurisées et cryptées.",
     "edit": "Modifier",
     "save": "Enregistrer",
     "continueToDelivery": "Continuer vers la livraison",

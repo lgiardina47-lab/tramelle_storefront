@@ -59,7 +59,8 @@ const CartPaymentSection = ({
 
   const paidByGiftcard = cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0;
 
-  const paymentReady = (activeSession && cart?.shipping_methods.length !== 0) || paidByGiftcard;
+  const shippingOk = (cart?.shipping_methods?.length ?? 0) > 0;
+  const paymentReady = (activeSession && shippingOk) || paidByGiftcard;
 
   useEffect(() => {
     setError(null);
@@ -73,16 +74,20 @@ const CartPaymentSection = ({
   }, [activeSession?.provider_id, selectedPaymentMethod]);
 
   return (
-    <div className="bg-ui-bg-interactive rounded-sm border p-4" data-testid="checkout-step-payment">
-      <div className="mb-6 flex flex-row items-center justify-between">
+    <div
+      className="rounded-lg border border-[#d9d9d9] bg-white p-5 shadow-sm lg:p-6"
+      data-testid="checkout-step-payment"
+    >
+      <div className="mb-2 flex flex-row items-center justify-between">
         <Heading
           level="h2"
-          className="text-3xl-regular flex flex-row items-center items-baseline gap-x-2"
+          className="flex flex-row items-baseline gap-x-2 text-lg font-semibold text-[#202223]"
         >
-          {paymentReady && <CheckCircleSolid />}
+          {paymentReady && <CheckCircleSolid className="text-[#1773b0]" />}
           {t('payment')}
         </Heading>
       </div>
+      <Text className="mb-5 text-sm text-[#6d7175]">{t('paymentSecureHint')}</Text>
       <div>
         {!paidByGiftcard && availablePaymentMethods?.length ? (
           <>

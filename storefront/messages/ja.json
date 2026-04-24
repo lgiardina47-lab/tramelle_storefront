@@ -160,6 +160,7 @@
     "shippingAddress": "お届け先住所",
     "delivery": "配送",
     "payment": "お支払い",
+    "paymentSecureHint": "すべての取引は安全に暗号化されています。",
     "edit": "変更",
     "save": "保存",
     "continueToDelivery": "配送へ進む",
