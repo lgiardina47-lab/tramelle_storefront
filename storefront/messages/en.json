@@ -82,6 +82,7 @@
       "originLoading": "Loading origins…",
       "originEmpty": "No origins available for this selection.",
       "topBarLead": "Shop gourmet products online from over 1,037 curated brands.",
+      "topBarDemo": "Marketplace (demo version)",
       "topBarRegister": "Sign up",
       "mobileSearchPlaceholder": "Search products, producers, regions…",
       "browseCategoriesTitle": "Browse categories",
@@ -112,6 +113,10 @@
     "cinematicHeroPrev": "Previous producer",
     "cinematicHeroNext": "Next producer",
     "cinematicSellerStoreCta": "Visit the producer store",
+    "cinematicBrandExploreAllProductsCta": "Explore all products from {name}",
+    "cinematicSellerSubcategories": "Subcategories",
+    "brandReadMore": "Read more",
+    "brandReadLess": "Show less",
     "trust1Label": "Curated",
     "trust1Sub": "Vetted partners only",
     "trust2Label": "Worldwide",
@@ -177,7 +182,15 @@
     "promoNotFound": "Promotion code not found",
     "promoApplied": "Promotion code applied",
     "promoRemoved": "Promotion code removed",
-    "promoRemoveFailed": "Failed to remove promotion code"
+    "promoRemoveFailed": "Failed to remove promotion code",
+    "alreadyHaveAccount": "Already have an account?",
+    "loginCta": "Log in",
+    "inlineLoginHint": "Sign in here without leaving checkout — your cart is kept.",
+    "inlineLoginEmail": "Email",
+    "inlineLoginPassword": "Password",
+    "inlineLoginSubmit": "Log in",
+    "shippingNeedsAddress": "Save your shipping address above to see delivery options.",
+    "sellerShippingGroup": "Shipping"
   },
   "ProductSheet": {
     "detailsHeading": "Product details",
@@ -202,7 +215,9 @@
     "openFilters": "Filters",
     "priceSection": "Price",
     "priceMinPlaceholder": "Min",
-    "priceMaxPlaceholder": "Max"
+    "priceMaxPlaceholder": "Max",
+    "facetBrand": "Brand",
+    "facetSubcategories": "Subcategories"
   },
   "Sellers": {
     "filtersCountryLabel": "Country",

@@ -82,6 +82,7 @@
       "originLoading": "Herkünfte werden geladen…",
       "originEmpty": "Für diese Auswahl liegen keine Herkunftsinformationen vor.",
       "topBarLead": "Kaufen Sie Gourmet-Produkte online von über 1.037 ausgewählten Marken.",
+      "topBarDemo": "Marketplace (Demoversion)",
       "topBarRegister": "Registrieren",
       "mobileSearchPlaceholder": "Produkte, Produzenten, Regionen suchen…",
       "browseCategoriesTitle": "Kategorien durchstöbern",
@@ -112,6 +113,10 @@
     "cinematicHeroPrev": "Vorheriger Erzeuger",
     "cinematicHeroNext": "Nächster Erzeuger",
     "cinematicSellerStoreCta": "Zum Shop des Erzeugers",
+    "cinematicBrandExploreAllProductsCta": "Alle Produkte von {name} entdecken",
+    "cinematicSellerSubcategories": "Unterkategorien",
+    "brandReadMore": "Mehr lesen",
+    "brandReadLess": "Weniger anzeigen",
     "trust1Label": "Kuratiert",
     "trust1Sub": "Nur geprüfte Partner",
     "trust2Label": "Weltweit",
@@ -177,7 +182,15 @@
     "promoNotFound": "Aktionscode nicht gefunden",
     "promoApplied": "Aktionscode angewendet",
     "promoRemoved": "Aktionscode entfernt",
-    "promoRemoveFailed": "Aktionscode konnte nicht entfernt werden"
+    "promoRemoveFailed": "Aktionscode konnte nicht entfernt werden",
+    "alreadyHaveAccount": "Sie haben bereits ein Konto?",
+    "loginCta": "Anmelden",
+    "inlineLoginHint": "Melden Sie sich hier an, ohne den Checkout zu verlassen — Ihr Warenkorb bleibt erhalten.",
+    "inlineLoginEmail": "E-Mail",
+    "inlineLoginPassword": "Passwort",
+    "inlineLoginSubmit": "Anmelden",
+    "shippingNeedsAddress": "Speichern Sie oben Ihre Lieferadresse, um Versandoptionen zu sehen.",
+    "sellerShippingGroup": "Versand"
   },
   "ProductSheet": {
     "detailsHeading": "Produktdetails",
@@ -202,7 +215,9 @@
     "openFilters": "Filter",
     "priceSection": "Preis",
     "priceMinPlaceholder": "Min",
-    "priceMaxPlaceholder": "Max"
+    "priceMaxPlaceholder": "Max",
+    "facetBrand": "Marke",
+    "facetSubcategories": "Unterkategorien"
   },
   "Sellers": {
     "filtersCountryLabel": "Land",

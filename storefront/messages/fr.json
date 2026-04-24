@@ -82,6 +82,7 @@
       "originLoading": "Chargement des origines…",
       "originEmpty": "Aucune origine disponible pour cette sélection.",
       "topBarLead": "Achetez des produits gourmet en ligne auprès de plus de 1 037 marques sélectionnées.",
+      "topBarDemo": "Marketplace (version démo)",
       "topBarRegister": "S’inscrire",
       "mobileSearchPlaceholder": "Rechercher des produits, producteurs, régions…",
       "browseCategoriesTitle": "Parcourir les catégories",
@@ -112,6 +113,10 @@
     "cinematicHeroPrev": "Producteur précédent",
     "cinematicHeroNext": "Producteur suivant",
     "cinematicSellerStoreCta": "Voir la boutique du producteur",
+    "cinematicBrandExploreAllProductsCta": "Explorer tous les produits de {name}",
+    "cinematicSellerSubcategories": "Sous-catégories",
+    "brandReadMore": "Lire la suite",
+    "brandReadLess": "Réduire",
     "trust1Label": "Sélection",
     "trust1Sub": "Partenaires vérifiés",
     "trust2Label": "Mondial",
@@ -177,7 +182,15 @@
     "promoNotFound": "Code promotionnel introuvable",
     "promoApplied": "Code promotionnel appliqué",
     "promoRemoved": "Code promotionnel supprimé",
-    "promoRemoveFailed": "Impossible de supprimer le code"
+    "promoRemoveFailed": "Impossible de supprimer le code",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "loginCta": "Se connecter",
+    "inlineLoginHint": "Connectez-vous ici sans quitter le paiement — votre panier est conservé.",
+    "inlineLoginEmail": "E-mail",
+    "inlineLoginPassword": "Mot de passe",
+    "inlineLoginSubmit": "Se connecter",
+    "shippingNeedsAddress": "Enregistrez votre adresse ci-dessus pour voir les options de livraison.",
+    "sellerShippingGroup": "Livraison"
   },
   "ProductSheet": {
     "detailsHeading": "Détails du produit",
@@ -202,7 +215,9 @@
     "openFilters": "Filtres",
     "priceSection": "Prix",
     "priceMinPlaceholder": "Min",
-    "priceMaxPlaceholder": "Max"
+    "priceMaxPlaceholder": "Max",
+    "facetBrand": "Marque",
+    "facetSubcategories": "Sous-catégories"
   },
   "Sellers": {
     "filtersCountryLabel": "Pays",

@@ -38,7 +38,7 @@ export const Cart = () => {
             tax={cart?.tax_total || 0}
             discount_total={cart?.discount_subtotal || 0}
           />
-          <LocalizedClientLink href="/checkout?step=address">
+          <LocalizedClientLink href="/checkout">
             <Button className="flex w-full items-center justify-center py-3 uppercase tracking-wide mt-2">{t('goToCheckout')}</Button>
           </LocalizedClientLink>
         </div>

@@ -82,6 +82,7 @@
       "originLoading": "Cargando orígenes…",
       "originEmpty": "No hay orígenes disponibles para esta selección.",
       "topBarLead": "Compra productos gourmet online de más de 1.037 marcas seleccionadas.",
+      "topBarDemo": "Marketplace (versión demo)",
       "topBarRegister": "Regístrate",
       "mobileSearchPlaceholder": "Buscar productos, productores, regiones…",
       "browseCategoriesTitle": "Explorar categorías",
@@ -112,6 +113,10 @@
     "cinematicHeroPrev": "Productor anterior",
     "cinematicHeroNext": "Productor siguiente",
     "cinematicSellerStoreCta": "Ir a la tienda del productor",
+    "cinematicBrandExploreAllProductsCta": "Explora todos los productos de {name}",
+    "cinematicSellerSubcategories": "Subcategorías",
+    "brandReadMore": "Leer más",
+    "brandReadLess": "Mostrar menos",
     "trust1Label": "Seleccionados",
     "trust1Sub": "Socios verificados",
     "trust2Label": "Globales",
@@ -177,7 +182,15 @@
     "promoNotFound": "Código promocional no encontrado",
     "promoApplied": "Código promocional aplicado",
     "promoRemoved": "Código promocional eliminado",
-    "promoRemoveFailed": "No se pudo eliminar el código"
+    "promoRemoveFailed": "No se pudo eliminar el código",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "loginCta": "Iniciar sesión",
+    "inlineLoginHint": "Inicia sesión aquí sin salir del checkout — tu carrito se mantiene.",
+    "inlineLoginEmail": "Correo electrónico",
+    "inlineLoginPassword": "Contraseña",
+    "inlineLoginSubmit": "Iniciar sesión",
+    "shippingNeedsAddress": "Guarda tu dirección arriba para ver las opciones de envío.",
+    "sellerShippingGroup": "Envío"
   },
   "ProductSheet": {
     "detailsHeading": "Detalles del producto",
@@ -202,7 +215,9 @@
     "openFilters": "Filtros",
     "priceSection": "Precio",
     "priceMinPlaceholder": "Mín",
-    "priceMaxPlaceholder": "Máx"
+    "priceMaxPlaceholder": "Máx",
+    "facetBrand": "Marca",
+    "facetSubcategories": "Subcategorías"
   },
   "Sellers": {
     "filtersCountryLabel": "País",

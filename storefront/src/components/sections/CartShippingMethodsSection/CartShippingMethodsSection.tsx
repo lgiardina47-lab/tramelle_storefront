@@ -7,9 +7,8 @@ import { CheckCircleSolid, ChevronUpDown, Loader } from '@medusajs/icons';
 import type { HttpTypes } from '@medusajs/types';
 import { clx, Heading, Text } from '@medusajs/ui';
 import clsx from 'clsx';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
-import { Button } from '@/components/atoms';
 import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
 import { removeShippingMethod, setShippingMethod } from '@/lib/data/cart';
 import { calculatePriceForShippingOption } from '@/lib/data/fulfillment';
@@ -62,13 +61,18 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [calculatedPricesMap, setCalculatedPricesMap] = useState<Record<string, number>>({});
   const [error, setError] = useState<string | null>(null);
-  const [isPendingDeleteRow, startTransitionDeleteRow] = useTransition();
+  const [, startTransitionDeleteRow] = useTransition();
 
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const pathname = usePathname();
 
-  const isOpen = searchParams.get('step') === 'delivery';
+  const hasCompleteAddress = Boolean(
+    cart?.shipping_address?.first_name &&
+      cart?.shipping_address?.last_name &&
+      cart?.shipping_address?.address_1 &&
+      cart?.shipping_address?.city &&
+      cart?.shipping_address?.postal_code &&
+      cart?.shipping_address?.country_code
+  );
 
   const _shippingMethods = availableShippingMethods?.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
@@ -90,6 +94,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
         .map(sm => calculatePriceForShippingOption(sm.id, cart.id));
 
       if (promises.length) {
+        setIsLoadingPrices(true);
         Promise.allSettled(promises).then(res => {
           const pricesMap: Record<string, number> = {};
           res
@@ -102,10 +107,6 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
       }
     }
   }, [availableShippingMethods, _shippingMethods, cart.id]);
-
-  const handleSubmit = () => {
-    router.push(pathname + '?step=payment', { scroll: false });
-  };
 
   const handleSetShippingMethod = async (id: string | null) => {
     if (!id) {
@@ -141,33 +142,30 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
 
   useEffect(() => {
     setError(null);
-  }, [isOpen]);
+  }, [hasCompleteAddress]);
 
   const groupedBySellerId = _shippingMethods?.reduce((acc: any, method) => {
-    const sellerId = method.seller_id!;
+    const sellerId = method.seller_id ?? '__default__';
 
     if (!acc[sellerId]) {
       acc[sellerId] = [];
     }
 
-    const amount = Number(
-      method.price_type === 'flat' ? method.amount : calculatedPricesMap[method.id]
-    );
+    const flatAmount = Number(method.price_type === 'flat' ? method.amount : NaN);
 
-    if (!isNaN(amount)) {
-      acc[sellerId]?.push(method);
+    const include =
+      (method.price_type === 'flat' && !isNaN(flatAmount)) ||
+      method.price_type === 'calculated';
+
+    if (include) {
+      acc[sellerId].push(method);
     }
 
     return acc;
   }, {});
 
-  const handleEdit = () => {
-    router.replace(pathname + '?step=delivery');
-  };
-  const isEditEnabled = !isOpen && !!cart?.shipping_methods?.length;
-
   const filteredGroupedBySellerId = Object.keys(groupedBySellerId || {}).filter(
-    key => groupedBySellerId?.[key]?.[0]?.seller_name
+    key => (groupedBySellerId?.[key]?.length ?? 0) > 0
   );
 
   return (
@@ -177,28 +175,24 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           level="h2"
           className="text-3xl-regular flex flex-row items-baseline gap-x-2"
         >
-          {!isOpen && (cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
+          {(cart.shipping_methods?.length ?? 0) > 0 && <CheckCircleSolid />}
           {t('delivery')}
         </Heading>
-        {isEditEnabled && (
-          <Text>
-            <Button
-              onClick={handleEdit}
-              variant="tonal"
-            >
-              {t('edit')}
-            </Button>
-          </Text>
-        )}
       </div>
-      {isOpen ? (
-        <>
-          <div className="grid">
-            <div data-testid="delivery-options-container">
-              <div className="pb-8 pt-2 md:pt-0">
-                {filteredGroupedBySellerId.length === 0
+      <>
+        <div className="grid">
+          <div data-testid="delivery-options-container">
+            <div className="pb-8 pt-2 md:pt-0">
+              {!hasCompleteAddress ? (
+                <Text className="txt-medium text-ui-fg-subtle mb-4 block">
+                  {t('shippingNeedsAddress')}
+                </Text>
+              ) : null}
+              {filteredGroupedBySellerId.length === 0
+                ? hasCompleteAddress
                   ? t('noShippingOptions')
-                  : filteredGroupedBySellerId.map(key => (
+                  : null
+                : filteredGroupedBySellerId.map(key => (
                       <div
                         key={key}
                         className="mb-4"
@@ -207,13 +201,16 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                           level="h3"
                           className="mb-2"
                         >
-                          {groupedBySellerId[key][0].seller_name}
+                          {groupedBySellerId[key][0].seller_name ||
+                            groupedBySellerId[key][0].name ||
+                            t('sellerShippingGroup')}
                         </Heading>
                         <Listbox
                           value={cart.shipping_methods?.[0]?.id}
                           onChange={value => {
                             handleSetShippingMethod(value);
                           }}
+                          disabled={!hasCompleteAddress}
                         >
                           <div className="relative">
                             <Listbox.Button
@@ -293,41 +290,8 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               error={error}
               data-testid="delivery-option-error-message"
             />
-            <Button
-              onClick={handleSubmit}
-              variant="tonal"
-              disabled={!cart.shipping_methods?.[0] || isPendingDeleteRow}
-              loading={isLoadingPrices}
-            >
-              {t('continueToPayment')}
-            </Button>
           </div>
         </>
-      ) : (
-        <div>
-          <div className="text-small-regular">
-            {cart && (cart.shipping_methods?.length ?? 0) > 0 && (
-              <div className="flex flex-col">
-                {cart.shipping_methods?.map(method => (
-                  <div
-                    key={method.id}
-                    className="mb-4 rounded-md border p-4"
-                  >
-                    <Text className="txt-medium-plus text-ui-fg-base mb-1">{t('shippingMethod')}</Text>
-                    <Text className="txt-medium text-ui-fg-subtle">
-                      {method.name}{' '}
-                      {convertToLocale({
-                        amount: method.amount!,
-                        currency_code: cart?.currency_code
-                      })}
-                    </Text>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

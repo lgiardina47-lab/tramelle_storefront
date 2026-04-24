@@ -82,6 +82,7 @@
       "originLoading": "Caricamento delle provenienze…",
       "originEmpty": "Nessuna provenienza disponibile per questa selezione.",
       "topBarLead": "Acquista prodotti gourmet online da oltre 1.037 brand selezionati.",
+      "topBarDemo": "Marketplace in versione demo",
       "topBarRegister": "Iscriviti",
       "mobileSearchPlaceholder": "Cerca prodotti, produttori, regioni…",
       "browseCategoriesTitle": "Sfoglia le categorie",
@@ -112,6 +113,10 @@
     "cinematicHeroPrev": "Produttore precedente",
     "cinematicHeroNext": "Produttore successivo",
     "cinematicSellerStoreCta": "Esplora i prodotti",
+    "cinematicBrandExploreAllProductsCta": "Esplora tutti i prodotti di {name}",
+    "cinematicSellerSubcategories": "Sottocategorie",
+    "brandReadMore": "Leggi di più",
+    "brandReadLess": "Mostra meno",
     "trust1Label": "Curati",
     "trust1Sub": "Partner verificati",
     "trust2Label": "Globali",
@@ -182,7 +187,15 @@
     "promoNotFound": "Codice promozionale non trovato",
     "promoApplied": "Codice promozionale applicato",
     "promoRemoved": "Codice promozionale rimosso",
-    "promoRemoveFailed": "Impossibile rimuovere il codice"
+    "promoRemoveFailed": "Impossibile rimuovere il codice",
+    "alreadyHaveAccount": "Hai già un account?",
+    "loginCta": "Accedi",
+    "inlineLoginHint": "Accedi qui senza uscire dal checkout — il carrello resta qui.",
+    "inlineLoginEmail": "Email",
+    "inlineLoginPassword": "Password",
+    "inlineLoginSubmit": "Accedi",
+    "shippingNeedsAddress": "Salva l’indirizzo qui sopra per vedere le opzioni di consegna.",
+    "sellerShippingGroup": "Spedizione"
   },
   "ProductSheet": {
     "detailsHeading": "Dettagli prodotto",
@@ -207,7 +220,9 @@
     "openFilters": "Filtri",
     "priceSection": "Prezzo",
     "priceMinPlaceholder": "Min",
-    "priceMaxPlaceholder": "Max"
+    "priceMaxPlaceholder": "Max",
+    "facetBrand": "Brand",
+    "facetSubcategories": "Sottocategorie"
   },
   "Sellers": {
     "filtersCountryLabel": "Nazione",

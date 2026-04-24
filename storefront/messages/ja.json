@@ -82,6 +82,7 @@
       "originLoading": "産地を読み込み中…",
       "originEmpty": "この条件では表示できる産地がありません。",
       "topBarLead": "厳選1,037ブランド以上のグルメ商品をオンラインで。",
+      "topBarDemo": "マーケットプレイス（デモ版）",
       "topBarRegister": "会員登録",
       "mobileSearchPlaceholder": "商品・生産者・地域を検索…",
       "browseCategoriesTitle": "カテゴリーを見る",
@@ -112,6 +113,10 @@
     "cinematicHeroPrev": "前の生産者",
     "cinematicHeroNext": "次の生産者",
     "cinematicSellerStoreCta": "ストアを見る",
+    "cinematicBrandExploreAllProductsCta": "{name}の商品をすべて見る",
+    "cinematicSellerSubcategories": "サブカテゴリ",
+    "brandReadMore": "続きを読む",
+    "brandReadLess": "閉じる",
     "trust1Label": "厳選",
     "trust1Sub": "認証パートナーのみ",
     "trust2Label": "グローバル",
@@ -177,7 +182,15 @@
     "promoNotFound": "プロモコードが見つかりません",
     "promoApplied": "プロモコードを適用しました",
     "promoRemoved": "プロモコードを削除しました",
-    "promoRemoveFailed": "プロモコードを削除できませんでした"
+    "promoRemoveFailed": "プロモコードを削除できませんでした",
+    "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
+    "loginCta": "ログイン",
+    "inlineLoginHint": "チェックアウトを離れずにここでログインできます。カートはそのままです。",
+    "inlineLoginEmail": "メールアドレス",
+    "inlineLoginPassword": "パスワード",
+    "inlineLoginSubmit": "ログイン",
+    "shippingNeedsAddress": "上でお届け先を保存すると、配送オプションが表示されます。",
+    "sellerShippingGroup": "配送"
   },
   "ProductSheet": {
     "detailsHeading": "商品詳細",
@@ -202,7 +215,9 @@
     "openFilters": "絞り込み",
     "priceSection": "価格",
     "priceMinPlaceholder": "下限",
-    "priceMaxPlaceholder": "上限"
+    "priceMaxPlaceholder": "上限",
+    "facetBrand": "ブランド",
+    "facetSubcategories": "サブカテゴリ"
   },
   "Sellers": {
     "filtersCountryLabel": "国",
