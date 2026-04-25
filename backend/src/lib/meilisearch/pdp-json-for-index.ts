@@ -1,6 +1,7 @@
 import type { ListingIndexExtras } from "./listing-index-extras"
 import type { MercurSearchTransformProduct } from "./product-record-types"
 import type { PdpSourceSnapshot } from "./pdp-source-snapshot"
+import { inventoryQuantityFromVariantRaw } from "./variant-inventory-from-raw"
 
 function pickVariantPrice(
   prices: { amount?: number; currency_code?: string }[] | undefined,
@@ -127,13 +128,7 @@ export function buildPdpStoreProductJson(
       }
     }
 
-    const invRaw = raw.inventory_quantity
-    const inventory_quantity =
-      typeof invRaw === "number"
-        ? invRaw
-        : typeof invRaw === "string"
-          ? parseInt(invRaw, 10) || 0
-          : 0
+    const inventory_quantity = inventoryQuantityFromVariantRaw(raw)
 
     const miRaw = raw.manage_inventory
     /** Se assente dal graph, assumiamo tracciamento giacenze (catalogo food). */
