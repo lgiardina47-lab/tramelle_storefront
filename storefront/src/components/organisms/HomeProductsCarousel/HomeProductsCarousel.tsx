@@ -12,9 +12,18 @@ export const HomeProductsCarousel = async ({
   home,
 }: {
   locale: string
-  sellerProducts: Product[]
+  sellerProducts: Product[] | HttpTypes.StoreProduct[]
   home: boolean
 }) => {
+  /** PDP con prodotti già nel bundle Meili: niente GET `/store/products` per re-idratare le card. */
+  if (!home && sellerProducts.length > 0) {
+    return (
+      <ProductsList
+        products={sellerProducts as unknown as HttpTypes.StoreProduct[]}
+      />
+    )
+  }
+
   const {
     response: { products },
   } = await listProducts({
@@ -27,18 +36,13 @@ export const HomeProductsCarousel = async ({
         ? undefined
         : sellerProducts.map((product) => product.handle),
     },
-    forceCache: !home,
   })
 
   if (!products.length && !sellerProducts.length) return null
 
   /** PDP / “altri prodotti”: stessa griglia listing (2 col mobile, 5 md), non il rail orizzontale. */
   if (!home) {
-    const gridProducts: HttpTypes.StoreProduct[] =
-      products.length > 0
-        ? (products as HttpTypes.StoreProduct[])
-        : (sellerProducts as unknown as HttpTypes.StoreProduct[])
-    return <ProductsList products={gridProducts} />
+    return <ProductsList products={products as HttpTypes.StoreProduct[]} />
   }
 
   return (

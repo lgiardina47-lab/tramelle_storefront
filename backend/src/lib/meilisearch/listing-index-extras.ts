@@ -7,4 +7,8 @@ export type ListingIndexExtras = {
   seller_country_code: string | null
   seller_state: string | null
   seller_id: string
+  seller_description?: string | null
+  seller_photo?: string | null
+  seller_tax_id?: string | null
+  seller_created_at?: string | null
 }

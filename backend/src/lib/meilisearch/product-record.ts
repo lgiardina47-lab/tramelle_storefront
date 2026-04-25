@@ -2,42 +2,10 @@ import {
   contentLocalesFromProductMetadata,
   titlesI18nFromProductMetadata,
 } from "./content-locales-from-metadata"
+import { buildPdpStoreProductJson } from "./pdp-json-for-index"
 import type { ListingIndexExtras } from "./listing-index-extras"
-
-type MercurSearchTransformProduct = {
-  id: string
-  title: string
-  subtitle?: string | null
-  description?: string | null
-  handle: string
-  thumbnail?: string | null
-  images?: { url?: string }[] | null
-  metadata?: unknown | null
-  average_rating?: number | null
-  supported_countries?: string[] | null
-  /** Popolato dopo il parse Zod in `findAndTransformPublishedProductsForMeili`. */
-  tramelle_provenance_seller?: {
-    country_code: string | null
-    state: string | null
-  }
-  seller?: {
-    id?: string
-    handle?: string | null
-    store_status?: string | null
-  } | null
-  categories?: { id: string; name: string }[] | null
-  collection?: { id?: string; title?: string | null } | null
-  tags?: { value: string }[] | null
-  type?: { value: string } | null
-  brand?: { name?: string } | null
-  variants?: Record<string, unknown>[] | null
-  attribute_values?: {
-    name?: string
-    value?: unknown
-    is_filterable?: boolean
-    ui_component?: string
-  }[] | null
-}
+import type { PdpSourceSnapshot } from "./pdp-source-snapshot"
+import type { MercurSearchTransformProduct } from "./product-record-types"
 
 function uniqStrings(values: Iterable<string>): string[] {
   return [...new Set(values)].filter(Boolean)
@@ -109,7 +77,8 @@ function provenanceRegionLabel(product: MercurSearchTransformProduct): string | 
 export function productToMeilisearchRecord(
   product: MercurSearchTransformProduct,
   collectionId?: string | null,
-  listingExtras?: ListingIndexExtras | null
+  listingExtras?: ListingIndexExtras | null,
+  pdpSources?: PdpSourceSnapshot | null
 ): Record<string, unknown> | null {
   const seller = product.seller
   if (!seller?.handle) {
@@ -250,6 +219,15 @@ export function productToMeilisearchRecord(
     variant_titles: variantTitles,
     listing_certifications: listingCertifications,
     listing_card,
+  }
+
+  if (pdpSources) {
+    doc.pdp = buildPdpStoreProductJson(
+      product,
+      pdpSources,
+      listingExtras ?? null,
+      "eur"
+    )
   }
 
   return doc

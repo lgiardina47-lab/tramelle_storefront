@@ -20,7 +20,7 @@ export default async function runSyncMeilisearch({ container }: ExecArgs) {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
   logger.info("Meilisearch: caricamento prodotti…")
-  const { products, listingIndexExtrasByProductId } =
+  const { products, listingIndexExtrasByProductId, pdpSourcesByProductId } =
     await findAndTransformPublishedProductsForMeili(container, [])
 
   const ids = products.map((p) => String((p as { id: unknown }).id))
@@ -61,7 +61,8 @@ export default async function runSyncMeilisearch({ container }: ExecArgs) {
     const rec = productToMeilisearchRecord(
       p as Parameters<typeof productToMeilisearchRecord>[0],
       collectionByProduct.get(pid) ?? null,
-      listingIndexExtrasByProductId.get(pid) ?? null
+      listingIndexExtrasByProductId.get(pid) ?? null,
+      pdpSourcesByProductId.get(pid) ?? null
     )
     if (rec) {
       docs.push(rec)

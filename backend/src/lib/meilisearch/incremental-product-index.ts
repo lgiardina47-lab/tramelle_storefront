@@ -49,7 +49,7 @@ export async function upsertProductInMeilisearchIndex(
   }
 
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-  const { products, listingIndexExtrasByProductId } =
+  const { products, listingIndexExtrasByProductId, pdpSourcesByProductId } =
     await findAndTransformPublishedProductsForMeili(container, [productId])
 
   if (!products.length) {
@@ -79,7 +79,8 @@ export async function upsertProductInMeilisearchIndex(
   const rec = productToMeilisearchRecord(
     raw as Parameters<typeof productToMeilisearchRecord>[0],
     collectionId,
-    listingIndexExtrasByProductId.get(productId) ?? null
+    listingIndexExtrasByProductId.get(productId) ?? null,
+    pdpSourcesByProductId.get(productId) ?? null
   )
   if (!rec) {
     await removeProductFromMeilisearchIndex(productId)

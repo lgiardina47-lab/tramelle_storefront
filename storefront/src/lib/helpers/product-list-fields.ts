@@ -8,6 +8,8 @@ export function storefrontListingProductFields(_includeVariantInventory?: boolea
   return (
     // No `*brand`: su stack Mercur/Medusa locale il Product module non espone `brand` → 500 su `/store/products` e PDP in404.
     // Nome produttore/marca: `getLocalizedProductContentForCountry` / `productProducerName` usano `seller` come fallback.
+    // Thumbnail e gallery: con `fields` selettivo Medusa omette i default → senza `+thumbnail` / `*images` PDP e card restano senza media.
+    "+thumbnail,*images," +
     "*variants.calculated_price,+variants.inventory_quantity,+metadata,*seller,*variants,*seller.products," +
     "*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute"
   )
@@ -19,6 +21,21 @@ export function storefrontListingProductFields(_includeVariantInventory?: boolea
  */
 export function storefrontHomeCarouselProductFields(): string {
   return (
+    "+thumbnail,*images," +
     "*variants.calculated_price,+variants.inventory_quantity,+variants.metadata,+metadata,*variants,*seller"
+  )
+}
+
+/**
+ * Scheda prodotto: niente `*seller.reviews*`, niente `*seller.products*`
+ * (evita payload >10MB e “Failed to set Next.js data cache”). Con Meilisearch attivo
+ * la PDP preferisce {@link getCachedPdpBundle}; in fallback restano listing + {@link getPdpMoreFromSellerProducts}.
+ */
+export function storefrontPdpProductFields(): string {
+  return (
+    "+thumbnail,*images," +
+    "*variants.calculated_price,+variants.inventory_quantity,+metadata," +
+    "*variants,*seller," +
+    "*attribute_values,*attribute_values.attribute"
   )
 }

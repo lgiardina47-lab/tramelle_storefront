@@ -12,6 +12,7 @@ import { z } from "zod"
 
 import { computeB2cMinPricesFromRawVariants } from "./b2c-min-prices-from-raw-variants"
 import type { ListingIndexExtras } from "./listing-index-extras"
+import { cloneJson, type PdpSourceSnapshot } from "./pdp-source-snapshot"
 
 async function selectProductVariantsSupportedCountries(
   container: MedusaContainer,
@@ -92,6 +93,9 @@ type SellerForMeili = {
   name?: string | null
   country_code?: string | null
   state?: string | null
+  description?: string | null
+  photo?: string | null
+  created_at?: string | null
 }
 
 async function selectProductSeller(
@@ -110,6 +114,9 @@ async function selectProductSeller(
       "seller.store_status",
       "seller.country_code",
       "seller.state",
+      "seller.description",
+      "seller.photo",
+      "seller.created_at",
     ],
     filters: { id: product_id },
   })
@@ -121,6 +128,11 @@ async function selectProductSeller(
     country_code?: string | null
     state?: string | null
   }
+  const sx = s as {
+    description?: string | null
+    photo?: string | null
+    created_at?: string | null
+  }
   return {
     id: s.id,
     handle: s.handle,
@@ -128,6 +140,9 @@ async function selectProductSeller(
     name: (s as { name?: string | null }).name ?? null,
     country_code: s.country_code,
     state: s.state,
+    description: sx.description ?? null,
+    photo: sx.photo ?? null,
+    created_at: sx.created_at ?? null,
   }
 }
 
@@ -167,6 +182,7 @@ export async function findAndTransformPublishedProductsForMeili(
 ): Promise<{
   products: z.infer<typeof AlgoliaProductValidator>[]
   listingIndexExtrasByProductId: Map<string, ListingIndexExtras>
+  pdpSourcesByProductId: Map<string, PdpSourceSnapshot>
 }> {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const { data: products } = await query.graph({
@@ -185,7 +201,9 @@ export async function findAndTransformPublishedProductsForMeili(
       "options.*",
       "options.values.*",
       "images.*",
+      "attribute_values.id",
       "attribute_values.value",
+      "attribute_values.attribute.id",
       "attribute_values.attribute.name",
       "attribute_values.attribute.is_filterable",
       "attribute_values.attribute.ui_component",
@@ -198,9 +216,19 @@ export async function findAndTransformPublishedProductsForMeili(
     { country_code: string | null; state: string | null }
   >()
   const listingIndexExtrasByProductId = new Map<string, ListingIndexExtras>()
+  const pdpSourcesByProductId = new Map<string, PdpSourceSnapshot>()
 
   for (const product of products as Record<string, unknown>[]) {
     product.average_rating = 0
+    const pidEarly = product.id as string
+    pdpSourcesByProductId.set(pidEarly, {
+      optionsRaw: cloneJson(product.options ?? []),
+      variantsRaw: cloneJson(product.variants ?? []),
+      attributeValuesRaw: cloneJson(product.attribute_values ?? []),
+      created_at:
+        typeof product.created_at === "string" ? product.created_at : null,
+    })
+
     let supported = await selectProductVariantsSupportedCountries(
       container,
       product.id as string
@@ -238,6 +266,16 @@ export async function findAndTransformPublishedProductsForMeili(
       seller_country_code: linkedSeller?.country_code?.trim() || null,
       seller_state: linkedSeller?.state?.trim() || null,
       seller_id: linkedSeller?.id ?? "",
+      seller_description: linkedSeller?.description?.trim() || null,
+      seller_photo: linkedSeller?.photo?.trim() || null,
+      seller_tax_id: null,
+      seller_created_at: (() => {
+        const c = linkedSeller?.created_at as unknown
+        if (c == null) return null
+        if (typeof c === "string") return c.trim() || null
+        if (c instanceof Date) return c.toISOString()
+        return null
+      })(),
     })
 
     const opts = (product.options ?? []) as {
@@ -301,5 +339,5 @@ export async function findAndTransformPublishedProductsForMeili(
     }
   }
 
-  return { products: parsed, listingIndexExtrasByProductId }
+  return { products: parsed, listingIndexExtrasByProductId, pdpSourcesByProductId }
 }

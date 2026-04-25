@@ -2,6 +2,7 @@ export function buildMeilisearchSettings(
   minPriceFilterableKeys: string[]
 ): Record<string, unknown> {
   const filterable: string[] = [
+    "handle",
     "provenance_country",
     "provenance_region",
     "seller.handle",

@@ -1,5 +1,11 @@
 import { getMeilisearchIndexName } from "./env"
 
+type MultiSearchResult = {
+  results: Array<{
+    facetDistribution?: Record<string, Record<string, number> | undefined>
+  }>
+}
+
 export function createMeilisearchClient() {
   const host = process.env.MEILISEARCH_HOST?.trim()
   const apiKey = process.env.MEILI_MASTER_KEY?.trim()
@@ -11,7 +17,22 @@ export function createMeilisearchClient() {
   return new MeiliSearch({ host, apiKey }) as {
     index: (uid: string) => unknown
     waitForTask: (taskUid: number) => Promise<unknown>
+    multiSearch: (params: {
+      queries: Array<Record<string, unknown>>
+    }) => Promise<MultiSearchResult>
   }
+}
+
+/** Una sola istanza per processo: meno overhead TCP/handshake verso Meili sul server. */
+let singletonClient: ReturnType<typeof createMeilisearchClient> | null = null
+
+export function getSingletonMeilisearchClient(): ReturnType<
+  typeof createMeilisearchClient
+> {
+  if (!singletonClient) {
+    singletonClient = createMeilisearchClient()
+  }
+  return singletonClient
 }
 
 export function getProductsIndex(client: {
