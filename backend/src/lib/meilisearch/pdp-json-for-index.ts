@@ -135,12 +135,18 @@ export function buildPdpStoreProductJson(
           ? parseInt(invRaw, 10) || 0
           : 0
 
+    const miRaw = raw.manage_inventory
+    /** Se assente dal graph, assumiamo tracciamento giacenze (catalogo food). */
+    const manage_inventory =
+      typeof miRaw === "boolean" ? miRaw : true
+
     const vOut: Record<string, unknown> = {
       id: vid,
       title: typeof pv.title === "string" ? pv.title : null,
       sku: typeof pv.sku === "string" ? pv.sku : null,
       metadata: meta ?? null,
       inventory_quantity,
+      manage_inventory,
       options: optRows,
     }
 

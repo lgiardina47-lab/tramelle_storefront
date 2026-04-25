@@ -3,11 +3,14 @@
 import { PropsWithChildren, useCallback, useEffect, useState } from 'react';
 
 import {
-  addToCart as apiAddToCart,
   deleteLineItem as apiDeleteLineItem,
   updateLineItem as apiUpdateLineItem,
   retrieveCart
 } from '@/lib/data/cart';
+import {
+  getCartMinimumOrderViolations,
+  type MinimumOrderViolation
+} from '@/lib/data/seller-minimum-order';
 import { Cart, StoreCartLineItemOptimisticUpdate } from '@/types/cart';
 
 import { CartContext } from './context';
@@ -15,12 +18,20 @@ import { CartContext } from './context';
 interface CartProviderProps extends PropsWithChildren {
   cart: Cart | null;
   wholesaleBuyer?: boolean;
+  minimumOrderViolations?: MinimumOrderViolation[];
 }
 
-export function CartProvider({ cart, children, wholesaleBuyer = false }: CartProviderProps) {
+export function CartProvider({
+  cart,
+  children,
+  wholesaleBuyer = false,
+  minimumOrderViolations: initialMinViol = []
+}: CartProviderProps) {
   const [cartState, setCartState] = useState(cart);
+  const [minimumOrderViolations, setMinimumOrderViolations] = useState(
+    initialMinViol
+  );
   const [isUpdating, setIsUpdating] = useState(false);
-  const [isAddingItem, setIsAddingItem] = useState(false);
   const [isUpdatingItem, setIsUpdatingItem] = useState(false);
   const [isRemovingItem, setIsRemovingItem] = useState(false);
 
@@ -28,10 +39,20 @@ export function CartProvider({ cart, children, wholesaleBuyer = false }: CartPro
     setCartState(cart);
   }, [cart]);
 
+  useEffect(() => {
+    setMinimumOrderViolations(initialMinViol);
+  }, [initialMinViol]);
+
   const refreshCart = useCallback(async () => {
     try {
       const cartData = await retrieveCart();
       setCartState(cartData);
+      if (cartData) {
+        const v = await getCartMinimumOrderViolations(cartData);
+        setMinimumOrderViolations(v);
+      } else {
+        setMinimumOrderViolations([]);
+      }
       return cartData;
     } catch (error) {
       console.error('Error fetching cart:', error);
@@ -74,7 +95,19 @@ export function CartProvider({ cart, children, wholesaleBuyer = false }: CartPro
         } as Cart;
       }
 
-      const updatedItems = [...currentItems, newItem] as StoreCartLineItemOptimisticUpdate[];
+      const q = Math.max(1, newItem.quantity || 1);
+      const perSub = newItem.subtotal || 0;
+      const perTot = newItem.total || 0;
+      const perTax = newItem.tax_total || 0;
+      const expandedNewItem = {
+        ...newItem,
+        quantity: q,
+        subtotal: q * perSub,
+        total: q * perTot,
+        tax_total: q * perTax,
+      } as StoreCartLineItemOptimisticUpdate;
+
+      const updatedItems = [...currentItems, expandedNewItem];
 
       const { item_subtotal, total, tax_total } = getItemsSummaryValues(updatedItems);
 
@@ -125,24 +158,29 @@ export function CartProvider({ cart, children, wholesaleBuyer = false }: CartPro
     countryCode: string;
     lineMetadata?: Record<string, string | number | boolean | null>;
   }) => {
-    setIsAddingItem(true);
-    setIsUpdating(true);
-
     try {
-      await apiAddToCart({
-        variantId,
-        quantity,
-        countryCode,
-        lineMetadata
+      const res = await fetch("/api/cart/add-line", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variantId,
+          quantity,
+          countryCode,
+          lineMetadata
+        }),
+        credentials: "same-origin"
       });
-      await refreshCart();
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(j.error || "Add to cart failed");
+      }
+      void refreshCart().catch(err => {
+        console.error("Error refreshing cart after add:", err);
+      });
     } catch (error) {
-      console.error('Error adding product to cart:', error);
+      console.error("Error adding product to cart:", error);
       await refreshCart();
       throw error;
-    } finally {
-      setIsAddingItem(false);
-      setIsUpdating(false);
     }
   };
 
@@ -188,13 +226,13 @@ export function CartProvider({ cart, children, wholesaleBuyer = false }: CartPro
         wholesaleBuyer,
         proMode: wholesaleBuyer,
         cart: cartState,
+        minimumOrderViolations,
         onAddToCart: handleAddToCart,
         addToCart,
         removeCartItem,
         updateCartItem,
         refreshCart,
         isUpdating,
-        isAddingItem,
         isUpdatingItem,
         isRemovingItem
       }}

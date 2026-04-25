@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 
 import { Button } from "@/components/atoms"
@@ -52,8 +53,7 @@ export const ProductDetailsHeader = ({
 }) => {
   const t = useTranslations("Product")
   const titleForUi = displayTitle?.trim() ? displayTitle : product.title
-  const { addToCart, onAddToCart, cart, isAddingItem, wholesaleBuyer } =
-    useCartContext()
+  const { addToCart, onAddToCart, cart, wholesaleBuyer } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
   const restrictB2cCatalog = !wholesaleBuyer
 
@@ -97,21 +97,41 @@ export const ProductDetailsHeader = ({
   const lineQtyInCart =
     cart?.items?.find((item) => item.variant_id === variantId)?.quantity ?? 0
 
-  const isVariantStockMaxLimitReached = lineQtyInCart >= variantStock
-
   const selectedStoreVariant = product.variants?.find(
     ({ id }) => id === variantId
   )
 
+  const managesInventory = selectedStoreVariant?.manage_inventory === true
+  const maxAddable =
+    managesInventory && variantStock > 0
+      ? Math.max(0, variantStock - lineQtyInCart)
+      : 99
+
+  const [addQty, setAddQty] = useState(1)
+
+  useEffect(() => {
+    setAddQty((prev) => {
+      const cap = Math.max(1, maxAddable || 1)
+      return Math.min(Math.max(1, prev), cap)
+    })
+  }, [variantId, maxAddable])
+
+  const exceedsStock =
+    managesInventory && lineQtyInCart + addQty > variantStock
+  const isVariantStockMaxLimitReached =
+    managesInventory && lineQtyInCart >= variantStock
+
   // add the selected variant to the cart
   const handleAddToCart = async () => {
-    if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached) return
+    if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached || exceedsStock)
+      return
+    const q = Math.max(1, addQty)
 
     const meta = selectedStoreVariant?.metadata as
       | Record<string, unknown>
       | undefined
     const pieces = parsePiecesPerCarton(meta)
-    const nextQty = lineQtyInCart + 1
+    const nextQty = lineQtyInCart + q
 
     if (wholesaleBuyer && pieces > 0 && nextQty % pieces !== 0) {
       toast.error({
@@ -127,7 +147,7 @@ export const ProductDetailsHeader = ({
     const storeCartLineItem = {
       thumbnail: product.thumbnail || "",
       product_title: titleForUi,
-      quantity: 1,
+      quantity: q,
       subtotal,
       total,
       tax_total: total - subtotal,
@@ -142,7 +162,7 @@ export const ProductDetailsHeader = ({
     try {
       await addToCart({
         variantId: variantId,
-        quantity: 1,
+        quantity: q,
         countryCode: locale,
         lineMetadata:
           pieces > 0
@@ -157,7 +177,13 @@ export const ProductDetailsHeader = ({
     }
   }
 
-  const isAddToCartDisabled = !variantStock || !variantHasPrice || !hasAnyPrice || isVariantStockMaxLimitReached
+  const isAddToCartDisabled =
+    !variantHasPrice ||
+    !hasAnyPrice ||
+    isVariantStockMaxLimitReached ||
+    exceedsStock ||
+    addQty < 1 ||
+    (managesInventory && !variantStock)
 
   const producerLabel = productProducerDisplayName(product)
 
@@ -208,7 +234,7 @@ export const ProductDetailsHeader = ({
               typeof variantStock === "number" &&
               variantStock > 0 && (
                 <p
-                  className="label-md text-secondary mt-2"
+                  className="label-md text-secondary mt-2 w-full"
                   data-testid="product-stock-display"
                 >
                   {t("inStockCount", { count: variantStock })}
@@ -244,20 +270,59 @@ export const ProductDetailsHeader = ({
           locale={locale}
         />
       )}
+      {hasAnyPrice && variantPrice && maxAddable > 0 ? (
+        <div
+          className="mb-4 mt-2 flex flex-wrap items-center gap-3"
+          data-testid="product-quantity-stepper"
+        >
+          <span className="label-md text-secondary">{t("quantityLabel")}</span>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="tonal"
+              className="flex h-9 w-9 items-center justify-center p-0"
+              disabled={addQty <= 1}
+              onClick={() => setAddQty((n) => Math.max(1, n - 1))}
+              aria-label={t("decreaseQtyAria")}
+            >
+              -
+            </Button>
+            <span
+              className="min-w-[2rem] text-center font-medium tabular-nums"
+              aria-live="polite"
+            >
+              {addQty}
+            </span>
+            <Button
+              type="button"
+              variant="tonal"
+              className="flex h-9 w-9 items-center justify-center p-0"
+              disabled={addQty >= maxAddable}
+              onClick={() =>
+                setAddQty((n) => Math.min(maxAddable, n + 1))
+              }
+              aria-label={t("increaseQtyAria")}
+            >
+              +
+            </Button>
+          </div>
+        </div>
+      ) : null}
       {/* Add to Cart */}
       <Button
         onClick={handleAddToCart}
         disabled={isAddToCartDisabled}
-        loading={isAddingItem}
         className="w-full uppercase mb-4 py-3 flex justify-center"
         size="large"
         data-testid="product-add-to-cart-button"
       >
         {!hasAnyPrice
           ? t("notAvailableInRegionButton")
-          : variantStock && variantHasPrice
-          ? t("addToCart")
-          : t("outOfStock")}
+          : variantHasPrice &&
+              (!managesInventory || variantStock > 0) &&
+              !isVariantStockMaxLimitReached
+            ? t("addToCart")
+            : t("outOfStock")}
       </Button>
       {/* Seller message */}
 
