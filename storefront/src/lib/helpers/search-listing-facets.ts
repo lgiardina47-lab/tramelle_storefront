@@ -35,7 +35,8 @@ const LISTING_FACET_VARIANTS: string[] = [
 
 function buildListingSearchFacetAttributes(): string[] {
   const out: string[] = [...LISTING_FACET_PROVENANCE]
-  if (process.env.NEXT_PUBLIC_LISTING_CATEGORY_FACET === "true") {
+  /** Default on (sidebar macro / sottocategorie): solo opt-out esplicito `=false` se env manca nel client bundle. */
+  if (process.env.NEXT_PUBLIC_LISTING_CATEGORY_FACET !== "false") {
     out.push(...LISTING_FACET_CATEGORY)
   }
   out.push(...LISTING_FACET_CORE)
@@ -60,7 +61,7 @@ const FACET_HEADING: Record<string, string> = {
   provenance_country: "Country (origin)",
   provenance_region: "Region (origin)",
   "categories.name": "Category",
-  "seller.handle": "Seller",
+  "seller.handle": "Brand",
   "type.value": "Product type",
   "tags.value": "Tags",
   "variants.color": "Color",

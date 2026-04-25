@@ -2,7 +2,7 @@
 import { Card } from "@/components/atoms"
 import { CollapseIcon } from "@/icons"
 import { cn } from "@/lib/utils"
-import { useEffect, useRef, useState } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 
 export const Accordion = ({
   children,
@@ -17,13 +17,15 @@ export const Accordion = ({
   const [height, setHeight] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (contentRef.current) {
-        setHeight(contentRef.current.scrollHeight)
-      }
-    }, 100)
-  }, [children])
+  useLayoutEffect(() => {
+    const el = contentRef.current
+    if (!el) return
+    const measure = () => setHeight(el.scrollHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [children, isOpen])
 
   const openHandler = () => {
     setIsOpen(!isOpen)
