@@ -26,7 +26,6 @@ export const listProducts = async ({
   category_id,
   category_ids,
   collection_id,
-  forceCache = false,
   productFields
 }: {
   pageParam?: number;
@@ -40,7 +39,6 @@ export const listProducts = async ({
   collection_id?: string;
   countryCode?: string;
   regionId?: string;
-  forceCache?: boolean;
   /** Override campi Medusa (es. carosello home leggero). */
   productFields?: string;
 }): Promise<{
@@ -104,10 +102,6 @@ export const listProducts = async ({
 
   const listingFields = productFields ?? storefrontListingProductFields();
 
-  const useCached =
-    forceCache ||
-    (limit <= 8 && !category_id_for_query && !collection_id);
-
   return sdk.client
     .fetch<{
       products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -127,8 +121,7 @@ export const listProducts = async ({
         fields: listingFields
       },
       headers,
-      next: useCached ? { revalidate: 120 } : undefined,
-      cache: useCached ? 'force-cache' : 'no-cache'
+      cache: 'no-cache'
     })
     .then(({ products: productsRaw, count }) => {
       const products = productsRaw.filter(product => product.seller?.store_status !== 'SUSPENDED');
@@ -242,8 +235,7 @@ export const listProductsWithSort = async ({
           country_code: medusaCc
         },
         headers,
-        cache: process.env.NODE_ENV === 'development' ? 'no-store' : 'force-cache',
-        next: process.env.NODE_ENV === 'development' ? undefined : { revalidate: 60 }
+        cache: 'no-store'
       })
       .catch(() => ({ products: [] as (HttpTypes.StoreProduct & { seller?: SellerProps })[], count: 0 }));
 
@@ -353,21 +345,39 @@ export const searchProducts = async (params: {
     throw new Error('Country code or region ID is required');
   }
 
-  let region_id = params.region_id;
+  const [regionIdResolved, loggedCustomer, medusaCountryCode] =
+    await Promise.all([
+      (async () => {
+        if (params.region_id) return params.region_id;
+        if (params.countryCode) {
+          const region = await getRegion(params.countryCode);
+          if (!region) {
+            throw new Error(
+              `Region not found for country code: ${params.countryCode}`
+            );
+          }
+          return region.id;
+        }
+        return null;
+      })(),
+      retrieveCustomer(),
+      params.countryCode
+        ? resolveStorefrontLocaleToMedusaCountry(params.countryCode)
+        : Promise.resolve(undefined as string | undefined)
+    ]);
 
-  if (!region_id && params.countryCode) {
-    const region = await getRegion(params.countryCode);
-    if (!region) {
-      throw new Error(`Region not found for country code: ${params.countryCode}`);
-    }
-    region_id = region.id;
+  if (!regionIdResolved) {
+    throw new Error('Country code or region ID is required');
   }
 
-  const headers = {
+  const region_id = regionIdResolved;
+
+  const headers: Record<string, string> = {
     ...(await getAuthHeaders())
   };
-
-  const loggedCustomer = await retrieveCustomer();
+  if (medusaCountryCode?.trim()) {
+    headers['x-tramelle-store-country-code'] = medusaCountryCode.trim();
+  }
 
   let customer_id = params.customer_id;
 
@@ -383,7 +393,7 @@ export const searchProducts = async (params: {
     facets = [...LISTING_SEARCH_FACET_ATTRIBUTES];
   }
 
-  const { countryCode, ...bodyParams } = params;
+  const { countryCode: _countryCode, ...bodyParams } = params;
 
   return sdk.client
     .fetch<{
@@ -400,8 +410,7 @@ export const searchProducts = async (params: {
         ...bodyParams,
         region_id,
         customer_id,
-        facets,
-        maxValuesPerFacet: 100
+        facets
       },
       headers,
       cache: 'no-cache'

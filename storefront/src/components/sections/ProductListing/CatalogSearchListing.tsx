@@ -131,122 +131,127 @@ const ProductsListing = ({
 
   useEffect(() => {
     if (!locale) return
+    const ac = new AbortController()
     const g = ++fetchGen.current
     setIsLoading(true)
-    const t = window.setTimeout(() => {
-      void (async () => {
-        if (g !== fetchGen.current) return
-        const qsNoQ =
-          typeof window !== "undefined" && window.location.search.length > 0
-            ? window.location.search.slice(1)
-            : searchParamsString
-        const effectiveQs = mergePendingListingFacetsIntoSearchString(qsNoQ)
-        const { filters, query, page } = buildCatalogRequestFromQueryString(
-          effectiveQs,
-          {
-            locale: locale ?? "",
+    void (async () => {
+      if (g !== fetchGen.current) return
+      const qsNoQ =
+        typeof window !== "undefined" && window.location.search.length > 0
+          ? window.location.search.slice(1)
+          : searchParamsString
+      const effectiveQs = mergePendingListingFacetsIntoSearchString(qsNoQ)
+      const { filters, query, page } = buildCatalogRequestFromQueryString(
+        effectiveQs,
+        {
+          locale: locale ?? "",
+          currency_code,
+          category_ids,
+          collection_id,
+          seller_handle,
+        }
+      )
+      try {
+        const res = await fetch("/api/catalog/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: query || undefined,
+            page: page - 1,
+            hitsPerPage: PRODUCT_LIMIT,
+            filters,
             currency_code,
-            category_ids,
-            collection_id,
-            seller_handle,
-          }
-        )
-        try {
-          const res = await fetch("/api/catalog/search", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              query: query || undefined,
-              page: page - 1,
-              hitsPerPage: PRODUCT_LIMIT,
-              filters,
-              currency_code,
-              countryCode: locale,
-              region_id: region_id || undefined,
-            }),
-            credentials: "same-origin",
-          })
-          if (!res.ok) {
-            const j = (await res.json().catch(() => ({}))) as { error?: string }
-            throw new Error(j.error || "Catalog search failed")
-          }
-          const result = (await res.json()) as {
-            products: (HttpTypes.StoreProduct & { seller?: unknown })[]
-            nbHits: number
-            nbPages: number
-            facets: Record<string, ListingFacetBuckets | undefined>
-          }
-          if (g !== fetchGen.current) return
+            countryCode: locale,
+            region_id: region_id || undefined,
+          }),
+          credentials: "same-origin",
+          signal: ac.signal,
+        })
+        if (!res.ok) {
+          const j = (await res.json().catch(() => ({}))) as { error?: string }
+          throw new Error(j.error || "Catalog search failed")
+        }
+        const result = (await res.json()) as {
+          products: (HttpTypes.StoreProduct & { seller?: unknown })[]
+          nbHits: number
+          nbPages: number
+          facets: Record<string, ListingFacetBuckets | undefined>
+        }
+        if (g !== fetchGen.current) return
 
-          let nextProducts = result.products
-          let nbHits = result.nbHits
-          let nbPages = result.nbPages
-          let nextFacets = result.facets
+        let nextProducts = result.products
+        let nbHits = result.nbHits
+        let nbPages = result.nbPages
+        let nextFacets = result.facets
 
-          const searchEffectivelyEmpty =
-            (nbHits ?? 0) === 0 || !(nextProducts && nextProducts.length > 0)
-          const canFallbackCatalog =
-            searchEffectivelyEmpty &&
-            !query?.trim() &&
-            !!locale &&
-            !!region_id &&
-            (!seller_handle || Boolean(seller_id?.trim()))
+        const searchEffectivelyEmpty =
+          (nbHits ?? 0) === 0 || !(nextProducts && nextProducts.length > 0)
+        const canFallbackCatalog =
+          searchEffectivelyEmpty &&
+          !query?.trim() &&
+          !!locale &&
+          !!region_id &&
+          (!seller_handle || Boolean(seller_id?.trim()))
 
-          if (canFallbackCatalog) {
-            const offset = (page - 1) * PRODUCT_LIMIT
-            try {
-              const fr = await fetch("/api/catalog/medusa-fallback", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  countryCode: locale,
-                  category_id,
-                  category_ids,
-                  collection_id,
-                  region_id,
-                  seller_id: seller_id?.trim() || undefined,
-                  limit: PRODUCT_LIMIT,
-                  offset,
-                }),
-                credentials: "same-origin",
-              })
-              if (!fr.ok) throw new Error("fallback")
-              const medusa = (await fr.json()) as {
-                products: HttpTypes.StoreProduct[]
-                count: number
-              }
-              if (g !== fetchGen.current) return
-              const raw = medusa.products ?? []
-              const filtered = raw
-                .filter((p) => p.seller?.store_status !== "SUSPENDED")
-                .filter((p) => p?.seller)
-              nextProducts = filtered as (HttpTypes.StoreProduct & { seller?: any })[]
-              nbHits = medusa.count ?? filtered.length
-              nbPages = Math.max(1, Math.ceil(nbHits / PRODUCT_LIMIT))
-              nextFacets = {}
-            } catch {
-              /* mantieni risultato vuoto dalla ricerca */
+        if (canFallbackCatalog) {
+          const offset = (page - 1) * PRODUCT_LIMIT
+          try {
+            const fr = await fetch("/api/catalog/medusa-fallback", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                countryCode: locale,
+                category_id,
+                category_ids,
+                collection_id,
+                region_id,
+                seller_id: seller_id?.trim() || undefined,
+                limit: PRODUCT_LIMIT,
+                offset,
+              }),
+              credentials: "same-origin",
+              signal: ac.signal,
+            })
+            if (!fr.ok) throw new Error("fallback")
+            const medusa = (await fr.json()) as {
+              products: HttpTypes.StoreProduct[]
+              count: number
             }
-          }
-
-          if (g !== fetchGen.current) return
-          setProducts(nextProducts)
-          setFacets(nextFacets)
-          setCount(nbHits)
-          setPages(nbPages)
-        } catch {
-          if (g !== fetchGen.current) return
-          // Mantieni griglia e facet precedenti (refetch/errore transitorio)
-        } finally {
-          if (g === fetchGen.current) {
-            setIsLoading(false)
+            if (g !== fetchGen.current) return
+            const raw = medusa.products ?? []
+            const filtered = raw
+              .filter(
+                (p) =>
+                  (p as { seller?: { store_status?: string } }).seller
+                    ?.store_status !== "SUSPENDED"
+              )
+              .filter((p) => (p as { seller?: unknown }).seller)
+            nextProducts = filtered as (HttpTypes.StoreProduct & { seller?: any })[]
+            nbHits = medusa.count ?? filtered.length
+            nbPages = Math.max(1, Math.ceil(nbHits / PRODUCT_LIMIT))
+            nextFacets = {}
+          } catch {
+            /* mantieni risultato vuoto dalla ricerca */
           }
         }
-      })()
-    }, 0)
+
+        if (g !== fetchGen.current) return
+        setProducts(nextProducts)
+        setFacets(nextFacets)
+        setCount(nbHits)
+        setPages(nbPages)
+      } catch (e) {
+        if (e instanceof Error && e.name === "AbortError") return
+        if (g !== fetchGen.current) return
+        // Mantieni griglia e facet precedenti (refetch/errore transitorio)
+      } finally {
+        if (g === fetchGen.current) {
+          setIsLoading(false)
+        }
+      }
+    })()
     return () => {
-      window.clearTimeout(t)
-      // invalida richieste ancora in corso rispetto a questa generazione
+      ac.abort()
       fetchGen.current += 1
     }
   }, [

@@ -1,12 +1,16 @@
-import {
-  ContainerRegistrationKeys,
-  QueryContext,
-} from "@medusajs/framework/utils"
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { Modules } from "@medusajs/framework/utils"
 
 import { storefrontSearchFiltersToMeilisearch } from "../../../../lib/meilisearch/storefront-search-filters-to-meili"
-import { createMeilisearchClient, getProductsIndex } from "../../../../lib/meilisearch/client"
-import { isMeilisearchConfigured } from "../../../../lib/meilisearch/env"
+import { hydrateListingProductsByIds } from "../../../../lib/medusa-store/hydrate-listing-products-by-ids"
+import {
+  getProductsIndex,
+  getSingletonMeilisearchClient,
+} from "../../../../lib/meilisearch/client"
+import {
+  getMeilisearchIndexName,
+  isMeilisearchConfigured,
+} from "../../../../lib/meilisearch/env"
 import {
   normalizeMercurFilterWhitespace,
   stripMercurFacetAttribute,
@@ -41,32 +45,33 @@ async function postMeilisearchSearch(
   req: MedusaRequest<SearchBody>,
   res: MedusaResponse
 ) {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const {
     query: searchQuery,
     page = 0,
     hitsPerPage = 12,
     filters,
     facets,
-    currency_code,
     region_id,
-    customer_id,
-    customer_group_id,
   } = req.validatedBody as SearchBody
 
   const meiliFilter = storefrontSearchFiltersToMeilisearch(filters)
-  const client = createMeilisearchClient()
-  const index = getProductsIndex(client)
+  const meili = getSingletonMeilisearchClient()
+  const index = getProductsIndex(meili)
 
   const offset = page * hitsPerPage
   const started = Date.now()
+  const profile =
+    process.env.CATALOG_SEARCH_PROFILE === "true" ||
+    process.env.CATALOG_SEARCH_PROFILE === "1"
 
+  const tMain0 = Date.now()
   const searchResult = await index.search(searchQuery ?? "", {
     filter: meiliFilter,
     facets: facets?.length ? facets : undefined,
     limit: hitsPerPage,
     offset,
   })
+  const meiliMainMs = Date.now() - tMain0
 
   const productIds = searchResult.hits.map((hit) => String((hit as { id: unknown }).id))
   const nbHits = searchResult.estimatedTotalHits ?? 0
@@ -77,92 +82,140 @@ async function postMeilisearchSearch(
   >
 
   const rawFilterNorm = normalizeMercurFilterWhitespace(filters ?? "")
+  let meiliDisjunctiveMs = 0
+  let meiliDisjunctiveQueries = 0
+
+  const indexUid = getMeilisearchIndexName()
+  const disjunctiveSpecs: { facetAttr: string; relaxed: string }[] = []
   if (rawFilterNorm.length && facets?.length) {
-    const disjunctiveTasks = facets.map(async (facetAttr) => {
+    for (const facetAttr of facets) {
       const stripped = normalizeMercurFilterWhitespace(
         stripMercurFacetAttribute(rawFilterNorm, facetAttr)
       )
       if (!stripped.length || stripped === rawFilterNorm) {
-        return null
+        continue
       }
       const relaxed = storefrontSearchFiltersToMeilisearch(stripped)
-      const sub = await index.search(searchQuery ?? "", {
-        filter: relaxed,
-        facets: [facetAttr],
+      if (!relaxed?.length) {
+        continue
+      }
+      disjunctiveSpecs.push({ facetAttr, relaxed })
+    }
+  }
+  meiliDisjunctiveQueries = disjunctiveSpecs.length
+
+  /**
+   * Facet disjunctive: `multiSearch` (un round-trip). Con hit prodotti, gira in parallelo
+   * all’idratazione GET `/store/products` — wall time ≈ max(disjunctive, hydrate).
+   */
+  const applyDisjunctive = async (): Promise<void> => {
+    if (disjunctiveSpecs.length === 0) {
+      return
+    }
+    const tDisj0 = Date.now()
+    const { results } = await meili.multiSearch({
+      queries: disjunctiveSpecs.map((spec) => ({
+        indexUid,
+        q: searchQuery ?? "",
+        filter: spec.relaxed,
+        facets: [spec.facetAttr],
         limit: 0,
         offset: 0,
-      })
-      const dist = sub.facetDistribution?.[facetAttr] as
+      })),
+    })
+    meiliDisjunctiveMs = Date.now() - tDisj0
+    facetBuckets = { ...facetBuckets }
+    for (let i = 0; i < disjunctiveSpecs.length; i++) {
+      const spec = disjunctiveSpecs[i]!
+      const sub = results[i] as {
+        facetDistribution?: Record<string, Record<string, number> | undefined>
+      }
+      const dist = sub.facetDistribution?.[spec.facetAttr] as
         | Record<string, number>
         | undefined
       if (dist && typeof dist === "object" && !Array.isArray(dist)) {
-        return { facetAttr, dist }
-      }
-      return null
-    })
-    const merged = await Promise.all(disjunctiveTasks)
-    facetBuckets = { ...facetBuckets }
-    for (const m of merged) {
-      if (m) {
-        facetBuckets[m.facetAttr] = m.dist
+        facetBuckets[spec.facetAttr] = dist
       }
     }
   }
 
-  if (productIds.length === 0) {
-    return res.json({
-      products: [],
-      nbHits,
-      page,
-      nbPages,
-      hitsPerPage,
-      facets: facetBuckets,
-      facets_stats: {},
-      processingTimeMS: Date.now() - started,
-      query: searchQuery ?? "",
-    })
-  }
-
-  const hasPricingContext = Boolean(
-    currency_code || region_id || customer_id || customer_group_id
-  )
-  const contextParams: Record<string, unknown> = {}
-  if (hasPricingContext) {
-    contextParams.variants = {
-      calculated_price: QueryContext({
-        ...(currency_code && { currency_code }),
-        ...(region_id && { region_id }),
-        ...(customer_id && { customer_id }),
-        ...(customer_group_id && { customer_group_id }),
-      }),
-    }
-  }
-
-  const { data: products } = await query.graph({
-    entity: "product",
-    fields: [
-      "*",
-      "images.*",
-      "options.*",
-      "options.values.*",
-      "variants.*",
-      "variants.options.*",
-      "variants.prices.*",
-      ...(hasPricingContext ? ["variants.calculated_price.*"] : []),
-      "categories.*",
-      "collection.*",
-      "type.*",
-      "tags.*",
-      "seller.*",
-    ],
-    filters: { id: productIds },
-    ...(Object.keys(contextParams).length > 0 && { context: contextParams }),
+  const emptyPayload = (extra: Record<string, unknown> = {}) => ({
+    products: [] as unknown[],
+    nbHits,
+    page,
+    nbPages,
+    hitsPerPage,
+    facets: facetBuckets,
+    facets_stats: {},
+    processingTimeMS: Date.now() - started,
+    query: searchQuery ?? "",
+    ...extra,
   })
 
-  const productMap = new Map(products.map((p) => [p.id, p]))
-  const orderedProducts = productIds
-    .map((id) => productMap.get(id))
-    .filter(Boolean)
+  if (productIds.length === 0) {
+    await applyDisjunctive()
+    return res.json({
+      ...emptyPayload(),
+      ...(profile
+        ? {
+            searchTimings: {
+              meiliMainMs,
+              meiliDisjunctiveMs,
+              meiliDisjunctiveQueries,
+              graphMs: 0,
+            },
+          }
+        : {}),
+    })
+  }
+
+  let clientPk =
+    (req.headers["x-publishable-api-key"] as string | undefined)?.trim() || ""
+  if (!clientPk) {
+    const api = req.scope.resolve(Modules.API_KEY) as {
+      listApiKeys: (
+        f: { type: string },
+        c: { take: number }
+      ) => Promise<{ token?: string }[]>
+    }
+    const [row] = await api.listApiKeys({ type: "publishable" }, { take: 1 })
+    clientPk = row?.token?.trim() || ""
+  }
+  if (!clientPk) {
+    return res.status(400).json({
+      message: "Publishable API key richiesta per idratare i prodotti.",
+    })
+  }
+
+  const auth =
+    typeof req.headers.authorization === "string"
+      ? req.headers.authorization
+      : undefined
+
+  /** Header: non nel body (schema Mercur `StoreSearchProductsSchema` non estendibile qui). */
+  const country_code =
+    (
+      req.headers["x-tramelle-store-country-code"] as string | undefined
+    )?.trim() || "it"
+
+  let graphMs = 0
+  const runHydrate = async () => {
+    const { products, hydrateMs } = await hydrateListingProductsByIds({
+      productIds,
+      country_code,
+      region_id: region_id?.trim(),
+      publishableApiKey: clientPk,
+      authorization: auth,
+    })
+    graphMs = hydrateMs
+    return products
+  }
+
+  const productsRaw = await (disjunctiveSpecs.length > 0
+    ? Promise.all([applyDisjunctive(), runHydrate()]).then((r) => r[1])
+    : runHydrate())
+
+  const orderedProducts = productsRaw as { id: string }[]
 
   return res.json({
     products: orderedProducts,
@@ -174,5 +227,15 @@ async function postMeilisearchSearch(
     facets_stats: {},
     processingTimeMS: Date.now() - started,
     query: searchQuery ?? "",
+    ...(profile
+      ? {
+          searchTimings: {
+            meiliMainMs,
+            meiliDisjunctiveMs,
+            meiliDisjunctiveQueries,
+            graphMs,
+          },
+        }
+      : {}),
   })
 }
