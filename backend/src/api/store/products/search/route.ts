@@ -18,7 +18,7 @@ type SearchBody = {
   hitsPerPage?: number
   filters?: string
   facets?: string[]
-  /** Default 100 se omesso (allineato allo storefront). */
+  /** Ignorato: Meilisearch ≥1.11 non accetta `maxValuesPerFacet` nel body di `/indexes/:uid/search` (solo impostazioni indice). */
   maxValuesPerFacet?: number
   currency_code?: string
   region_id?: string
@@ -48,7 +48,6 @@ async function postMeilisearchSearch(
     hitsPerPage = 12,
     filters,
     facets,
-    maxValuesPerFacet = 100,
     currency_code,
     region_id,
     customer_id,
@@ -62,16 +61,11 @@ async function postMeilisearchSearch(
   const offset = page * hitsPerPage
   const started = Date.now()
 
-  const facetSearchOpts = {
-    maxValuesPerFacet,
-  }
-
   const searchResult = await index.search(searchQuery ?? "", {
     filter: meiliFilter,
     facets: facets?.length ? facets : undefined,
     limit: hitsPerPage,
     offset,
-    ...facetSearchOpts,
   })
 
   const productIds = searchResult.hits.map((hit) => String((hit as { id: unknown }).id))
@@ -97,7 +91,6 @@ async function postMeilisearchSearch(
         facets: [facetAttr],
         limit: 0,
         offset: 0,
-        ...facetSearchOpts,
       })
       const dist = sub.facetDistribution?.[facetAttr] as
         | Record<string, number>
