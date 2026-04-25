@@ -10,6 +10,9 @@ import type { MedusaContainer } from "@medusajs/framework/types"
 import { AlgoliaProductValidator, AlgoliaVariantValidator } from "@mercurjs/framework"
 import { z } from "zod"
 
+import { computeB2cMinPricesFromRawVariants } from "./b2c-min-prices-from-raw-variants"
+import type { ListingIndexExtras } from "./listing-index-extras"
+
 async function selectProductVariantsSupportedCountries(
   container: MedusaContainer,
   product_id: string
@@ -82,29 +85,60 @@ async function getAllStoreCountryCodesLowercase(
   return cachedAllStoreCountryCodes
 }
 
-async function selectProductSeller(
-  container: MedusaContainer,
-  product_id: string
-): Promise<{
+type SellerForMeili = {
   id: string
   handle: string
   store_status: string
-} | null> {
+  name?: string | null
+  country_code?: string | null
+  state?: string | null
+}
+
+async function selectProductSeller(
+  container: MedusaContainer,
+  product_id: string
+): Promise<SellerForMeili | null> {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const {
     data: [product],
   } = await query.graph({
     entity: "product",
-    fields: ["seller.id", "seller.handle", "seller.store_status"],
+    fields: [
+      "seller.id",
+      "seller.handle",
+      "seller.name",
+      "seller.store_status",
+      "seller.country_code",
+      "seller.state",
+    ],
     filters: { id: product_id },
   })
-  return product && product.seller
-    ? {
-        id: product.seller.id,
-        handle: product.seller.handle,
-        store_status: product.seller.store_status,
-      }
-    : null
+  if (!product?.seller) return null
+  const s = product.seller as {
+    id: string
+    handle: string
+    store_status: string
+    country_code?: string | null
+    state?: string | null
+  }
+  return {
+    id: s.id,
+    handle: s.handle,
+    store_status: s.store_status,
+    name: (s as { name?: string | null }).name ?? null,
+    country_code: s.country_code,
+    state: s.state,
+  }
+}
+
+function provenanceFromSeller(
+  seller: SellerForMeili | null
+): { country_code: string | null; state: string | null } | null {
+  if (!seller) return null
+  const country_code = seller.country_code?.trim() || null
+  const state = seller.state?.trim() || null
+  if (!country_code && !state) return null
+  return { country_code, state }
 }
 
 export async function filterProductsByStatus(
@@ -130,7 +164,10 @@ export async function filterProductsByStatus(
 export async function findAndTransformPublishedProductsForMeili(
   container: MedusaContainer,
   ids: string[] = []
-): Promise<z.infer<typeof AlgoliaProductValidator>[]> {
+): Promise<{
+  products: z.infer<typeof AlgoliaProductValidator>[]
+  listingIndexExtrasByProductId: Map<string, ListingIndexExtras>
+}> {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const { data: products } = await query.graph({
     entity: "product",
@@ -156,6 +193,12 @@ export async function findAndTransformPublishedProductsForMeili(
     filters: ids.length ? { id: ids, status: "published" } : { status: "published" },
   })
 
+  const provenanceByProductId = new Map<
+    string,
+    { country_code: string | null; state: string | null }
+  >()
+  const listingIndexExtrasByProductId = new Map<string, ListingIndexExtras>()
+
   for (const product of products as Record<string, unknown>[]) {
     product.average_rating = 0
     let supported = await selectProductVariantsSupportedCountries(
@@ -171,7 +214,31 @@ export async function findAndTransformPublishedProductsForMeili(
       supported = await getAllStoreCountryCodesLowercase(container)
     }
     product.supported_countries = supported
-    product.seller = await selectProductSeller(container, product.id as string)
+    const linkedSeller = await selectProductSeller(
+      container,
+      product.id as string
+    )
+    const prov = provenanceFromSeller(linkedSeller)
+    if (prov) {
+      provenanceByProductId.set(product.id as string, prov)
+    }
+    product.seller = linkedSeller
+      ? {
+          id: linkedSeller.id,
+          handle: linkedSeller.handle,
+          store_status: linkedSeller.store_status,
+        }
+      : null
+
+    const b2cMin = computeB2cMinPricesFromRawVariants(product.variants)
+    const pid = product.id as string
+    listingIndexExtrasByProductId.set(pid, {
+      b2c_min_prices: b2cMin,
+      seller_display_name: linkedSeller?.name?.trim() || null,
+      seller_country_code: linkedSeller?.country_code?.trim() || null,
+      seller_state: linkedSeller?.state?.trim() || null,
+      seller_id: linkedSeller?.id ?? "",
+    })
 
     const opts = (product.options ?? []) as {
       title?: string
@@ -218,5 +285,21 @@ export async function findAndTransformPublishedProductsForMeili(
       }))
   }
 
-  return z.array(AlgoliaProductValidator).parse(products)
+  const parsed = z.array(AlgoliaProductValidator).parse(products) as Array<
+    z.infer<typeof AlgoliaProductValidator> & {
+      tramelle_provenance_seller?: {
+        country_code: string | null
+        state: string | null
+      }
+    }
+  >
+
+  for (const p of parsed) {
+    const prov = provenanceByProductId.get(p.id)
+    if (prov) {
+      p.tramelle_provenance_seller = prov
+    }
+  }
+
+  return { products: parsed, listingIndexExtrasByProductId }
 }

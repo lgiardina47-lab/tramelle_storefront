@@ -1,8 +1,6 @@
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
-import { Modules } from "@medusajs/framework/utils"
 
 import { storefrontSearchFiltersToMeilisearch } from "../../../../lib/meilisearch/storefront-search-filters-to-meili"
-import { hydrateListingProductsByIds } from "../../../../lib/medusa-store/hydrate-listing-products-by-ids"
 import {
   getProductsIndex,
   getSingletonMeilisearchClient,
@@ -11,6 +9,7 @@ import {
   getMeilisearchIndexName,
   isMeilisearchConfigured,
 } from "../../../../lib/meilisearch/env"
+import { meiliHitsToListingProducts } from "../../../../lib/meilisearch/meili-hit-to-listing-product"
 import {
   normalizeMercurFilterWhitespace,
   stripMercurFacetAttribute,
@@ -51,7 +50,7 @@ async function postMeilisearchSearch(
     hitsPerPage = 12,
     filters,
     facets,
-    region_id,
+    currency_code,
   } = req.validatedBody as SearchBody
 
   const meiliFilter = storefrontSearchFiltersToMeilisearch(filters)
@@ -104,10 +103,6 @@ async function postMeilisearchSearch(
   }
   meiliDisjunctiveQueries = disjunctiveSpecs.length
 
-  /**
-   * Facet disjunctive: `multiSearch` (un round-trip). Con hit prodotti, gira in parallelo
-   * all’idratazione GET `/store/products` — wall time ≈ max(disjunctive, hydrate).
-   */
   const applyDisjunctive = async (): Promise<void> => {
     if (disjunctiveSpecs.length === 0) {
       return
@@ -169,53 +164,14 @@ async function postMeilisearchSearch(
     })
   }
 
-  let clientPk =
-    (req.headers["x-publishable-api-key"] as string | undefined)?.trim() || ""
-  if (!clientPk) {
-    const api = req.scope.resolve(Modules.API_KEY) as {
-      listApiKeys: (
-        f: { type: string },
-        c: { take: number }
-      ) => Promise<{ token?: string }[]>
-    }
-    const [row] = await api.listApiKeys({ type: "publishable" }, { take: 1 })
-    clientPk = row?.token?.trim() || ""
-  }
-  if (!clientPk) {
-    return res.status(400).json({
-      message: "Publishable API key richiesta per idratare i prodotti.",
-    })
-  }
+  await applyDisjunctive()
 
-  const auth =
-    typeof req.headers.authorization === "string"
-      ? req.headers.authorization
-      : undefined
-
-  /** Header: non nel body (schema Mercur `StoreSearchProductsSchema` non estendibile qui). */
-  const country_code =
-    (
-      req.headers["x-tramelle-store-country-code"] as string | undefined
-    )?.trim() || "it"
-
-  let graphMs = 0
-  const runHydrate = async () => {
-    const { products, hydrateMs } = await hydrateListingProductsByIds({
-      productIds,
-      country_code,
-      region_id: region_id?.trim(),
-      publishableApiKey: clientPk,
-      authorization: auth,
-    })
-    graphMs = hydrateMs
-    return products
-  }
-
-  const productsRaw = await (disjunctiveSpecs.length > 0
-    ? Promise.all([applyDisjunctive(), runHydrate()]).then((r) => r[1])
-    : runHydrate())
-
-  const orderedProducts = productsRaw as { id: string }[]
+  const mapMs0 = Date.now()
+  const orderedProducts = meiliHitsToListingProducts(
+    searchResult.hits as Record<string, unknown>[],
+    currency_code
+  )
+  const mapMs = Date.now() - mapMs0
 
   return res.json({
     products: orderedProducts,
@@ -233,7 +189,7 @@ async function postMeilisearchSearch(
             meiliMainMs,
             meiliDisjunctiveMs,
             meiliDisjunctiveQueries,
-            graphMs,
+            graphMs: mapMs,
           },
         }
       : {}),

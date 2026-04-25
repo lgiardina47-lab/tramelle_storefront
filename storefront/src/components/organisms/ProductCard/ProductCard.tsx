@@ -16,6 +16,10 @@ import { useB2BPricingModal } from "@/components/providers/B2BPricingModal/B2BPr
 import { useParams } from "next/navigation"
 import { getLocalizedProductContentForCountry } from "@/lib/helpers/tramelle-product-content"
 import { resolveProductThumbnailSrc } from "@/lib/helpers/get-image-url"
+import {
+  productListingCardImageSizesAttribute,
+  productListingHomeRailImageSizesAttribute,
+} from "@/lib/helpers/product-listing-image-sizes"
 import { productProducerDisplayName } from "@/lib/helpers/product-producer-name"
 import { productSellerStripRegion } from "@/lib/helpers/product-seller-strip"
 import { SellerProps } from "@/types/seller"
@@ -114,6 +118,10 @@ export const ProductCard = ({
   const producerLabel = productProducerDisplayName(
     product as HttpTypes.StoreProduct & { seller?: SellerProps }
   )
+  const listingCertifications = (
+    product as HttpTypes.StoreProduct & { listing_certifications?: string[] }
+  ).listing_certifications
+
   const seller = (
     product as HttpTypes.StoreProduct & { seller?: SellerProps }
   ).seller
@@ -226,7 +234,7 @@ export const ProductCard = ({
         >
           {!canShowMedia ? (
             <div
-              className="absolute inset-0 z-[1] animate-pulse bg-[#E8E4DE]/40"
+              className="absolute inset-0 z-[1] bg-[#E8E4DE]/40"
               aria-hidden
             />
           ) : thumbnailSrc ? (
@@ -237,7 +245,7 @@ export const ProductCard = ({
               forceEager={forceEagerListing}
               src={thumbnailSrc}
               alt={`${productName} image`}
-              preset="listing-card"
+              preset={rail ? "listing-rail" : "listing-card"}
               quality={imagePriority ? 85 : 80}
               className={cn(
                 "object-contain object-center",
@@ -256,8 +264,8 @@ export const ProductCard = ({
               alt={`${productName} image placeholder`}
               sizes={
                 rail
-                  ? "(min-width: 960px) 19vw, (min-width: 640px) 32vw, 88vw"
-                  : "(min-width: 1280px) 280px, (min-width: 1024px) 24vw, (min-width: 640px) 45vw, 88vw"
+                  ? productListingHomeRailImageSizesAttribute
+                  : productListingCardImageSizesAttribute()
               }
               quality={75}
               className="object-contain object-center p-6 opacity-50"
@@ -372,6 +380,18 @@ export const ProductCard = ({
               {t("cardB2bLogin")}
             </span>
           </button>
+        ) : null}
+
+        {listingCertifications && listingCertifications.length > 0 ? (
+          <p
+            className={cn(
+              "mt-1.5 line-clamp-2 text-[10px] leading-snug text-[#8A8580]",
+              rail && "mt-1 text-[9px]"
+            )}
+            data-testid="product-card-certifications"
+          >
+            {listingCertifications.join(" · ")}
+          </p>
         ) : null}
 
         <LocalizedClientLink
