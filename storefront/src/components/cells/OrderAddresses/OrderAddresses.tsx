@@ -16,17 +16,17 @@ export const OrderAddresses = async ({ singleOrder }: { singleOrder: any }) => {
           {`${singleOrder.shipping_address.first_name} ${singleOrder.shipping_address.last_name}`}
         </p>
         <p className="label-md text-secondary">
-          {`${singleOrder.shipping_address.address_1}, ${
-            singleOrder.shipping_address.postal_code
-          } ${singleOrder.shipping_address.city}${
-            singleOrder.shipping_address.province
-              ? `, ${singleOrder.shipping_address.province}`
-              : ""
-          }${
-            region
-              ? `, ${region.name}`
-              : `, ${singleOrder.shipping_address.country_code?.toUpperCase()}`
-          }`}
+          {(() => {
+            const a = singleOrder.shipping_address
+            const loc = a.province || a.city || ""
+            return `${a.address_1}, ${a.postal_code}${
+              loc ? ` ${loc}` : ""
+            }${
+              region
+                ? `, ${region.name}`
+                : `, ${a.country_code?.toUpperCase()}`
+            }`
+          })()}
         </p>
         <p className="label-md text-secondary">
           {`${user.email}, ${singleOrder.shipping_address.phone || user.phone}`}

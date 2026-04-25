@@ -4,6 +4,7 @@ import { HttpTypes } from '@medusajs/types';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { derivedCityForMedusa } from '@/lib/helpers/checkout-delivery-address';
 import medusaError from '@/lib/helpers/medusa-error';
 import { parseVariantIdsFromError } from '@/lib/helpers/parse-variant-error';
 
@@ -18,6 +19,24 @@ import {
   setCartId
 } from './cookies';
 import { getRegion, medusaCountryToStorefrontPathSegment } from './regions';
+
+/**
+ * Stessa `cart_id` in GET `/store/shipping-options`: la Data Cache di Next
+ * etichetta con `fulfillment` e `shippingOptions`; senza revalidarle restano
+ * le opzioni (o l'assenza) calcolate prima del cambio indirizzo o linee.
+ */
+async function revalidateCartAndShippingCaches() {
+  const [cartTag, fulfillTag, shipOptTag] = await Promise.all([
+    getCacheTag('carts'),
+    getCacheTag('fulfillment'),
+    getCacheTag('shippingOptions')
+  ]);
+  for (const t of [cartTag, fulfillTag, shipOptTag]) {
+    if (t) {
+      await revalidateTag(t);
+    }
+  }
+}
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -41,7 +60,7 @@ export async function retrieveCart(cartId?: string) {
       query: {
         fields:
           '*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title,' +
-          '*items.thumbnail, +items.product.thumbnail, *items.product.images, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.seller' +
+          '*items.thumbnail, +items.product.thumbnail, *items.product.images, *items.metadata, +items.total, *promotions, *shipping_methods, *items.product.seller' +
           ''
       },
       headers,
@@ -70,14 +89,12 @@ export async function getOrSetCart(countryCode: string) {
 
     await setCartId(cart.id);
 
-    const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
+    await revalidateCartAndShippingCaches();
   }
 
   if (cart && cart?.region_id !== region.id) {
     await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers);
-    const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
+    await revalidateCartAndShippingCaches();
   }
 
   return cart;
@@ -97,8 +114,7 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
   return await sdk.store.cart
     .update(cartId, data, {}, headers)
     .then(async ({ cart }) => {
-      const cartCacheTag = await getCacheTag('carts');
-      await revalidateTag(cartCacheTag);
+      await revalidateCartAndShippingCaches();
       return cart;
     })
     .catch(medusaError);
@@ -131,7 +147,7 @@ export async function addToCart({
 
   const currentItem = cart.items?.find(item => item.variant_id === variantId);
 
-  if (currentItem) {
+    if (currentItem) {
     await sdk.store.cart
       .updateLineItem(
         cart.id,
@@ -142,8 +158,7 @@ export async function addToCart({
       )
       .catch(medusaError)
       .finally(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
+        await revalidateCartAndShippingCaches();
       });
   } else {
     await sdk.store.cart
@@ -160,13 +175,11 @@ export async function addToCart({
         headers
       )
       .then(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
+        await revalidateCartAndShippingCaches();
       })
       .catch(medusaError)
       .finally(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
+        await revalidateCartAndShippingCaches();
       });
   }
 }
@@ -192,8 +205,7 @@ export async function updateLineItem({ lineId, quantity }: { lineId: string; qua
     headers
   });
 
-  const cartCacheTag = await getCacheTag('carts');
-  await revalidateTag(cartCacheTag);
+  await revalidateCartAndShippingCaches();
 
   return res;
 }
@@ -216,8 +228,7 @@ export async function deleteLineItem(lineId: string) {
   await sdk.store.cart
     .deleteLineItem(cartId, lineId, {}, headers)
     .then(async () => {
-      const cartCacheTag = await getCacheTag('carts');
-      await revalidateTag(cartCacheTag);
+      await revalidateCartAndShippingCaches();
     })
     .catch(medusaError);
 }
@@ -239,8 +250,7 @@ export async function setShippingMethod({
     headers
   });
 
-  const cartCacheTag = await getCacheTag('carts');
-  revalidateTag(cartCacheTag);
+  await revalidateCartAndShippingCaches();
 
   return res;
 }
@@ -259,8 +269,7 @@ export async function initiatePaymentSession(
   return sdk.store.payment
     .initiatePaymentSession(cart, data, {}, headers)
     .then(async resp => {
-      const cartCacheTag = await getCacheTag('carts');
-      revalidateTag(cartCacheTag);
+      await revalidateCartAndShippingCaches();
       return resp;
     })
     .catch(medusaError);
@@ -284,8 +293,7 @@ export async function applyPromotions(codes: string[]) {
       {},
       headers
     )
-    const cartCacheTag = await getCacheTag("carts")
-    revalidateTag(cartCacheTag)
+    await revalidateCartAndShippingCaches()
     // @ts-ignore
     const applied = cart.promotions?.some((promotion: any) =>
       codes.includes(promotion.code)
@@ -319,8 +327,7 @@ export async function removeShippingMethod(shippingMethodId: string) {
     headers
   })
     .then(async () => {
-      const cartCacheTag = await getCacheTag('carts');
-      revalidateTag(cartCacheTag);
+      await revalidateCartAndShippingCaches();
     })
     .catch(medusaError);
 }
@@ -343,8 +350,7 @@ export async function deletePromotionCode(promoId: string) {
     headers
   })
     .then(async () => {
-      const cartCacheTag = await getCacheTag('carts');
-      revalidateTag(cartCacheTag);
+      await revalidateCartAndShippingCaches();
     })
     .catch(medusaError);
 }
@@ -355,11 +361,13 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     if (!formData) {
       throw new Error('No form data found when setting addresses');
     }
-    const cartId = getCartId();
+    const cartId = await getCartId();
     if (!cartId) {
       throw new Error('No existing cart found when setting addresses');
     }
 
+    const province = String(formData.get('shipping_address.province') ?? '').trim();
+    const postalCode = String(formData.get('shipping_address.postal_code') ?? '').trim();
     const data = {
       shipping_address: {
         first_name: formData.get('shipping_address.first_name'),
@@ -368,7 +376,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
         address_2: '',
         company: formData.get('shipping_address.company'),
         postal_code: formData.get('shipping_address.postal_code'),
-        city: formData.get('shipping_address.city'),
+        city: derivedCityForMedusa(province, postalCode),
         country_code: formData.get('shipping_address.country_code'),
         province: formData.get('shipping_address.province'),
         phone: formData.get('shipping_address.phone')
@@ -395,7 +403,9 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     //   }
 
     await updateCart(data);
-    await revalidatePath('/cart');
+    revalidatePath('/[locale]/cart', 'page');
+    revalidatePath('/[locale]/checkout', 'page');
+    return 'success' as const;
   } catch (e: any) {
     return e.message;
   }
@@ -422,8 +432,7 @@ export async function placeOrder(cartId?: string) {
     headers
   });
 
-  const cartCacheTag = await getCacheTag('carts');
-  revalidateTag(cartCacheTag);
+  await revalidateCartAndShippingCaches();
 
   if (res?.data?.order_set) {
     revalidatePath('/user/reviews');
@@ -450,8 +459,6 @@ export async function updateRegion(countryCode: string, currentPath: string) {
 
   if (cartId) {
     await updateCart({ region_id: region.id });
-    const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
   }
 
   const regionCacheTag = await getCacheTag('regions');
@@ -543,9 +550,8 @@ export async function updateRegionWithValidation(
       }
     }
 
-    // Revalidate caches
-    const cartCacheTag = await getCacheTag('carts');
-    revalidateTag(cartCacheTag);
+    // deleteLineItem qui usa l'SDK senza revalidate: aggiustiamo cache carrello e opzioni spedizione
+    await revalidateCartAndShippingCaches();
   }
 
   const regionCacheTag = await getCacheTag('regions');

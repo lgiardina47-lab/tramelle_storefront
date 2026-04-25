@@ -21,7 +21,8 @@ export const listCartShippingMethods = async (cartId: string, is_return: boolean
       method: 'GET',
       query: {
         cart_id: cartId,
-        fields: '+service_zone.fulfllment_set.type,*service_zone.fulfillment_set.location.address'
+        fields:
+          '+calculated_price,+service_zone.fulfillment_set.type,*service_zone.fulfillment_set.location.address'
       },
       headers,
       next,
@@ -46,9 +47,10 @@ export const calculatePriceForShippingOption = async (
     ...(await getCacheOptions('fulfillment'))
   };
 
-  const body = { cart_id: cartId, data };
-
-  if (data) {
+  const body: { cart_id: string; data?: Record<string, unknown> } = {
+    cart_id: cartId
+  };
+  if (data && Object.keys(data).length > 0) {
     body.data = data;
   }
 

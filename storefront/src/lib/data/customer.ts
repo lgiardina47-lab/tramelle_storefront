@@ -1,7 +1,7 @@
 'use server';
 
 import { HttpTypes } from '@medusajs/types';
-import { revalidateTag } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 
@@ -233,6 +233,8 @@ export async function login(formData: FormData) {
     await transferCart({ authorization: `Bearer ${token}` });
     const customerCacheTag = await getCacheTag('customers');
     revalidateTag(customerCacheTag);
+    revalidatePath('/[locale]/checkout', 'page');
+    revalidatePath('/[locale]/cart', 'page');
 
     return { success: true };
   } catch (error: unknown) {

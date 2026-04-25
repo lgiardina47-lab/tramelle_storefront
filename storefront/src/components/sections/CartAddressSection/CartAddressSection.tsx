@@ -5,13 +5,14 @@ import { setAddresses } from "@/lib/data/cart"
 import compareAddresses from "@/lib/helpers/compare-addresses"
 import { HttpTypes } from "@medusajs/types"
 import { useRouter } from "next/navigation"
-import { useActionState } from "react"
+import { useState, type FormEvent } from "react"
 import { Button } from "@/components/atoms"
 import ErrorMessage from "@/components/molecules/ErrorMessage/ErrorMessage"
 import ShippingAddress from "@/components/organisms/ShippingAddress/ShippingAddress"
 import { CheckCircleSolid } from "@medusajs/icons"
 import { useTranslations } from "next-intl"
 
+import { isCheckoutDeliveryAddressComplete } from "@/lib/helpers/checkout-delivery-address"
 import { CheckoutInlineLogin } from "./CheckoutInlineLogin"
 
 export const CartAddressSection = ({
@@ -24,15 +25,7 @@ export const CartAddressSection = ({
   const t = useTranslations("Checkout")
   const router = useRouter()
 
-  const isAddress = Boolean(
-    cart?.shipping_address &&
-      cart?.shipping_address.first_name &&
-      cart?.shipping_address.last_name &&
-      cart?.shipping_address.address_1 &&
-      cart?.shipping_address.city &&
-      cart?.shipping_address.postal_code &&
-      cart?.shipping_address.country_code
-  )
+  const isAddress = isCheckoutDeliveryAddressComplete(cart?.shipping_address)
 
   const { state: sameAsBilling, toggle: toggleSameAsBilling } = useToggleState(
     cart?.shipping_address && cart?.billing_address
@@ -40,11 +33,11 @@ export const CartAddressSection = ({
       : true
   )
 
-  const [message, formAction] = useActionState(setAddresses, sameAsBilling)
+  const [error, setError] = useState<string | null>(null);
 
   return (
     <div
-      className="rounded-lg border border-[#d9d9d9] bg-white p-5 shadow-sm lg:p-6"
+      className="border-b border-[#e8e8e8] bg-white pb-10"
       data-testid="checkout-step-address"
     >
       <div className="mb-5 flex flex-row items-center justify-between">
@@ -56,15 +49,21 @@ export const CartAddressSection = ({
         </Heading>
       </div>
       <form
-        action={async (data) => {
-          await formAction(data)
-          router.refresh()
+        onSubmit={async (e: FormEvent<HTMLFormElement>) => {
+          e.preventDefault()
+          setError(null)
+          const res = await setAddresses(sameAsBilling, new FormData(e.currentTarget))
+          if (res === "success") {
+            router.refresh()
+          } else if (typeof res === "string" && res.length) {
+            setError(res)
+          }
         }}
       >
         <div className="pb-8">
           {!customer ? (
             <div
-              className="mb-6 rounded-md border border-[#d9d9d9] bg-[#fafafa] p-4 text-sm text-[#202223]"
+              className="mb-6 scroll-mt-24 rounded-md border border-[#d9d9d9] bg-[#fafafa] p-4 text-sm text-[#202223]"
               data-testid="checkout-login-hint"
             >
               <p className="mb-2 font-medium">{t("alreadyHaveAccount")}</p>
@@ -86,7 +85,7 @@ export const CartAddressSection = ({
             {t("save")}
           </Button>
           <ErrorMessage
-            error={message !== "success" && message}
+            error={error}
             data-testid="address-error-message"
           />
         </div>
