@@ -1,13 +1,12 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { startTransition, useEffect, useReducer, useRef } from "react"
+import { useEffect, useReducer, useRef } from "react"
+import {
+  clearAllListingFacetPendingParams,
+  getListingFacetPendingParam,
+  removeListingFacetPendingParam,
+  setListingFacetPendingParam,
+} from "@/lib/helpers/listing-facet-pending-store"
 import useUpdateSearchParams from "./useUpdateSearchParams"
-
-/**
- * Pending URL per chiave filtro, condiviso tra tutte le istanze `useFilters(key)` (es. sidebar
- * e chip “filtri attivi”). Due `useRef` separati non vedevano lo stesso stato ottimistico.
- * Pulizia su cambio `pathname` in useFilters.
- */
-const globalPendingFilterByKey = new Map<string, string>()
 
 function parseFilterValues(raw: string): string[] {
   return Array.from(
@@ -18,6 +17,17 @@ function parseFilterValues(raw: string): string[] {
         .filter(Boolean)
     )
   )
+}
+
+/** Stesso elenco, indice = valore in `current` (serve per togliere l’esatta stringa in URL, non il label cliccato). */
+function findFilterValueIndex(current: string[], requested: string): number {
+  const v = requested.trim()
+  if (!v) return -1
+  return current.findIndex((el) => {
+    if (el === v) return true
+    if (el.trim() === v) return true
+    return el.localeCompare(v, undefined, { sensitivity: "accent" }) === 0
+  })
 }
 
 /** Confronto stabile (ordine indipendente) tra URL e ref ottimistico. */
@@ -35,29 +45,22 @@ const useFilters = (key: string) => {
   const router = useRouter()
   const pathname = usePathname()
   const pathnameRef = useRef(pathname)
-  /** La Map pending non è reattiva: senza bump il checkbox aspetta `router.replace` / nuovo `useSearchParams`. */
+  /** Re-render locale per checkbox (store globale notifica il listing, non questo hook). */
   const [, bump] = useReducer((n: number) => n + 1, 0)
 
   useEffect(() => {
     if (pathnameRef.current !== pathname) {
       pathnameRef.current = pathname
-      /** Nuova pagina: nessun pending deve sopravvivere (anche chiavi senza hook montato). */
-      globalPendingFilterByKey.clear()
+      clearAllListingFacetPendingParams()
     }
   }, [pathname])
 
-  /**
-   * Finché `router.replace` non ha aggiornato l’URL, `useSearchParams` può restare indietro.
-   * **Non** azzerare il pending a ogni render con `params === ""`: il parent si ri-renderizza spesso
-   * (es. nuovi facet) prima che l’URL cambi → il secondo click partiva da lista vuota.
-   * Azzera solo quando l’URL ha “raggiunto” lo stesso insieme di valori del pending.
-   */
   const params = searchParams.get(key) ?? ""
   useEffect(() => {
-    const pend = globalPendingFilterByKey.get(key)
+    const pend = getListingFacetPendingParam(key)
     if (pend === undefined) return
     if (filterSignature(params) === filterSignature(pend)) {
-      globalPendingFilterByKey.delete(key)
+      removeListingFacetPendingParam(key)
     }
   }, [key, params])
 
@@ -67,43 +70,41 @@ const useFilters = (key: string) => {
     const v = value.trim()
     if (!v) return
 
-    const pend = globalPendingFilterByKey.get(key)
+    const pend = getListingFacetPendingParam(key)
     const base =
       pend !== undefined && filterSignature(params) !== filterSignature(pend)
         ? pend
         : params
     const current = parseFilterValues(base)
-    const has = current.some((el) => el === v)
+    const idx = findFilterValueIndex(current, v)
+    const has = idx >= 0
     const next = has
-      ? current.filter((el) => el !== v)
+      ? current.filter((_, i) => i !== idx)
       : [...current, v]
     const nextStr = next.join(",")
 
-    if (nextStr.length) globalPendingFilterByKey.set(key, nextStr)
-    else globalPendingFilterByKey.delete(key)
+    setListingFacetPendingParam(key, nextStr.length ? nextStr : null)
     bump()
-    startTransition(() => {
-      updateSearchParams(key, nextStr.length ? nextStr : null)
-    })
+    updateSearchParams(key, nextStr.length ? nextStr : null)
   }
 
   const isFilterActive = (value: string) => {
+    const v = value.trim()
+    if (!v) return false
     const fromUrl = parseFilterValues(searchParams.get(key) ?? "")
-    if (fromUrl.some((el) => el === value)) return true
-    const pend = globalPendingFilterByKey.get(key)
+    if (findFilterValueIndex(fromUrl, v) >= 0) return true
+    const pend = getListingFacetPendingParam(key)
     if (pend !== undefined) {
-      return parseFilterValues(pend).some((el) => el === value)
+      return findFilterValueIndex(parseFilterValues(pend), v) >= 0
     }
     return false
   }
 
   const clearAllFilters = () => {
-    globalPendingFilterByKey.delete(key)
+    clearAllListingFacetPendingParams()
     bump()
-    startTransition(() => {
-      router.push(window.location.pathname, {
-        scroll: false,
-      })
+    router.push(window.location.pathname, {
+      scroll: false,
     })
   }
 
