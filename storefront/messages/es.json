@@ -164,6 +164,8 @@
     "delivery": "Entrega",
     "payment": "Pago",
     "paymentSecureHint": "Todas las transacciones son seguras y cifradas.",
+    "paymentManualDisabledHint": "El pago manual de prueba está desactivado. Configura Stripe (Connect) en la región en admin.",
+    "paymentManualNotAvailable": "Pago manual desactivado — usa Stripe",
     "edit": "Editar",
     "save": "Guardar",
     "continueToDelivery": "Continuar al envío",

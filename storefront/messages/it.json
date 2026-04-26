@@ -171,6 +171,8 @@
     "delivery": "Consegna",
     "payment": "Pagamento",
     "paymentSecureHint": "Tutte le transazioni sono sicure e crittografate.",
+    "paymentManualDisabledHint": "Il pagamento manuale di test è disattivato. Configura Stripe (Connect) nella regione in admin e riavvia il carrello se necessario.",
+    "paymentManualNotAvailable": "Pagamento manuale disattivato — usa Stripe",
     "edit": "Modifica",
     "save": "Salva",
     "continueToDelivery": "Continua alla consegna",

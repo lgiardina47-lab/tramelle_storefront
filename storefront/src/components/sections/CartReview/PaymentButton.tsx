@@ -14,10 +14,13 @@ import { useTranslations } from "next-intl"
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
   "data-testid": string
+  /** Blocco ordine: importi minimi per produttore (listing metadata). */
+  minimumOrderBlocked?: boolean
 }
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
+  minimumOrderBlocked = false,
   "data-testid": dataTestId,
 }) => {
   const t = useTranslations("Checkout")
@@ -26,9 +29,21 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     !cart.shipping_address ||
     !cart.billing_address ||
     !cart.email ||
-    (cart.shipping_methods?.length ?? 0) < 1
+    (cart.shipping_methods?.length ?? 0) < 1 ||
+    minimumOrderBlocked
 
   const paymentSession = cart.payment_collection?.payment_sessions?.[0]
+  if (isManual(paymentSession?.provider_id)) {
+    return (
+      <Button
+        disabled
+        className="w-full rounded-md !bg-[#1773b0]/40 py-3.5 text-base font-semibold !text-white"
+        data-testid={dataTestId}
+      >
+        {t("paymentManualNotAvailable")}
+      </Button>
+    )
+  }
 
   switch (true) {
     case isStripe(paymentSession?.provider_id):
@@ -38,10 +53,6 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
           cart={cart}
           data-testid={dataTestId}
         />
-      )
-    case isManual(paymentSession?.provider_id):
-      return (
-        <ManualTestPaymentButton notReady={notReady} data-testid={dataTestId} />
       )
     default:
       return (
@@ -168,50 +179,6 @@ const StripePaymentButton = ({
       <ErrorMessage
         error={errorMessage}
         data-testid="stripe-payment-error-message"
-      />
-    </>
-  )
-}
-
-const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
-  const t = useTranslations("Checkout")
-  const [submitting, setSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-
-  const onPaymentCompleted = async () => {
-    try {
-      const res = await placeOrder()
-      if (!res.ok) {
-        setErrorMessage(res.error?.message)
-      }
-    } catch (error: any) {
-      if (error?.message !== "NEXT_REDIRECT") {
-        setErrorMessage(
-          error?.message?.replace("Error setting up the request: ", "")
-        )
-      }
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  const handlePayment = () => {
-    onPaymentCompleted()
-  }
-
-  return (
-    <>
-      <Button
-        disabled={notReady}
-        onClick={handlePayment}
-        className="w-full rounded-md !bg-[#1773b0] py-3.5 text-base font-semibold !text-white hover:!bg-[#135d91] disabled:!bg-[#b5b5b5]"
-        loading={submitting}
-      >
-        {t("placeOrder")}
-      </Button>
-      <ErrorMessage
-        error={errorMessage}
-        data-testid="manual-payment-error-message"
       />
     </>
   )

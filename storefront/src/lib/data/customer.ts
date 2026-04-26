@@ -225,23 +225,46 @@ export async function login(formData: FormData) {
   const password = formData.get('password') as string;
 
   try {
-    const token = (await sdk.auth.login('customer', 'emailpass', {
+    const raw = await sdk.auth.login('customer', 'emailpass', {
       email,
       password
-    })) as string;
+    });
+    if (raw && typeof raw === 'object' && 'location' in (raw as object)) {
+      return {
+        success: false,
+        message:
+          "Questa email richiede un altro metodo d'accesso. Usa la pagina /login."
+      };
+    }
+    const token = typeof raw === 'string' ? raw : undefined;
+    if (!token?.length) {
+      return { success: false, message: 'Risposta di login non valida. Riprova.' };
+    }
     await setAuthToken(token);
-    await transferCart({ authorization: `Bearer ${token}` });
+    try {
+      await transferCart({ authorization: `Bearer ${token}` });
+    } catch (transferErr: unknown) {
+      const msg =
+        transferErr instanceof Error
+          ? transferErr.message
+          : String(transferErr);
+      console.error('[login] transferCart', msg);
+      return {
+        success: false,
+        message: msg || 'Accesso effettuato ma il carrello non è stato collegato. Svuota i cookie o riprova.'
+      };
+    }
     const customerCacheTag = await getCacheTag('customers');
     revalidateTag(customerCacheTag);
     revalidatePath('/[locale]/checkout', 'page');
     revalidatePath('/[locale]/cart', 'page');
+    revalidatePath('/[locale]', 'layout');
 
     return { success: true };
   } catch (error: unknown) {
-    return {
-      success: false,
-      message: (error as Error)?.message || 'Unable to log in. Please try again.'
-    };
+    const err = error as { message?: string; toString?: () => string };
+    const message = err?.message || err?.toString?.() || 'Unable to log in. Please try again.';
+    return { success: false, message };
   }
 }
 

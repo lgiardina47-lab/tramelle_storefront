@@ -164,6 +164,8 @@
     "delivery": "Lieferung",
     "payment": "Zahlung",
     "paymentSecureHint": "Alle Transaktionen sind sicher und verschlüsselt.",
+    "paymentManualDisabledHint": "Manuelle Testzahlung ist deaktiviert. Bitte Stripe (Connect) in der Region/Admin einrichten.",
+    "paymentManualNotAvailable": "Manuelle Zahlung deaktiviert – Stripe nutzen",
     "edit": "Bearbeiten",
     "save": "Speichern",
     "continueToDelivery": "Weiter zur Lieferung",

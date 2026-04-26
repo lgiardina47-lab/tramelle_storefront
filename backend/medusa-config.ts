@@ -3,6 +3,28 @@ import { defineConfig, loadEnv } from "@medusajs/framework/utils"
 loadEnv(process.env.NODE_ENV || "development", process.cwd())
 
 const isSupabaseHost = Boolean(process.env.DATABASE_URL?.includes("supabase"))
+const isNeonHost = Boolean(process.env.DATABASE_URL?.includes("neon.tech"))
+
+/** Pool lato app: con Neon/Supabase in cloud usa l’URL con pooler; qui si limita il numero di conn per processo Medusa. */
+const databasePool = (() => {
+  if (!isSupabaseHost && !isNeonHost) {
+    return undefined
+  }
+  const maxRaw = Number.parseInt(process.env.DATABASE_POOL_MAX || "10", 10)
+  const minRaw = Number.parseInt(process.env.DATABASE_POOL_MIN || "2", 10)
+  const max = Math.min(32, Math.max(1, Number.isFinite(maxRaw) ? maxRaw : 10))
+  const min = Math.min(max, Math.max(0, Number.isFinite(minRaw) ? minRaw : 2))
+  return { min, max, idleTimeoutMillis: 30_000, reapIntervalMillis: 1_000 }
+})()
+
+const databaseDriverOptions = databasePool
+  ? {
+      ...(isSupabaseHost
+        ? { connection: { ssl: { rejectUnauthorized: false } } }
+        : {}),
+      pool: databasePool,
+    }
+  : undefined
 
 const algoliaAppId = process.env.ALGOLIA_APP_ID?.trim()
 const algoliaApiKey = process.env.ALGOLIA_API_KEY?.trim()
@@ -13,17 +35,46 @@ const algoliaEnabled = Boolean(
     algoliaApiKey !== "placeholder"
 )
 
+const sendcloudKey = process.env.SENDCLOUD_API_KEY?.trim()
+const sendcloudSecret = process.env.SENDCLOUD_API_SECRET?.trim()
+const sendcloudEnabled = Boolean(sendcloudKey && sendcloudSecret)
+
+const fulfillmentProviders: {
+  resolve: string
+  id: string
+  options: Record<string, unknown>
+}[] = [
+  {
+    resolve: "@medusajs/fulfillment-manual",
+    id: "manual",
+    options: {},
+  },
+  ...(sendcloudEnabled
+    ? [
+        {
+          resolve:
+            "@medita/medusa-sendcloud-plugin/providers/sendcloud-fulfillment",
+          id: "sendcloud-fulfillment",
+          options: {
+            apiKey: sendcloudKey,
+            apiSecret: sendcloudSecret,
+            baseUrl:
+              process.env.SENDCLOUD_BASE_URL?.trim() ||
+              "https://panel.sendcloud.sc/api/v2",
+            partnerId: process.env.SENDCLOUD_PARTNER_ID?.trim(),
+            defaultCountry:
+              process.env.SENDCLOUD_DEFAULT_COUNTRY?.trim() || "it",
+          },
+        },
+      ]
+    : []),
+]
+
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,
-    ...(isSupabaseHost
-      ? {
-          databaseDriverOptions: {
-            connection: { ssl: { rejectUnauthorized: false } },
-          },
-        }
-      : {}),
+    ...(databaseDriverOptions ? { databaseDriverOptions } : {}),
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -73,10 +124,33 @@ module.exports = defineConfig({
       resolve: "medusa-blog-management",
       options: {},
     },
+    ...(sendcloudEnabled
+      ? [
+          {
+            resolve: "@medita/medusa-sendcloud-plugin" as const,
+            options: {
+              apiKey: sendcloudKey,
+              apiSecret: sendcloudSecret,
+              baseUrl:
+                process.env.SENDCLOUD_BASE_URL?.trim() ||
+                "https://panel.sendcloud.sc/api/v2",
+              partnerId: process.env.SENDCLOUD_PARTNER_ID?.trim(),
+              defaultCountry:
+                process.env.SENDCLOUD_DEFAULT_COUNTRY?.trim() || "it",
+            },
+          },
+        ]
+      : []),
   ],
   modules: [
     {
       resolve: "./src/modules/seller-listing-profile",
+    },
+    {
+      resolve: "@medusajs/medusa/fulfillment" as const,
+      options: {
+        providers: fulfillmentProviders,
+      },
     },
     {
       resolve: "@medusajs/medusa/payment",

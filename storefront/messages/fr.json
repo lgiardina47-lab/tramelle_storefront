@@ -164,6 +164,8 @@
     "delivery": "Livraison",
     "payment": "Paiement",
     "paymentSecureHint": "Toutes les transactions sont sécurisées et cryptées.",
+    "paymentManualDisabledHint": "Le paiement manuel de test est désactivé. Activez Stripe (Connect) sur la région en admin.",
+    "paymentManualNotAvailable": "Paiement manuel désactivé — utilisez Stripe",
     "edit": "Modifier",
     "save": "Enregistrer",
     "continueToDelivery": "Continuer vers la livraison",

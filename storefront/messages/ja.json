@@ -164,6 +164,8 @@
     "delivery": "配送",
     "payment": "お支払い",
     "paymentSecureHint": "すべての取引は安全に暗号化されています。",
+    "paymentManualDisabledHint": "手動（テスト）支払いは無効です。管理で Stripe (Connect) を有効にしてください。",
+    "paymentManualNotAvailable": "手動支払いは利用できません（Stripeを使用）",
     "edit": "変更",
     "save": "保存",
     "continueToDelivery": "配送へ進む",

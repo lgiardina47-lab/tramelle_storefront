@@ -166,6 +166,8 @@
     "delivery": "Delivery",
     "payment": "Payment",
     "paymentSecureHint": "All transactions are secure and encrypted.",
+    "paymentManualDisabledHint": "Test manual payment is disabled. Enable Stripe (Connect) on the sales channel / region in admin, then refresh checkout.",
+    "paymentManualNotAvailable": "Manual payment disabled — use Stripe",
     "edit": "Edit",
     "save": "Save",
     "continueToDelivery": "Continue to delivery",

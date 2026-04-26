@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { RadioGroup } from '@headlessui/react';
 import { CheckCircleSolid } from '@medusajs/icons';
@@ -10,7 +10,11 @@ import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
 import { initiatePaymentSession } from '@/lib/data/cart';
 import { useRouter } from 'next/navigation';
 
-import { isStripe as isStripeFunc, paymentInfoMap } from '../../../lib/constants';
+import {
+  isManual,
+  isStripe as isStripeFunc,
+  paymentInfoMap
+} from '../../../lib/constants';
 import PaymentContainer, {
   StripeCardContainer
 } from '../../organisms/PaymentContainer/PaymentContainer';
@@ -43,6 +47,7 @@ const CartPaymentSection = ({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
     activeSession?.provider_id ?? ''
   );
+  const didReplaceManual = useRef(false);
 
   const setPaymentMethod = async (method: string) => {
     setError(null);
@@ -73,9 +78,36 @@ const CartPaymentSection = ({
     }
   }, [activeSession?.provider_id, selectedPaymentMethod]);
 
+  const payMethods = (availablePaymentMethods ?? []).filter(
+    p => p?.id && !isManual(p.id)
+  );
+
+  const firstNonManualPayId = useMemo(
+    () =>
+      (availablePaymentMethods ?? []).find(
+        p => p?.id && !isManual(p.id)
+      )?.id,
+    [availablePaymentMethods]
+  );
+
+  useEffect(() => {
+    didReplaceManual.current = false;
+  }, [cart?.id]);
+
+  useEffect(() => {
+    if (didReplaceManual.current || paidByGiftcard) {
+      return;
+    }
+    if (!activeSession || !isManual(activeSession.provider_id) || !firstNonManualPayId) {
+      return;
+    }
+    didReplaceManual.current = true;
+    void setPaymentMethod(firstNonManualPayId);
+  }, [activeSession?.provider_id, firstNonManualPayId, paidByGiftcard, cart?.id]);
+
   return (
     <div
-      className="rounded-lg border border-[#d9d9d9] bg-white p-5 shadow-sm lg:p-6"
+      className="bg-white pb-2 pt-2 lg:pb-6"
       data-testid="checkout-step-payment"
     >
       <div className="mb-2 flex flex-row items-center justify-between">
@@ -89,13 +121,13 @@ const CartPaymentSection = ({
       </div>
       <Text className="mb-5 text-sm text-[#6d7175]">{t('paymentSecureHint')}</Text>
       <div>
-        {!paidByGiftcard && availablePaymentMethods?.length ? (
+        {!paidByGiftcard && payMethods.length ? (
           <>
             <RadioGroup
               value={selectedPaymentMethod}
               onChange={(value: string) => setPaymentMethod(value)}
             >
-              {availablePaymentMethods.map(paymentMethod => (
+              {payMethods.map(paymentMethod => (
                 <div key={paymentMethod.id}>
                   {isStripeFunc(paymentMethod.id) ? (
                     <StripeCardContainer
@@ -118,6 +150,12 @@ const CartPaymentSection = ({
             </RadioGroup>
           </>
         ) : null}
+
+        {!paidByGiftcard && (availablePaymentMethods?.length ?? 0) > 0 && payMethods.length === 0 && (
+          <Text className="text-sm text-amber-800">
+            {t('paymentManualDisabledHint')}
+          </Text>
+        )}
 
         {paidByGiftcard && (
           <div className="flex w-1/3 flex-col">
