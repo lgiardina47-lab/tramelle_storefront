@@ -14,6 +14,13 @@
  * Override variante nominata: env `…_VARIANT=public` (1366×768) o altro.
  */
 
+import {
+  DEFAULT_HOME_RAIL_SRC_WIDTHS,
+  DEFAULT_PRODUCT_LISTING_CARD_SRC_WIDTHS,
+  productListingCardImageSizesAttribute,
+  productListingHomeRailImageSizesAttribute,
+} from "@/lib/helpers/product-listing-image-sizes"
+
 const DEFAULT_HOST = "imagedelivery.net"
 
 /**
@@ -65,7 +72,7 @@ function cloudflareDirectoryCardWidthsPx(): number[] {
   return parsed.length > 0 ? parsed : [...DEFAULT_CLOUDFLARE_DIRECTORY_CARD_WIDTHS]
 }
 
-function cloudflareFlexibleSharpen(): number {
+export function cloudflareFlexibleSharpen(): number {
   const raw = process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_SHARPEN?.trim()
   if (!raw) {
     return 1
@@ -109,6 +116,23 @@ export function cloudflareProductFlexibleQuality(): number {
     return 100
   }
   return Math.min(100, Math.max(1, n))
+}
+
+/**
+ * Qualità per il preset **galleria PDP** (LCP): default **88** (molto meno byte di 100, spesso stesso impatto visivo).
+ * Override: `NEXT_PUBLIC_CLOUDFLARE_IMAGES_PDP_GALLERY_QUALITY`.
+ */
+export function cloudflarePdpGalleryFlexibleQuality(): number {
+  const raw =
+    process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_PDP_GALLERY_QUALITY?.trim()
+  if (!raw) {
+    return 88
+  }
+  const n = parseInt(raw, 10)
+  if (!Number.isFinite(n)) {
+    return 88
+  }
+  return Math.min(100, Math.max(60, n))
 }
 
 /** Host delivery: da env (`media.tramelle.com` per SEO / first-party) oppure `imagedelivery.net` se omesso. */
@@ -414,6 +438,7 @@ export function cloudflareProductImageQuality(): number {
 
 export type CloudflareProductImagePreset =
   | "listing-card"
+  | "listing-rail"
   | "pdp-gallery"
   | "pdp-indicator"
   | "header-search"
@@ -422,10 +447,9 @@ export type CloudflareProductImagePreset =
   | "wishlist-card"
   | "order-list-thumb"
 
-/** Stesso schema srcset delle card seller (directory). */
-const DEFAULT_PRODUCT_CARD_WIDTHS = DEFAULT_CLOUDFLARE_DIRECTORY_CARD_WIDTHS
+/** Tetto ~698px × 2 (retina) ≈ 1400; 1600 basta senza richiedere 2200px (byte inutili). */
 const DEFAULT_PRODUCT_GALLERY_WIDTHS = [
-  640, 960, 1280, 1600, 2200,
+  480, 720, 960, 1280, 1600,
 ] as const
 
 export function cloudflareProductImagePresetConfig(
@@ -440,10 +464,18 @@ export function cloudflareProductImagePresetConfig(
       return {
         widths: parseWidthsListFromEnv(
           process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_PRODUCT_CARD_WIDTHS,
-          DEFAULT_PRODUCT_CARD_WIDTHS
+          [...DEFAULT_PRODUCT_LISTING_CARD_SRC_WIDTHS]
         ),
-        sizes:
-          "(min-width: 1280px) 280px, (min-width: 1024px) 24vw, (min-width: 640px) 45vw, 88vw",
+        sizes: productListingCardImageSizesAttribute(),
+        fit: "scale-down",
+      }
+    case "listing-rail":
+      return {
+        widths: parseWidthsListFromEnv(
+          process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_HOME_RAIL_WIDTHS,
+          [...DEFAULT_HOME_RAIL_SRC_WIDTHS]
+        ),
+        sizes: productListingHomeRailImageSizesAttribute,
         fit: "scale-down",
       }
     case "pdp-gallery":
@@ -546,9 +578,13 @@ export function cloudflareProductImageResponsive(
   url: string,
   preset: CloudflareProductImagePreset
 ): { src: string; srcSet: string; sizes: string } | null {
+  const quality =
+    preset === "pdp-gallery"
+      ? cloudflarePdpGalleryFlexibleQuality()
+      : cloudflareProductFlexibleQuality()
   return cloudflareFlexibleImageResponsive(url, {
     ...cloudflareProductImagePresetConfig(preset),
-    quality: cloudflareProductFlexibleQuality(),
+    quality,
   })
 }
 
