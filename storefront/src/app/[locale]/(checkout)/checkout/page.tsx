@@ -120,7 +120,7 @@ export default async function CheckoutPage({
         </aside>
 
         <section className="order-2 flex w-full flex-1 flex-col bg-white lg:order-1 lg:w-[58%] lg:max-w-none">
-          <main className="mx-auto w-full max-w-xl px-5 py-8 sm:px-8 lg:ml-auto lg:mr-0 lg:max-w-[32rem] lg:px-10 lg:py-10 xl:pr-14">
+          <main className="w-full max-w-none px-5 py-8 sm:px-8 lg:px-10 lg:py-10 xl:pr-14">
             <CheckoutBreadcrumb customer={customer} locale={locale} />
             <div className="flex flex-col" data-testid="checkout-steps-container">
               <Suspense fallback={<CheckoutStepSkeleton />}>
