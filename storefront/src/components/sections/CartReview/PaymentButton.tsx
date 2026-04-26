@@ -10,7 +10,7 @@ import React, { useState } from "react"
 import { Button } from "@/components/atoms"
 import { useCheckoutCardComplete } from "@/components/organisms/PaymentContainer/CheckoutCardReadyContext"
 import { isCheckoutDeliveryAddressComplete } from "@/lib/helpers/checkout-delivery-address"
-import { requiredShippingMethodCountForCart } from "@/lib/helpers/tramelle-seller-shipping-display"
+import { isCartShippingReadyForPay } from "@/lib/helpers/tramelle-seller-shipping-display"
 import { useTranslations } from "next-intl"
 
 type PaymentButtonProps = {
@@ -29,16 +29,15 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   "data-testid": dataTestId,
 }) => {
   const t = useTranslations("Checkout")
-  const needShip = requiredShippingMethodCountForCart(cart)
-  const haveShip = cart.shipping_methods?.length ?? 0
   const addressOk = isCheckoutDeliveryAddressComplete(cart.shipping_address)
   const emailOk =
     String(cart.email || "").trim() || String(accountEmail || "").trim()
+  const shippingOk = isCartShippingReadyForPay(cart)
   const notReady =
     !cart ||
     !addressOk ||
     !emailOk ||
-    (needShip > 0 && haveShip < needShip) ||
+    !shippingOk ||
     minimumOrderBlocked
 
   const paymentSession = cart.payment_collection?.payment_sessions?.find(

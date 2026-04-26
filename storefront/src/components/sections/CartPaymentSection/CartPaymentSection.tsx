@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 
 import { RadioGroup } from '@headlessui/react';
 import { CheckCircleSolid } from '@medusajs/icons';
@@ -9,6 +9,8 @@ import { Heading, Text } from '@medusajs/ui';
 import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
 import { initiatePaymentSession } from '@/lib/data/cart';
 import { useRouter } from 'next/navigation';
+
+import { isCartShippingReadyForPay } from '@/lib/helpers/tramelle-seller-shipping-display';
 
 import {
   isManual,
@@ -48,6 +50,9 @@ const CartPaymentSection = ({
     activeSession?.provider_id ?? ''
   );
   const didReplaceManual = useRef(false);
+  const didEnsurePaymentAfterShipping = useRef(false);
+  const cartRef = useRef(cart);
+  cartRef.current = cart;
 
   const setPaymentMethod = async (method: string) => {
     setError(null);
@@ -56,7 +61,9 @@ const CartPaymentSection = ({
       await initiatePaymentSession(cart, {
         provider_id: method
       });
-      router.refresh();
+      startTransition(() => {
+        router.refresh();
+      });
     } catch (err: any) {
       setError(err?.message || t('genericError'));
     }
@@ -64,7 +71,7 @@ const CartPaymentSection = ({
 
   const paidByGiftcard = cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0;
 
-  const shippingOk = (cart?.shipping_methods?.length ?? 0) > 0;
+  const shippingOk = isCartShippingReadyForPay(cart);
   const paymentReady = (activeSession && shippingOk) || paidByGiftcard;
 
   useEffect(() => {
@@ -92,7 +99,14 @@ const CartPaymentSection = ({
 
   useEffect(() => {
     didReplaceManual.current = false;
+    didEnsurePaymentAfterShipping.current = false;
   }, [cart?.id]);
+
+  useEffect(() => {
+    if (!shippingOk) {
+      didEnsurePaymentAfterShipping.current = false;
+    }
+  }, [shippingOk]);
 
   useEffect(() => {
     if (didReplaceManual.current || paidByGiftcard) {
@@ -104,6 +118,40 @@ const CartPaymentSection = ({
     didReplaceManual.current = true;
     void setPaymentMethod(firstNonManualPayId);
   }, [activeSession?.provider_id, firstNonManualPayId, paidByGiftcard, cart?.id]);
+
+  /** Dopo l’applicazione spedizione (lato client) la sessione paga può mancare un frame: allinea come `ensureDefaultPaymentSession` server. */
+  useEffect(() => {
+    if (paidByGiftcard || !shippingOk || !firstNonManualPayId) {
+      return;
+    }
+    if (activeSession && !isManual(activeSession.provider_id)) {
+      return;
+    }
+    if (activeSession && isManual(activeSession.provider_id)) {
+      return;
+    }
+    if (didEnsurePaymentAfterShipping.current) {
+      return;
+    }
+    didEnsurePaymentAfterShipping.current = true;
+    void (async () => {
+      try {
+        await initiatePaymentSession(cartRef.current, { provider_id: firstNonManualPayId });
+        startTransition(() => {
+          router.refresh();
+        });
+      } catch {
+        didEnsurePaymentAfterShipping.current = false;
+      }
+    })();
+  }, [
+    activeSession?.id,
+    activeSession?.provider_id,
+    firstNonManualPayId,
+    paidByGiftcard,
+    router,
+    shippingOk
+  ]);
 
   return (
     <div

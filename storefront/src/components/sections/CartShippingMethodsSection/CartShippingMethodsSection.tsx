@@ -13,8 +13,8 @@ import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { isCheckoutDeliveryAddressComplete } from '@/lib/helpers/checkout-delivery-address';
 import { isUsableStoreShippingOption } from '@/lib/helpers/cart-seller-shipping';
 import {
+  isCartShippingReadyForPay,
   lineItemsForShippingSellerKey,
-  requiredShippingMethodCountForCart,
   sumLineSubtotalsEurForItems,
   tramelleDisplayShippingEurForSellerBlock
 } from '@/lib/helpers/tramelle-seller-shipping-display';
@@ -281,11 +281,10 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
 
   const missingOptionsKey = missingOptionIdsToAutoApply.join('\0');
 
-  const deliveryStepComplete = useMemo(() => {
-    const need = requiredShippingMethodCountForCart(cart as HttpTypes.StoreCart);
-    const have = cart.shipping_methods?.length ?? 0;
-    return need > 0 && have >= need;
-  }, [cart]);
+  const deliveryStepComplete = useMemo(
+    () => isCartShippingReadyForPay(cart as HttpTypes.StoreCart),
+    [cart]
+  );
 
   useEffect(() => {
     setError(null);

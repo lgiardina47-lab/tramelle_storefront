@@ -3,10 +3,7 @@
 import type { HttpTypes } from '@medusajs/types';
 import { useTranslations } from 'next-intl';
 
-import {
-  requiredShippingMethodCountForCart,
-  tramelleDisplayTotalShippingEur
-} from '@/lib/helpers/tramelle-seller-shipping-display';
+import { tramelleDisplayTotalShippingEur } from '@/lib/helpers/tramelle-seller-shipping-display';
 import {
   cartShippingAmountAsMajor,
   medusaStoreAmountAsMajor
