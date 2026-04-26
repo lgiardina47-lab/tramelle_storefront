@@ -5,6 +5,8 @@ import { Elements } from "@stripe/react-stripe-js"
 import { HttpTypes } from "@medusajs/types"
 import { createContext } from "react"
 
+import { CheckoutCardReadyProvider } from "./CheckoutCardReadyContext"
+
 type StripeWrapperProps = {
   paymentSession: HttpTypes.StorePaymentSession
   stripeKey?: string
@@ -42,10 +44,16 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
     )
   }
 
+  const elementsKey = `${paymentSession.id}:${String(paymentSession.data?.client_secret ?? '')}`
+
   return (
     <StripeContext.Provider value={true}>
-      <Elements options={options} stripe={stripePromise}>
-        {children}
+      <Elements
+        key={elementsKey}
+        options={options}
+        stripe={stripePromise}
+      >
+        <CheckoutCardReadyProvider>{children}</CheckoutCardReadyProvider>
       </Elements>
     </StripeContext.Provider>
   )

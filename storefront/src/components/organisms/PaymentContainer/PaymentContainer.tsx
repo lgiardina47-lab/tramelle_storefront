@@ -1,9 +1,10 @@
 import { Radio, Radio as RadioGroupOption } from "@headlessui/react"
 import { Text, clx } from "@medusajs/ui"
-import React, { useContext, useMemo, type JSX } from "react"
+import React, { useContext, useEffect, useMemo, type JSX } from "react"
 
 import { CardElement } from "@stripe/react-stripe-js"
 import { StripeCardElementOptions } from "@stripe/stripe-js"
+import { useCheckoutCardComplete } from "./CheckoutCardReadyContext"
 import { StripeContext } from "./StripeWrapper"
 
 type PaymentContainerProps = {
@@ -66,6 +67,7 @@ export const StripeCardContainer = ({
   setCardComplete: (complete: boolean) => void
 }) => {
   const stripeReady = useContext(StripeContext)
+  const cardReadyCtx = useCheckoutCardComplete()
 
   const useOptions: StripeCardElementOptions = useMemo(() => {
     return {
@@ -83,6 +85,12 @@ export const StripeCardContainer = ({
       },
     }
   }, [])
+
+  useEffect(() => {
+    if (selectedPaymentOptionId !== paymentProviderId) {
+      cardReadyCtx?.setCardComplete(false)
+    }
+  }, [selectedPaymentOptionId, paymentProviderId, cardReadyCtx])
 
   return (
     <PaymentContainer
@@ -104,7 +112,10 @@ export const StripeCardContainer = ({
                   e.brand && e.brand.charAt(0).toUpperCase() + e.brand.slice(1)
                 )
                 setError(e.error?.message || null)
-                setCardComplete(e.complete)
+                const ready =
+                  e.complete || (!e.error && !e.empty)
+                setCardComplete(ready)
+                cardReadyCtx?.setCardComplete(ready)
               }}
             />
           </div>

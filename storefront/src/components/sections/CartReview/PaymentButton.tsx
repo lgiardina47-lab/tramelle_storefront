@@ -5,12 +5,12 @@ import { isManual, isStripe } from "../../../lib/constants"
 import { placeOrder } from "@/lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
-import type { StripeCardElement, StripeCardElementChangeEvent } from "@stripe/stripe-js"
-import React, { useEffect, useState } from "react"
+import type { StripeCardElement } from "@stripe/stripe-js"
+import React, { useState } from "react"
 import { Button } from "@/components/atoms"
+import { useCheckoutCardComplete } from "@/components/organisms/PaymentContainer/CheckoutCardReadyContext"
+import { isCheckoutDeliveryAddressComplete } from "@/lib/helpers/checkout-delivery-address"
 import { requiredShippingMethodCountForCart } from "@/lib/helpers/tramelle-seller-shipping-display"
-import { orderErrorFormatter } from "@/lib/helpers/order-error-formatter"
-import { toast } from "@/lib/helpers/toast"
 import { useTranslations } from "next-intl"
 
 type PaymentButtonProps = {
@@ -31,14 +31,12 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   const t = useTranslations("Checkout")
   const needShip = requiredShippingMethodCountForCart(cart)
   const haveShip = cart.shipping_methods?.length ?? 0
-  const hasShipLine1 = Boolean(
-    (cart.shipping_address as { address_1?: string } | null | undefined)?.address_1?.trim()
-  )
+  const addressOk = isCheckoutDeliveryAddressComplete(cart.shipping_address)
   const emailOk =
     String(cart.email || "").trim() || String(accountEmail || "").trim()
   const notReady =
     !cart ||
-    !hasShipLine1 ||
+    !addressOk ||
     !emailOk ||
     (needShip > 0 && haveShip < needShip) ||
     minimumOrderBlocked
@@ -100,8 +98,8 @@ const StripePaymentButton = ({
   const t = useTranslations("Checkout")
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  /** Carta non ancora valida o elemento ancora non montato nel DOM (sidebar renderizza prima del form). */
-  const [cardFieldIncomplete, setCardFieldIncomplete] = useState(true)
+  const cardCtx = useCheckoutCardComplete()
+  const cardComplete = cardCtx?.cardComplete ?? false
 
   const onPaymentCompleted = async () => {
     try {
@@ -126,36 +124,6 @@ const StripePaymentButton = ({
   const session = cart.payment_collection?.payment_sessions?.find(
     (s) => s.status === "pending"
   )
-
-  useEffect(() => {
-    if (!elements) {
-      return
-    }
-    let detach: (() => void) | undefined
-    let cancelled = false
-    const poll = window.setInterval(() => {
-      if (cancelled) return
-      const el = elements.getElement("card") as StripeCardElement | null
-      if (!el) {
-        return
-      }
-      clearInterval(poll)
-      const onChange = (e: StripeCardElementChangeEvent) => {
-        setCardFieldIncomplete(!e.complete)
-      }
-      el.on("change", onChange)
-      detach = () => el.off("change", onChange)
-    }, 120)
-    const stop = window.setTimeout(() => {
-      clearInterval(poll)
-    }, 12000)
-    return () => {
-      cancelled = true
-      clearInterval(poll)
-      clearTimeout(stop)
-      detach?.()
-    }
-  }, [elements, session?.id])
 
   const billing = cart.billing_address ?? cart.shipping_address
   const handlePayment = async () => {
@@ -215,7 +183,7 @@ const StripePaymentButton = ({
       })
   }
 
-  const payDisabled = notReady || cardFieldIncomplete
+  const payDisabled = notReady || !cardComplete
 
   return (
     <>
