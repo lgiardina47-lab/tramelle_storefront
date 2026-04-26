@@ -1,12 +1,28 @@
 import { Card, Divider } from "@/components/atoms"
-import { convertToLocale } from "@/lib/helpers/money"
+import {
+  medusaStoreAmountAsMajor,
+  convertToLocale,
+  cartShippingAmountAsMajor
+} from "@/lib/helpers/money"
+import { tramelleDisplayShippingMajorForStoreOrder } from "@/lib/helpers/tramelle-seller-shipping-display"
 
 export const OrderTotals = ({ orderSet }: { orderSet: any }) => {
-  const delivery = orderSet.shipping_total
-  const subtotal = orderSet.total - delivery
-  const total = orderSet.total
-
-  const currency_code = orderSet.payment_collection.currency_code
+  const currency_code = orderSet.payment_collection?.currency_code || "eur"
+  const isEur = String(currency_code).toLowerCase() === "eur"
+  const childOrders: any[] = orderSet.orders ?? []
+  const delivery = isEur
+    ? Math.round(
+        childOrders.reduce(
+          (s, o) => s + tramelleDisplayShippingMajorForStoreOrder(o),
+          0
+        ) * 100
+      ) / 100
+    : cartShippingAmountAsMajor(
+        orderSet.shipping_total,
+        currency_code
+      )
+  const total = medusaStoreAmountAsMajor(orderSet.total)
+  const subtotal = Math.round((total - delivery) * 100) / 100
 
   return (
     <Card className="mb-8 p-4">

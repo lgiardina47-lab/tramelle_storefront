@@ -17,6 +17,10 @@ export const retrieveOrderSet = async (id: string) => {
   return sdk.client
     .fetch<any>(`/store/order-set/${id}`, {
       method: 'GET',
+      query: {
+        fields:
+          '*orders,*orders.items,*orders.shipping_address,*orders.seller,*payment_collection'
+      },
       headers,
       cache: 'no-cache'
     })
@@ -126,7 +130,7 @@ export const listOrders = async (
         offset,
         order: '-created_at',
         fields:
-          '*items,+items.thumbnail,+items.product.thumbnail,+items.metadata,*items.variant,*items.product,*seller,*reviews,*order_set,shipping_total,total,created_at',
+          '*items,+items.thumbnail,+items.product.thumbnail,+items.metadata,*items.variant,*items.product,*seller,*reviews,*order_set,*shipping_address,shipping_total,total,created_at',
         ...filters
       },
       headers,

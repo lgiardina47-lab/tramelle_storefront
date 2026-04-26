@@ -7,7 +7,10 @@ import {
   TRAMELLE_SHIP_FLAT_IT_EUR,
 } from '@/lib/constants/seller-cart-policy';
 import { isCheckoutDeliveryAddressComplete } from '@/lib/helpers/checkout-delivery-address';
-import { medusaStoreAmountAsMajor } from '@/lib/helpers/money';
+import {
+  cartShippingAmountAsMajor,
+  medusaStoreAmountAsMajor
+} from '@/lib/helpers/money';
 
 const IT_CODES = new Set(['it', 'sm', 'va']);
 
@@ -155,6 +158,34 @@ export function isCartShippingReadyForPay(
     }
   }
   return false;
+}
+
+/**
+ * Spedizione mostrata per un ordine completato: stessa policy Tramelle del carrello
+ * (soglie IT / EU sul sottototale righe in EUR; paese da `shipping_address`).
+ * Allinea la riga "Spedizione" in cronologia al riepilogo (gratis o flat), non al solo
+ * `shipping_total` API se quello resta al costo fornitore/flat.
+ */
+export function tramelleDisplayShippingMajorForStoreOrder(order: {
+  items?: HttpTypes.StoreCartLineItem[] | any[] | null;
+  shipping_total?: number | null;
+  shipping_address?: { country_code?: string | null } | null;
+  currency_code?: string | null;
+}): number {
+  const cur = (order.currency_code || 'eur').toLowerCase();
+  if (cur !== 'eur') {
+    return cartShippingAmountAsMajor(
+      order.shipping_total,
+      order.currency_code
+    );
+  }
+  const sub = sumLineSubtotalsEurForItems(
+    (order.items ?? []) as HttpTypes.StoreCartLineItem[]
+  );
+  return tramelleDisplayShippingEurForSellerBlock(
+    sub,
+    order.shipping_address?.country_code ?? undefined
+  ).amountMajor;
 }
 
 export function lineItemsForShippingSellerKey(

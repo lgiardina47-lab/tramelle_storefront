@@ -8,6 +8,7 @@ import { OrderProductListItem } from '@/components/cells';
 import { CollapseIcon } from '@/icons';
 import { convertToLocale } from '@/lib/helpers/money';
 import { parcelStatuses } from '@/lib/helpers/parcel-statuses';
+import { tramelleDisplayShippingMajorForStoreOrder } from '@/lib/helpers/tramelle-seller-shipping-display';
 import { cn } from '@/lib/utils';
 
 const STATUS_STEP_KEYS = [
@@ -49,6 +50,10 @@ export const ParcelAccordionItems = ({
   const statusKey = STATUS_STEP_KEYS[status] ?? 'orderStatusStep0';
 
   const totalItems = order.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
+  const shippingDisplayMajor = tramelleDisplayShippingMajorForStoreOrder({
+    ...order,
+    currency_code: order.currency_code || currency_code
+  });
 
   return (
     <Card
@@ -75,7 +80,10 @@ export const ParcelAccordionItems = ({
             className="font-semibold text-primary"
             data-testid={shippingPriceTestId}
           >
-            {convertToLocale({ amount: order.shipping_total, currency_code })}
+            {convertToLocale({
+              amount: shippingDisplayMajor,
+              currency_code
+            })}
           </span>
         </p>
 
