@@ -2,7 +2,10 @@
 
 import { HttpTypes } from '@medusajs/types';
 
-import { StoreCardShippingMethod } from '@/components/sections/CartShippingMethodsSection/CartShippingMethodsSection';
+import {
+  type StoreCardShippingMethod,
+  type StoreCartShippingOptionsList
+} from '@/components/sections/CartShippingMethodsSection/CartShippingMethodsSection';
 import { sdk } from '@/lib/config';
 
 import { getAuthHeaders, getCacheOptions } from './cookies';
@@ -17,7 +20,7 @@ export const listCartShippingMethods = async (cartId: string, is_return: boolean
   };
 
   return sdk.client
-    .fetch<{ shipping_options: StoreCardShippingMethod[] | null }>(`/store/shipping-options`, {
+    .fetch<{ shipping_options?: StoreCartShippingOptionsList | null }>(`/store/shipping-options`, {
       method: 'GET',
       query: {
         cart_id: cartId,
@@ -25,10 +28,15 @@ export const listCartShippingMethods = async (cartId: string, is_return: boolean
           '+calculated_price,+service_zone.fulfillment_set.type,*service_zone.fulfillment_set.location.address'
       },
       headers,
-      next,
-      cache: 'no-cache'
+      next: { ...next, revalidate: 0 },
+      cache: 'no-store'
     })
-    .then(({ shipping_options }) => shipping_options)
+    .then((body) => {
+      if (Array.isArray(body?.shipping_options)) {
+        return body.shipping_options;
+      }
+      return null;
+    })
     .catch(() => {
       return null;
     });

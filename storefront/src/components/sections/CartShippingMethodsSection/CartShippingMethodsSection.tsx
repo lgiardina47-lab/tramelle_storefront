@@ -1,17 +1,23 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FC } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState, type FC } from 'react';
 
-import { RadioGroup } from '@headlessui/react';
 import { CheckCircleSolid } from '@medusajs/icons';
 import type { HttpTypes } from '@medusajs/types';
 import { Heading, Text } from '@medusajs/ui';
-import clsx from 'clsx';
 import { useRouter } from 'next/navigation';
 
 import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
 import { setShippingMethod } from '@/lib/data/cart';
+import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { isCheckoutDeliveryAddressComplete } from '@/lib/helpers/checkout-delivery-address';
+import { isUsableStoreShippingOption } from '@/lib/helpers/cart-seller-shipping';
+import {
+  lineItemsForShippingSellerKey,
+  requiredShippingMethodCountForCart,
+  sumLineSubtotalsEurForItems,
+  tramelleDisplayShippingEurForSellerBlock
+} from '@/lib/helpers/tramelle-seller-shipping-display';
 import { convertToLocale, minorUnitsToMajor } from '@/lib/helpers/money';
 
 import { useTranslations } from 'next-intl';
@@ -40,6 +46,13 @@ export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {
     };
   };
 };
+
+/** Risposta GET /store/shipping-options (Mercur: seller_id, rules, ecc.). */
+export type StoreCartShippingOptionsList = (StoreCardShippingMethod & {
+  rules?: { attribute?: string; value?: string }[];
+  price_type?: string;
+  amount?: number;
+})[];
 
 /** L'API salva le opzioni con `option_id`; sul carrello il metodo espone `shipping_option_id` (non `id` del metodo). */
 function shippingOptionIdFromCartMethod(
@@ -70,17 +83,24 @@ type ShippingProps = {
   cart: Omit<HttpTypes.StoreCart, 'items'> & {
     items?: CartItem[];
   };
-  availableShippingMethods:
-    | (StoreCardShippingMethod &
-        {
-          rules: any;
-          seller_id: string;
-          price_type: string;
-          id: string;
-          amount?: number;
-        }[])
-    | null;
+  availableShippingMethods: StoreCartShippingOptionsList | null;
 };
+
+function shippingAddressKey(
+  a: HttpTypes.StoreCart['shipping_address'] | null | undefined
+): string {
+  if (!a) return '';
+  const x = a as unknown as Record<string, unknown>;
+  return [
+    x.country_code,
+    x.province,
+    x.postal_code,
+    x.address_1,
+    x.city
+  ]
+    .map(v => (typeof v === 'string' ? v.trim() : ''))
+    .join('\u001f');
+}
 
 const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShippingMethods }) => {
   const t = useTranslations('Checkout');
@@ -92,68 +112,233 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     cart?.shipping_address
   );
 
-  const shippingMethods = useMemo(
-    () =>
-      availableShippingMethods?.filter(
-        sm => sm.rules?.find((rule: { attribute?: string; value?: string }) => rule.attribute === 'is_return')?.value !== 'true'
-      ) ?? null,
-    [availableShippingMethods]
+  /** Dopo l’indirizzo, re-fetch in client: il GET server poteva essere calcolato senza CAP/paese e restare []. */
+  const [refreshedOptions, setRefreshedOptions] = useState<
+    StoreCardShippingMethod[] | null | undefined
+  >(undefined);
+
+  const addressKey = useMemo(
+    () => shippingAddressKey(cart?.shipping_address),
+    [cart?.shipping_address]
   );
 
-  const handleSetShippingMethod = async (id: string) => {
-    if (!id || !hasCompleteAddress) return;
+  const lineItemsSig = useMemo(
+    () =>
+      (cart.items ?? [])
+        .map(
+          i => `${(i as { id?: string }).id ?? ''}:${(i as { quantity?: number }).quantity ?? 0}`
+        )
+        .join('\u0001'),
+    [cart.items]
+  );
 
-    let shouldRefresh = false;
-    try {
-      setError(null);
-      setIsSavingShipping(true);
-      const res = await setShippingMethod({
-        cartId: cart.id,
-        shippingMethodId: id
-      });
-      if (!res.ok) {
-        setError(res.error?.message ?? t('genericError'));
+  const effectiveApiOptions = useMemo(() => {
+    if (!hasCompleteAddress) {
+      return availableShippingMethods;
+    }
+    if (refreshedOptions !== undefined) {
+      return refreshedOptions;
+    }
+    return availableShippingMethods;
+  }, [hasCompleteAddress, refreshedOptions, availableShippingMethods]);
+
+  useEffect(() => {
+    if (!hasCompleteAddress) {
+      setRefreshedOptions(undefined);
+    }
+  }, [hasCompleteAddress]);
+
+  /** Indirizzo cambiato: torna al dato di pagina (stesso giro request del carrello) fino a nuovo refetch. */
+  useEffect(() => {
+    setRefreshedOptions(undefined);
+  }, [addressKey]);
+
+  useEffect(() => {
+    if (!hasCompleteAddress || !cart.id) {
+      return;
+    }
+    let cancel = false;
+    const hasLineItems = (cart.items?.length ?? 0) > 0;
+    void (async () => {
+      const opts = await listCartShippingMethods(cart.id, false);
+      if (cancel) {
         return;
       }
-      shouldRefresh = true;
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg.replace('Error setting up the request: ', '') || t('genericError'));
-    } finally {
-      setIsSavingShipping(false);
+      const serverOpts = availableShippingMethods;
+      const serverOk =
+        Array.isArray(serverOpts) && serverOpts.length > 0;
+      const clientEmpty =
+        opts === null || (Array.isArray(opts) && opts.length === 0);
+      if (hasLineItems && serverOk && clientEmpty) {
+        setRefreshedOptions(serverOpts);
+        return;
+      }
+      setRefreshedOptions(opts);
+    })();
+    return () => {
+      cancel = true;
+    };
+  }, [
+    hasCompleteAddress,
+    cart.id,
+    addressKey,
+    lineItemsSig,
+    cart.updated_at,
+    availableShippingMethods,
+    cart.items?.length
+  ]);
+
+  const shippingMethods = useMemo(
+    () =>
+      effectiveApiOptions?.filter(sm => {
+        const rules = (sm as { rules?: { attribute?: string; value?: string }[] }).rules;
+        return rules?.find(rule => rule.attribute === 'is_return')?.value !== 'true';
+      }) ?? null,
+    [effectiveApiOptions]
+  );
+
+  const groupedBySellerId = useMemo(
+    () =>
+      shippingMethods?.reduce((acc, method) => {
+        const sellerId = method.seller_id ?? '__default__';
+
+        if (!acc[sellerId]) {
+          acc[sellerId] = [];
+        }
+
+        if (isUsableStoreShippingOption(method as StoreCardShippingMethod)) {
+          acc[sellerId].push(method as unknown as StoreCardShippingMethod);
+        }
+
+        return acc;
+      }, {} as Record<string, StoreCardShippingMethod[]>) ?? {},
+    [shippingMethods]
+  );
+
+  const filteredGroupedBySellerId = useMemo(
+    () =>
+      Object.keys(groupedBySellerId).filter(
+        key => (groupedBySellerId[key]?.length ?? 0) > 0
+      ),
+    [groupedBySellerId]
+  );
+
+  const shipCountry = (cart.shipping_address as { country_code?: string } | null | undefined)
+    ?.country_code;
+  const isEur = (cart?.currency_code || 'eur').toLowerCase() === 'eur';
+
+  const tramelleBlockLabel = (sellerKey: string) => {
+    if (!isEur) {
+      return null;
     }
-    if (shouldRefresh) {
-      router.refresh();
+    const c = cart as HttpTypes.StoreCart;
+    const items = lineItemsForShippingSellerKey(c, sellerKey);
+    const sub = sumLineSubtotalsEurForItems(items);
+    const { amountMajor, isFree } = tramelleDisplayShippingEurForSellerBlock(
+      sub,
+      shipCountry
+    );
+    if (isFree) {
+      return t('shippingTramelleFree');
     }
+    return convertToLocale({
+      amount: amountMajor,
+      currency_code: cart?.currency_code ?? 'eur',
+    });
   };
+
+  const autoApplyInFlight = useRef(false);
+  const shippingMethodsSig = useMemo(
+    () =>
+      (cart.shipping_methods ?? [])
+        .map(
+          m =>
+            shippingOptionIdFromCartMethod(
+              m as HttpTypes.StoreCartShippingMethod
+            ) ?? (m as { id?: string }).id
+        )
+        .join(','),
+    [cart.shipping_methods]
+  );
+
+  const loadFailed = effectiveApiOptions === null && hasCompleteAddress;
+
+  /** Opzioni da applicare in sequenza (un POST per venditore; Mercur unisce in `shipping_methods[]`). */
+  const missingOptionIdsToAutoApply = useMemo(() => {
+    const out: string[] = [];
+    for (const key of filteredGroupedBySellerId) {
+      const options = groupedBySellerId[key] as StoreCardShippingMethod[];
+      if (!options?.[0]) {
+        continue;
+      }
+      if (selectedOptionIdForGroup(cart, options)) {
+        continue;
+      }
+      out.push(options[0].id);
+    }
+    return out;
+  }, [cart, filteredGroupedBySellerId, groupedBySellerId]);
+
+  const missingOptionsKey = missingOptionIdsToAutoApply.join('\0');
+
+  const deliveryStepComplete = useMemo(() => {
+    const need = requiredShippingMethodCountForCart(cart as HttpTypes.StoreCart);
+    const have = cart.shipping_methods?.length ?? 0;
+    return need > 0 && have >= need;
+  }, [cart]);
 
   useEffect(() => {
     setError(null);
   }, [hasCompleteAddress]);
 
-  const groupedBySellerId: Record<string, StoreCardShippingMethod[]> =
-    shippingMethods?.reduce((acc, method) => {
-      const sellerId = method.seller_id ?? '__default__';
-
-      if (!acc[sellerId]) {
-        acc[sellerId] = [];
+  useEffect(() => {
+    if (!hasCompleteAddress || !cart?.id || loadFailed) {
+      return;
+    }
+    if (missingOptionsKey.length === 0) {
+      return;
+    }
+    if (autoApplyInFlight.current) {
+      return;
+    }
+    const ids = missingOptionIdsToAutoApply;
+    autoApplyInFlight.current = true;
+    void (async () => {
+      setError(null);
+      setIsSavingShipping(true);
+      try {
+        for (const id of ids) {
+          const res = await setShippingMethod({
+            cartId: cart.id,
+            shippingMethodId: id
+          });
+          if (!res.ok) {
+            setError(res.error?.message ?? t('genericError'));
+            return;
+          }
+        }
+        startTransition(() => {
+          router.refresh();
+        });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg.replace('Error setting up the request: ', '') || t('genericError'));
+      } finally {
+        setIsSavingShipping(false);
+        autoApplyInFlight.current = false;
       }
-
-      const isFlat = method.price_type === 'flat';
-      const isCalculated = method.price_type === 'calculated';
-      // Flat + regole: `calculated_price` su GET; provider manuale: no POST /calculate.
-      const include = isFlat || isCalculated;
-
-      if (include) {
-        acc[sellerId].push(method as unknown as StoreCardShippingMethod);
-      }
-
-      return acc;
-    }, {} as Record<string, StoreCardShippingMethod[]>) ?? {};
-
-  const filteredGroupedBySellerId = Object.keys(groupedBySellerId).filter(
-    key => (groupedBySellerId[key]?.length ?? 0) > 0
-  );
+    })();
+  }, [
+    hasCompleteAddress,
+    loadFailed,
+    missingOptionsKey,
+    missingOptionIdsToAutoApply,
+    shippingMethodsSig,
+    cart.id,
+    cart.updated_at,
+    router,
+    t
+  ]);
 
   /**
    * Il provider manuale non supporta `POST /shipping-options/:id/calculate` (500).
@@ -168,7 +353,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
         currency_code: code ?? 'eur',
       });
     }
-    if (option.price_type === 'flat' && option.amount != null) {
+    if (option.amount != null && Number.isFinite(Number(option.amount))) {
       return convertToLocale({
         amount: minorUnitsToMajor(Number(option.amount), code),
         currency_code: code ?? 'eur',
@@ -176,8 +361,6 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     }
     return '—';
   };
-
-  const loadFailed = availableShippingMethods === null && hasCompleteAddress;
 
   return (
     <div
@@ -189,9 +372,9 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
           level="h2"
           className="flex flex-row items-baseline gap-x-2 text-lg font-semibold text-[#202223]"
         >
-          {(cart.shipping_methods?.length ?? 0) > 0 && (
+          {deliveryStepComplete ? (
             <CheckCircleSolid className="text-[#1773b0]" />
-          )}
+          ) : null}
           {t('delivery')}
         </Heading>
       </div>
@@ -206,6 +389,11 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             {loadFailed ? (
               <Text className="text-sm text-[#6d7175]">{t('shippingOptionsLoadFailed')}</Text>
             ) : null}
+            {isEur && hasCompleteAddress && !loadFailed && filteredGroupedBySellerId.length > 0 ? (
+              <p className="mb-4 rounded-md bg-[#f5f2eb] px-3 py-2 text-xs leading-snug text-[#3d3a36]">
+                {t('shippingTramelleCheckoutNote')}
+              </p>
+            ) : null}
             {!loadFailed && filteredGroupedBySellerId.length === 0
               ? hasCompleteAddress
                 ? (
@@ -216,60 +404,53 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                 ? filteredGroupedBySellerId.map(key => {
                   const options = groupedBySellerId[key] as StoreCardShippingMethod[];
                   const selectedId = selectedOptionIdForGroup(cart, options);
+                  const blockLabel = tramelleBlockLabel(key);
 
+                  const chosen =
+                    (selectedId
+                      ? options.find(o => o.id === selectedId)
+                      : null) ?? options[0];
                   return (
                     <div key={key} className="mb-6 last:mb-0">
-                      <h3 className="mb-3 text-sm font-medium text-[#202223]">
+                      <h3 className="mb-3 flex flex-wrap items-baseline justify-between gap-2 text-sm font-medium text-[#202223]">
+                        <span>
                         {options[0]?.seller_name ||
                           options[0]?.name ||
                           t('sellerShippingGroup')}
+                        </span>
+                        {isEur && blockLabel != null ? (
+                          <span className="shrink-0 text-sm font-semibold text-[#1773b0]">
+                            {blockLabel}
+                          </span>
+                        ) : null}
                       </h3>
-                      <RadioGroup
-                        value={selectedId ?? undefined}
-                        onChange={handleSetShippingMethod}
-                        disabled={!hasCompleteAddress || isSavingShipping}
-                        className="space-y-2"
+                      <div
+                        className="rounded-lg border border-[#d9d9d9] bg-[#fafafa] px-4 py-3"
+                        data-testid={`delivery-readonly-block-${key}`}
                       >
-                        {options.map((option: StoreCardShippingMethod) => (
-                          <RadioGroup.Option
-                            key={option.id}
-                            value={option.id}
-                            className={({ checked, disabled }) =>
-                              clsx(
-                                'relative flex cursor-pointer rounded-lg border px-4 py-3 text-left transition-colors',
-                                disabled && 'cursor-not-allowed opacity-60',
-                                checked
-                                  ? 'border-[#1773b0] bg-white shadow-[inset_0_0_0_1px_rgba(23,115,176,0.35)]'
-                                  : 'border-[#d9d9d9] bg-white hover:border-[#8c9196]'
-                              )
-                            }
-                          >
-                            {({ checked }) => (
-                              <div className="flex w-full items-start gap-3">
-                                <span
-                                  className={clsx(
-                                    'mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2',
-                                    checked ? 'border-[#1773b0]' : 'border-[#8c9196]'
-                                  )}
-                                  aria-hidden
-                                >
-                                  {checked ? (
-                                    <span className="h-2 w-2 rounded-full bg-[#1773b0]" />
-                                  ) : null}
-                                </span>
-                                <div className="flex min-w-0 flex-1 items-start justify-between gap-3">
-                                  <span className="text-sm font-medium text-[#202223]">
-                                    {option.name}
-                                  </span>
-                                  <span className="shrink-0 text-sm font-medium text-[#202223]">
-                                    {formatOptionPrice(option)}
-                                  </span>
-                                </div>
-                              </div>
-                            )}
-                          </RadioGroup.Option>
-                        ))}
-                      </RadioGroup>
+                        {chosen ? (
+                          <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+                            <p className="text-sm font-medium text-[#202223]">
+                              {chosen.name}
+                            </p>
+                            {!isEur ? (
+                              <p className="shrink-0 text-sm text-[#6d7175]">
+                                {formatOptionPrice(chosen)}
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-[#6d7175]">—</p>
+                        )}
+                        <p className="mt-2 text-xs text-[#6d7175]">
+                          {t('shippingReadOnlyNote')}
+                        </p>
+                        {isSavingShipping ? (
+                          <p className="mt-1 text-xs text-[#1773b0]">
+                            {t('shippingApplyingDefault')}
+                          </p>
+                        ) : null}
+                      </div>
                     </div>
                   );
                 })
