@@ -5,14 +5,18 @@ import { isManual, isStripe } from "../../../lib/constants"
 import { placeOrder } from "@/lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
+import type { StripeCardElement, StripeCardElementChangeEvent } from "@stripe/stripe-js"
 import React, { useEffect, useState } from "react"
 import { Button } from "@/components/atoms"
+import { requiredShippingMethodCountForCart } from "@/lib/helpers/tramelle-seller-shipping-display"
 import { orderErrorFormatter } from "@/lib/helpers/order-error-formatter"
 import { toast } from "@/lib/helpers/toast"
 import { useTranslations } from "next-intl"
 
 type PaymentButtonProps = {
   cart: HttpTypes.StoreCart
+  /** Profilo: usato se `cart.email` non è ancora persistito (checkout da loggato). */
+  accountEmail?: string | null
   "data-testid": string
   /** Blocco ordine: importi minimi per produttore (listing metadata). */
   minimumOrderBlocked?: boolean
@@ -20,19 +24,28 @@ type PaymentButtonProps = {
 
 const PaymentButton: React.FC<PaymentButtonProps> = ({
   cart,
+  accountEmail = null,
   minimumOrderBlocked = false,
   "data-testid": dataTestId,
 }) => {
   const t = useTranslations("Checkout")
+  const needShip = requiredShippingMethodCountForCart(cart)
+  const haveShip = cart.shipping_methods?.length ?? 0
+  const hasShipLine1 = Boolean(
+    (cart.shipping_address as { address_1?: string } | null | undefined)?.address_1?.trim()
+  )
+  const emailOk =
+    String(cart.email || "").trim() || String(accountEmail || "").trim()
   const notReady =
     !cart ||
-    !cart.shipping_address ||
-    !cart.billing_address ||
-    !cart.email ||
-    (cart.shipping_methods?.length ?? 0) < 1 ||
+    !hasShipLine1 ||
+    !emailOk ||
+    (needShip > 0 && haveShip < needShip) ||
     minimumOrderBlocked
 
-  const paymentSession = cart.payment_collection?.payment_sessions?.[0]
+  const paymentSession = cart.payment_collection?.payment_sessions?.find(
+    (s) => s.status === "pending"
+  )
   if (isManual(paymentSession?.provider_id)) {
     return (
       <Button
@@ -51,6 +64,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
         <StripePaymentButton
           notReady={notReady}
           cart={cart}
+          accountEmail={accountEmail}
           data-testid={dataTestId}
         />
       )
@@ -106,9 +120,19 @@ const StripePaymentButton = ({
   )
 
   useEffect(() => {
-    //@ts-ignore
-    setDisabled(!card?._complete)
-  }, [card, stripe, elements, cart])
+    if (!card) {
+      setDisabled(true)
+      return
+    }
+    const stripeCard = card as StripeCardElement
+    const onChange = (e: StripeCardElementChangeEvent) => {
+      setDisabled(!e.complete)
+    }
+    stripeCard.on("change", onChange)
+    return () => {
+      stripeCard.off("change", onChange)
+    }
+  }, [card])
 
   const handlePayment = async () => {
     setSubmitting(true)
@@ -135,7 +159,7 @@ const StripePaymentButton = ({
               postal_code: cart.billing_address?.postal_code ?? undefined,
               state: cart.billing_address?.province ?? undefined,
             },
-            email: cart.email,
+            email: cart.email || accountEmail || undefined,
             phone: cart.billing_address?.phone ?? undefined,
           },
         },

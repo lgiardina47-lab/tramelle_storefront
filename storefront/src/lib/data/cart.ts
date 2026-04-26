@@ -60,8 +60,8 @@ export async function retrieveCart(cartId?: string) {
       query: {
         fields:
           '*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title,' +
-          '*items.thumbnail, +items.product.thumbnail, *items.product.images, *items.metadata, +items.total, *promotions, *shipping_methods, *items.product.seller' +
-          ''
+          '*items.thumbnail, +items.product.thumbnail, *items.product.images, *items.metadata, +items.total, *promotions, *shipping_methods,' +
+          '*payment_collection,*payment_collection.payment_sessions, *items.product.seller'
       },
       headers,
       cache: 'no-cache'
@@ -118,6 +118,27 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
       return cart;
     })
     .catch(medusaError);
+}
+
+/**
+ * Con sessione loggata il carrello spesso resta senza `email` fino al submit del form indirizzo:
+ * Stripe/complete richiedono l’email e il pulsante paga resta disattivato. Allinea al profilo.
+ */
+export async function ensureCartEmailFromCustomer(
+  cart: HttpTypes.StoreCart | null,
+  customer: HttpTypes.StoreCustomer | null
+): Promise<HttpTypes.StoreCart | null> {
+  if (!cart?.id || !customer?.email?.trim()) {
+    return cart;
+  }
+  if (String(cart.email || '').trim().length > 0) {
+    return cart;
+  }
+  try {
+    return (await updateCart({ email: customer.email.trim() })) ?? cart;
+  } catch {
+    return cart;
+  }
 }
 
 export async function addToCart({
@@ -273,6 +294,65 @@ export async function initiatePaymentSession(
       return resp;
     })
     .catch(medusaError);
+}
+
+const isManualPaymentProvider = (providerId?: string) =>
+  providerId?.startsWith('pp_system_default') ?? false;
+
+/**
+ * Crea al volo la payment collection + sessione (es. Stripe) quando il carrello ha già
+ * spedizione ma ancora nessun provider reale, così PaymentWrapper (Stripe) e il riepilogo
+ * ricevono `client_secret` al primo load senza dipendere solo dal client.
+ */
+export async function ensureDefaultPaymentSessionForCheckout(
+  cart: HttpTypes.StoreCart | null
+): Promise<HttpTypes.StoreCart | null> {
+  if (!cart?.id) {
+    return cart;
+  }
+
+  const hasShipping = (cart.shipping_methods?.length ?? 0) > 0;
+  if (!hasShipping) {
+    return cart;
+  }
+
+  const withGift = cart as HttpTypes.StoreCart & { gift_cards?: unknown[] };
+  const giftPaid =
+    withGift.gift_cards &&
+    withGift.gift_cards.length > 0 &&
+    (cart.total === 0 || cart.total == null);
+  if (giftPaid) {
+    return cart;
+  }
+
+  const hasNonManualPending = cart.payment_collection?.payment_sessions?.some(
+    s => s.status === 'pending' && s.provider_id && !isManualPaymentProvider(s.provider_id)
+  );
+  if (hasNonManualPending) {
+    return cart;
+  }
+
+  const regionId = cart.region_id ?? cart.region?.id;
+  if (!regionId) {
+    return cart;
+  }
+
+  const { listCartPaymentMethods } = await import('./payment');
+  const methods = await listCartPaymentMethods(regionId);
+  const first = (methods ?? []).find(
+    p => p?.id && !isManualPaymentProvider(p.id)
+  );
+  if (!first?.id) {
+    return cart;
+  }
+
+  try {
+    await initiatePaymentSession(cart, { provider_id: first.id });
+  } catch {
+    return cart;
+  }
+
+  return (await retrieveCart(cart.id)) ?? cart;
 }
 
 export async function applyPromotions(codes: string[]) {

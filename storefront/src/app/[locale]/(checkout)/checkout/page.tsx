@@ -13,6 +13,7 @@ import { CheckoutBreadcrumb } from '@/components/sections/CheckoutBreadcrumb/Che
 import CartShippingMethodsSection from '@/components/sections/CartShippingMethodsSection/CartShippingMethodsSection';
 import { countryCodeToStorefrontMessagesLocale } from '@/lib/i18n/storefront-messages-locale';
 import {
+  ensureCartEmailFromCustomer,
   ensureDefaultPaymentSessionForCheckout,
   retrieveCart
 } from '@/lib/data/cart';
@@ -79,7 +80,12 @@ export default async function CheckoutPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  let cart = await retrieveCart();
+  const [initialCart, customer] = await Promise.all([
+    retrieveCart(),
+    retrieveCustomer()
+  ]);
+
+  let cart = initialCart;
 
   if (!cart) {
     redirect(`/${locale}/cart`);
@@ -89,12 +95,12 @@ export default async function CheckoutPage({
     redirect(`/${locale}/cart`);
   }
 
+  cart =
+    (await ensureCartEmailFromCustomer(cart, customer)) ?? cart;
   cart = (await ensureDefaultPaymentSessionForCheckout(cart)) ?? cart;
 
-  const customer = await retrieveCustomer();
   /**
-   * Spedizione: stessa request di `retrieveCart` (niente secondo Suspense async che streama
-   * listing vuoto o desincronizzato in checkout one-page).
+   * Spedizione: stessa risposta del carrello; parallelizzata solo con se stessa (già no-store).
    */
   const availableShippingForCart = await listCartShippingMethods(cart.id, false);
 
@@ -109,7 +115,7 @@ export default async function CheckoutPage({
           data-testid="checkout-review-container"
         >
           <div className="mx-auto w-full max-w-md lg:sticky lg:top-6 lg:max-w-none lg:self-start">
-            <CartReview cart={cart} />
+            <CartReview cart={cart} customer={customer} />
           </div>
         </aside>
 

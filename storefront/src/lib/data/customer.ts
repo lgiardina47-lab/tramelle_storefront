@@ -99,7 +99,9 @@ async function assignCustomerToB2bProGroupImmediate(customerId: string): Promise
 const retrieveCustomerUncached =
   async (): Promise<HttpTypes.StoreCustomer | null> => {
     const authHeaders = await getAuthHeaders();
-    if (!authHeaders) return null;
+    if (!('authorization' in authHeaders)) {
+      return null;
+    }
 
     const headers = {
       ...authHeaders
