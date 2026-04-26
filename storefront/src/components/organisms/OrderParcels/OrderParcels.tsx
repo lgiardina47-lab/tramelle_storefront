@@ -4,16 +4,18 @@ import { retrieveCustomer } from "@/lib/data/customer"
 import { OrderParcelItems } from "@/components/molecules/OrderParcelItems/OrderParcelItems"
 import { OrderParcelStatus } from "@/components/molecules/OrderParcelStatus/OrderParcelStatus"
 import { OrderParcelActions } from "@/components/molecules/OrderParcelActions/OrderParcelActions"
+import { getTranslations } from "next-intl/server"
 
 export const OrderParcels = async ({ orders }: { orders: any[] }) => {
   const user = await retrieveCustomer()
+  const t = await getTranslations("Account")
 
   return (
     <>
       {orders.map((order) => (
         <div key={order.id} className="w-full mb-8">
           <div className="border rounded-sm p-4 bg-component-secondary font-semibold text-secondary uppercase">
-            Order #{order.display_id}
+            {t("orderParcelTitle", { id: String(order.display_id) })}
           </div>
           <div className="border rounded-sm">
             <div className="p-4 border-b">

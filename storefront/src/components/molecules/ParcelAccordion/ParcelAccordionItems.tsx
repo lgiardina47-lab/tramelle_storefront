@@ -1,13 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 import { Card } from '@/components/atoms';
 import { OrderProductListItem } from '@/components/cells';
 import { CollapseIcon } from '@/icons';
 import { convertToLocale } from '@/lib/helpers/money';
-import { parcelStatuses, steps } from '@/lib/helpers/parcel-statuses';
+import { parcelStatuses } from '@/lib/helpers/parcel-statuses';
 import { cn } from '@/lib/utils';
+
+const STATUS_STEP_KEYS = [
+  'orderStatusStep0',
+  'orderStatusStep1',
+  'orderStatusStep2',
+  'orderStatusStep3',
+] as const;
 
 export const ParcelAccordionItems = ({
   order,
@@ -15,10 +23,11 @@ export const ParcelAccordionItems = ({
   shippingPriceTestId
 }: {
   order: any;
-  index: number;
+  index?: number;
   currency_code: string;
   shippingPriceTestId?: string;
 }) => {
+  const t = useTranslations('Account');
   const [isOpen, setIsOpen] = useState(false);
   const [height, setHeight] = useState(0);
 
@@ -37,6 +46,7 @@ export const ParcelAccordionItems = ({
   };
 
   const status = parcelStatuses(order.fulfillment_status);
+  const statusKey = STATUS_STEP_KEYS[status] ?? 'orderStatusStep0';
 
   const totalItems = order.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
 
@@ -50,14 +60,17 @@ export const ParcelAccordionItems = ({
         onClick={openHandler}
       >
         <p className="label-md col-span-3">
-          Order #{order.display_id}:{' '}
-          <span className="font-semibold uppercase text-primary">{steps[status]}</span>
+          {t('orderItemHeading', { id: String(order.display_id) })}{' '}
+          <span className="font-semibold uppercase text-primary">
+            {t(statusKey)}
+          </span>
         </p>
         <p className="label-md col-span-2 px-2">
-          Seller: <span className="font-semibold text-primary">{order.seller.name}</span>
+          {t('orderSeller')}:{' '}
+          <span className="font-semibold text-primary">{order.seller.name}</span>
         </p>
         <p className="label-md col-span-2 px-2 text-center">
-          Shipping:{' '}
+          {t('orderShipping')}:{' '}
           <span
             className="font-semibold text-primary"
             data-testid={shippingPriceTestId}
@@ -68,7 +81,7 @@ export const ParcelAccordionItems = ({
 
         <div className="flex items-center justify-end gap-4">
           <p className="label-md">
-            {totalItems > 1 ? `${totalItems} Items` : `${totalItems} Item`}
+            {t('lineItemsCount', { count: totalItems })}
           </p>
           <CollapseIcon
             size={20}

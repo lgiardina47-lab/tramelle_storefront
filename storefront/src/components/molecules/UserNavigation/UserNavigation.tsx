@@ -7,33 +7,47 @@ import {
   NavigationItem,
 } from "@/components/atoms"
 import { useUnreads } from "@talkjs/react"
-import { usePathname } from "next/navigation"
+import { useParams, usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 const navigationItems = [
-  { label: "Orders", href: "/user/orders" },
-  { label: "Messages", href: "/user/messages" },
-  { label: "Returns", href: "/user/returns" },
-  { label: "Addresses", href: "/user/addresses" },
-  { label: "Reviews", href: "/user/reviews" },
-  { label: "Wishlist", href: "/user/wishlist" },
+  { labelKey: "orders" as const, href: "/user/orders" },
+  { labelKey: "messages" as const, href: "/user/messages" },
+  { labelKey: "returns" as const, href: "/user/returns" },
+  { labelKey: "addresses" as const, href: "/user/addresses" },
+  { labelKey: "reviews" as const, href: "/user/reviews" },
+  { labelKey: "wishlist" as const, href: "/user/wishlist" },
 ]
 
+function isNavActive(
+  fullPath: string,
+  href: string,
+  locale: string
+): boolean {
+  if (!fullPath) return false
+  const prefix = `/${locale}${href}`
+  return fullPath === prefix
+}
+
 function UserNavigationInner({ showUnreadBadge }: { showUnreadBadge: boolean }) {
+  const t = useTranslations("Account")
   const unreads = useUnreads()
   const path = usePathname()
+  const params = useParams()
+  const locale = typeof params?.locale === "string" ? params.locale : "it"
 
   return (
     <Card className="h-min">
       {navigationItems.map((item) => (
         <NavigationItem
-          key={item.label}
+          key={item.href}
           href={item.href}
-          active={path === item.href}
+          active={isNavActive(path, item.href, locale)}
           className="relative"
         >
-          {item.label}
+          {t(item.labelKey)}
           {showUnreadBadge &&
-            item.label === "Messages" &&
+            item.href === "/user/messages" &&
             Boolean(unreads?.length) && (
               <Badge className="absolute top-3 left-24 w-4 h-4 p-0">
                 {unreads?.length}
@@ -44,38 +58,41 @@ function UserNavigationInner({ showUnreadBadge }: { showUnreadBadge: boolean }) 
       <Divider className="my-2" />
       <NavigationItem
         href={"/user/settings"}
-        active={path === "/user/settings"}
+        active={isNavActive(path, "/user/settings", locale)}
       >
-        Settings
+        {t("settings")}
       </NavigationItem>
-      <LogoutButton className="w-full text-left" />
+      <LogoutButton className="w-full text-left">{t("logout")}</LogoutButton>
     </Card>
   )
 }
 
 function UserNavigationNoTalk() {
+  const t = useTranslations("Account")
   const path = usePathname()
+  const params = useParams()
+  const locale = typeof params?.locale === "string" ? params.locale : "it"
 
   return (
     <Card className="h-min">
       {navigationItems.map((item) => (
         <NavigationItem
-          key={item.label}
+          key={item.href}
           href={item.href}
-          active={path === item.href}
+          active={isNavActive(path, item.href, locale)}
           className="relative"
         >
-          {item.label}
+          {t(item.labelKey)}
         </NavigationItem>
       ))}
       <Divider className="my-2" />
       <NavigationItem
         href={"/user/settings"}
-        active={path === "/user/settings"}
+        active={isNavActive(path, "/user/settings", locale)}
       >
-        Settings
+        {t("settings")}
       </NavigationItem>
-      <LogoutButton className="w-full text-left" />
+      <LogoutButton className="w-full text-left">{t("logout")}</LogoutButton>
     </Card>
   )
 }

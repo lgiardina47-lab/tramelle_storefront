@@ -2,15 +2,24 @@ import { isEmpty } from 'lodash';
 
 import { LoginForm, ParcelAccordion, UserNavigation } from '@/components/molecules';
 import { OrdersPagination } from '@/components/sections';
+import { countryCodeToStorefrontMessagesLocale } from '@/lib/i18n/storefront-messages-locale';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listOrders } from '@/lib/data/orders';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+
 const LIMIT = 10;
 
 export default async function UserPage({
-  searchParams
+  searchParams,
+  params
 }: {
   searchParams: Promise<{ page: string }>;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  const messagesLocale = countryCodeToStorefrontMessagesLocale(locale);
+  setRequestLocale(messagesLocale);
+  const t = await getTranslations({ locale: messagesLocale, namespace: 'Account' });
   const user = await retrieveCustomer();
 
   if (!user) return <LoginForm />;
@@ -62,7 +71,7 @@ export default async function UserPage({
           className="space-y-8 md:col-span-3"
           data-testid="orders-container"
         >
-          <h1 className="heading-md uppercase">Orders</h1>
+          <h1 className="heading-md uppercase">{t('orders')}</h1>
           {isEmpty(orders) ? (
             <div
               className="text-center"
@@ -72,13 +81,13 @@ export default async function UserPage({
                 className="heading-lg uppercase text-primary"
                 data-testid="no-orders-heading"
               >
-                No orders
+                {t('ordersEmptyTitle')}
               </h3>
               <p
                 className="mt-2 text-lg text-secondary"
                 data-testid="no-orders-description"
               >
-                You haven&apos;t placed any order yet. Once you place an order, it will appear here.
+                {t('ordersEmptyDescription')}
               </p>
             </div>
           ) : (
@@ -91,7 +100,7 @@ export default async function UserPage({
                   <ParcelAccordion
                     key={orderSet.id}
                     orderId={orderSet.id}
-                    orderDisplayId={`#${orderSet.display_id}`}
+                    orderSetDisplayId={orderSet.display_id}
                     createdAt={orderSet.created_at}
                     total={orderSet.total}
                     orders={orderSet.orders || []}
