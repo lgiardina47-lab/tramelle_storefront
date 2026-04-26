@@ -184,6 +184,7 @@
     "continueToReview": "Continuer vers le récapitulatif",
     "chooseDeliveryOption": "Choisir une option de livraison",
     "noShippingOptions": "Aucune option de livraison disponible",
+    "shippingConsegnaProntaNoLista": "Livraison à 0 € selon les seuils Tramelle (ou déjà appliquée au panier) : vous pouvez payer ci-dessous.",
     "shippingMethod": "Mode",
     "paymentMethod": "Mode de paiement",
     "paymentDetails": "Détails du paiement",

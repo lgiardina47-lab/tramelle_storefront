@@ -186,6 +186,7 @@
     "continueToReview": "Continue to review",
     "chooseDeliveryOption": "Choose delivery option",
     "noShippingOptions": "No shipping options available",
+    "shippingConsegnaProntaNoLista": "Delivery is at €0 under Tramelle thresholds (or already applied to the cart). You can pay below.",
     "shippingMethod": "Method",
     "paymentMethod": "Payment method",
     "paymentDetails": "Payment details",

@@ -191,6 +191,7 @@
     "continueToReview": "Vai al riepilogo",
     "chooseDeliveryOption": "Scegli l’opzione di consegna",
     "noShippingOptions": "Nessuna opzione di spedizione disponibile",
+    "shippingConsegnaProntaNoLista": "Consegna già a costo 0 € per i soglie Tramelle (o applicata al carrello): puoi andare al pagamento.",
     "shippingMethod": "Metodo",
     "paymentMethod": "Metodo di pagamento",
     "paymentDetails": "Dettagli pagamento",

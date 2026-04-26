@@ -6,6 +6,7 @@ import {
   TRAMELLE_SHIP_FLAT_EU_EUR,
   TRAMELLE_SHIP_FLAT_IT_EUR,
 } from '@/lib/constants/seller-cart-policy';
+import { isCheckoutDeliveryAddressComplete } from '@/lib/helpers/checkout-delivery-address';
 import { medusaStoreAmountAsMajor } from '@/lib/helpers/money';
 
 const IT_CODES = new Set(['it', 'sm', 'va']);
@@ -121,10 +122,10 @@ export function requiredShippingMethodCountForCart(
 }
 
 /**
- * CTA pagamento: basta almeno un `shipping_method` (Mercur possono
- * unificare più venditori in una riga, o l’inverso). Richiedere
- * `len(methods) ===` numero venditori lasciava il bottone grigio anche con
- * spedizione e totale coerenti.
+ * CTA pagamento:
+ * - almeno un `shipping_method` in carrello, oppure
+ * - carrello in EUR, indirizzo completo, consegna “Tramelle” a 0 € (soglie/split come in riepilogo),
+ *   utile quando l’UI non elenca opzioni o il GET options è vuoto ma il totale a destra è coerente.
  */
 export function isCartShippingReadyForPay(
   cart: HttpTypes.StoreCart | null | undefined
@@ -139,7 +140,21 @@ export function isCartShippingReadyForPay(
   if (withGift) {
     return true;
   }
-  return (cart.shipping_methods?.length ?? 0) > 0;
+  if ((cart.shipping_methods?.length ?? 0) > 0) {
+    return true;
+  }
+  if (!isCheckoutDeliveryAddressComplete(cart.shipping_address)) {
+    return false;
+  }
+  if ((cart.currency_code || 'eur').toLowerCase() === 'eur') {
+    const country = (
+      cart.shipping_address as { country_code?: string } | null | undefined
+    )?.country_code;
+    if (tramelleDisplayTotalShippingEur(cart, country) <= 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export function lineItemsForShippingSellerKey(

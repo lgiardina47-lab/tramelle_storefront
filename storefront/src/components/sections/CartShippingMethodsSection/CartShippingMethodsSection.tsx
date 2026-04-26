@@ -395,7 +395,11 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             ) : null}
             {!loadFailed && filteredGroupedBySellerId.length === 0
               ? hasCompleteAddress
-                ? (
+                ? isCartShippingReadyForPay(cart as HttpTypes.StoreCart) ? (
+                    <Text className="text-sm text-[#3d3a36]">
+                      {t('shippingConsegnaProntaNoLista')}
+                    </Text>
+                  ) : (
                     <Text className="text-sm text-[#6d7175]">{t('noShippingOptions')}</Text>
                   )
                 : null

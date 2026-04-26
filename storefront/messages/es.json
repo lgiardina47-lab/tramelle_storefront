@@ -184,6 +184,7 @@
     "continueToReview": "Continuar al resumen",
     "chooseDeliveryOption": "Elige una opción de envío",
     "noShippingOptions": "No hay opciones de envío disponibles",
+    "shippingConsegnaProntaNoLista": "El envío queda a 0 € según Tramelle (o ya está en el carrito). Puedes pagar abajo.",
     "shippingMethod": "Método",
     "paymentMethod": "Método de pago",
     "paymentDetails": "Detalles del pago",

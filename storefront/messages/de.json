@@ -184,6 +184,7 @@
     "continueToReview": "Weiter zur Übersicht",
     "chooseDeliveryOption": "Lieferoption wählen",
     "noShippingOptions": "Keine Versandoptionen verfügbar",
+    "shippingConsegnaProntaNoLista": "Lieferung ist bei 0 € nach Tramelle-Schwellenwerten (oder am Warenkorb). Zahlung unten möglich.",
     "shippingMethod": "Methode",
     "paymentMethod": "Zahlungsmethode",
     "paymentDetails": "Zahlungsdetails",

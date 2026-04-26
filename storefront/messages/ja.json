@@ -184,6 +184,7 @@
     "continueToReview": "内容確認へ進む",
     "chooseDeliveryOption": "配送オプションを選択",
     "noShippingOptions": "利用できる配送オプションがありません",
+    "shippingConsegnaProntaNoLista": "Tramelleの条件で送料0€（またはカートに反映済み）です。下のお支払いに進めます。",
     "shippingMethod": "方法",
     "paymentMethod": "お支払い方法",
     "paymentDetails": "お支払い詳細",
