@@ -17,11 +17,16 @@ const ShippingAddress = ({
   cart,
   checked: _checked,
   onChange: _onBillingSync,
+  onSavedAddressPicked,
 }: {
   customer: HttpTypes.StoreCustomer | null
   cart: HttpTypes.StoreCart | null
   checked: boolean
   onChange: () => void
+  /** Applica l’indirizzo scelto dal rubinetto al carrello (stesso effetto del “Salva”). */
+  onSavedAddressPicked?: (
+    address: HttpTypes.StoreCustomerAddress
+  ) => void | Promise<void>
 }) => {
   const t = useTranslations("Checkout")
   const pathname = usePathname()
@@ -69,7 +74,7 @@ const ShippingAddress = ({
   )
 
   const setFormAddress = (
-    address?: HttpTypes.StoreCartAddress,
+    address?: HttpTypes.StoreCartAddress | HttpTypes.StoreCustomerAddress,
     email?: string
   ) => {
     address &&
@@ -150,7 +155,15 @@ const ShippingAddress = ({
                   key.replace("shipping_address.", "")
                 ) as HttpTypes.StoreCartAddress
               }
-              onSelect={setFormAddress}
+              onSelect={address => {
+                setFormAddress(
+                  address,
+                  customer?.email || cart?.email
+                )
+                if (address && onSavedAddressPicked) {
+                  void onSavedAddressPicked(address)
+                }
+              }}
               chooseSavedAddressLabel={t("addressChooseSaved")}
             />
           </div>

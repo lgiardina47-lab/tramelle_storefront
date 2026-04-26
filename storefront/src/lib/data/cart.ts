@@ -5,6 +5,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { derivedCityForMedusa } from '@/lib/helpers/checkout-delivery-address';
+import { resolveItalianProvinceCode } from '@/lib/helpers/italian-provinces';
 import medusaError from '@/lib/helpers/medusa-error';
 import { parseVariantIdsFromError } from '@/lib/helpers/parse-variant-error';
 
@@ -435,7 +436,123 @@ export async function deletePromotionCode(promoId: string) {
     .catch(medusaError);
 }
 
-// TODO: Pass a POJO instead of a form entity here
+type CheckoutShippingInput = {
+  first_name?: string | null;
+  last_name?: string | null;
+  address_1?: string | null;
+  address_2?: string | null;
+  company?: string | null;
+  postal_code?: string | null;
+  country_code?: string | null;
+  province?: string | null;
+  phone?: string | null;
+};
+
+function normalizeProvinceForCart(
+  countryCode: string | null | undefined,
+  province: string | null | undefined
+): string {
+  const c = String(countryCode ?? '').toLowerCase();
+  const raw = String(province ?? '').trim();
+  if (c === 'it') {
+    return resolveItalianProvinceCode(raw) ?? raw;
+  }
+  return raw;
+}
+
+function buildCheckoutAddressUpdatePayload(input: {
+  email: string | null | undefined;
+  shipping: CheckoutShippingInput;
+}): HttpTypes.StoreUpdateCart {
+  const country = String(input.shipping.country_code ?? '').trim();
+  const province = normalizeProvinceForCart(
+    input.shipping.country_code,
+    input.shipping.province
+  );
+  const postalCode = String(input.shipping.postal_code ?? '').trim();
+  const address2 = String(input.shipping.address_2 ?? '').trim();
+  const shipping_address = {
+    first_name: input.shipping.first_name,
+    last_name: input.shipping.last_name,
+    address_1: input.shipping.address_1,
+    address_2: address2 || '',
+    company: input.shipping.company,
+    postal_code: input.shipping.postal_code,
+    city: derivedCityForMedusa(province, postalCode),
+    country_code: input.shipping.country_code,
+    province: province || input.shipping.province,
+    phone: input.shipping.phone
+  } as any;
+
+  return {
+    email: input.email,
+    shipping_address,
+    billing_address: shipping_address
+  } as any;
+}
+
+function buildCheckoutUpdateFromFormData(
+  formData: FormData
+): HttpTypes.StoreUpdateCart {
+  const provinceRaw = String(
+    formData.get('shipping_address.province') ?? ''
+  ).trim();
+  return buildCheckoutAddressUpdatePayload({
+    email: String(formData.get('email') ?? ''),
+    shipping: {
+      first_name: String(formData.get('shipping_address.first_name') ?? ''),
+      last_name: String(formData.get('shipping_address.last_name') ?? ''),
+      address_1: String(formData.get('shipping_address.address_1') ?? ''),
+      address_2: '',
+      company: String(formData.get('shipping_address.company') ?? ''),
+      postal_code: String(formData.get('shipping_address.postal_code') ?? ''),
+      country_code: String(formData.get('shipping_address.country_code') ?? ''),
+      province: provinceRaw,
+      phone: String(formData.get('shipping_address.phone') ?? '')
+    }
+  });
+}
+
+/**
+ * Stesso aggiornamento del carrello del submit “Salva”, per indirizzi scelti dal rubinetto
+ * (prima l’UI aggiornava solo lo stato locale; il carrello restava con indirizzo vecchio).
+ */
+export async function applySavedAddressToCart(
+  address: HttpTypes.StoreCustomerAddress,
+  email: string
+): Promise<'success' | string> {
+  try {
+    const em = String(email ?? '').trim();
+    if (!em) {
+      return 'Email required to save address to cart';
+    }
+    const cartId = await getCartId();
+    if (!cartId) {
+      throw new Error('No existing cart found when setting addresses');
+    }
+    const data = buildCheckoutAddressUpdatePayload({
+      email: em,
+      shipping: {
+        first_name: address.first_name,
+        last_name: address.last_name,
+        address_1: address.address_1,
+        address_2: address.address_2,
+        company: address.company,
+        postal_code: address.postal_code,
+        country_code: address.country_code,
+        province: address.province,
+        phone: address.phone
+      }
+    });
+    await updateCart(data);
+    revalidatePath('/[locale]/cart', 'page');
+    revalidatePath('/[locale]/checkout', 'page');
+    return 'success' as const;
+  } catch (e: any) {
+    return e.message;
+  }
+}
+
 export async function setAddresses(currentState: unknown, formData: FormData) {
   try {
     if (!formData) {
@@ -445,43 +562,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     if (!cartId) {
       throw new Error('No existing cart found when setting addresses');
     }
-
-    const province = String(formData.get('shipping_address.province') ?? '').trim();
-    const postalCode = String(formData.get('shipping_address.postal_code') ?? '').trim();
-    const data = {
-      shipping_address: {
-        first_name: formData.get('shipping_address.first_name'),
-        last_name: formData.get('shipping_address.last_name'),
-        address_1: formData.get('shipping_address.address_1'),
-        address_2: '',
-        company: formData.get('shipping_address.company'),
-        postal_code: formData.get('shipping_address.postal_code'),
-        city: derivedCityForMedusa(province, postalCode),
-        country_code: formData.get('shipping_address.country_code'),
-        province: formData.get('shipping_address.province'),
-        phone: formData.get('shipping_address.phone')
-      },
-      email: formData.get('email')
-    } as any;
-
-    // const sameAsBilling = formData.get("same_as_billing")
-    // if (sameAsBilling === "on") data.billing_address = data.shipping_address
-    data.billing_address = data.shipping_address;
-
-    // if (sameAsBilling !== "on")
-    //   data.billing_address = {
-    //     first_name: formData.get("billing_address.first_name"),
-    //     last_name: formData.get("billing_address.last_name"),
-    //     address_1: formData.get("billing_address.address_1"),
-    //     address_2: "",
-    //     company: formData.get("billing_address.company"),
-    //     postal_code: formData.get("billing_address.postal_code"),
-    //     city: formData.get("billing_address.city"),
-    //     country_code: formData.get("billing_address.country_code"),
-    //     province: formData.get("billing_address.province"),
-    //     phone: formData.get("billing_address.phone"),
-    //   }
-
+    const data = buildCheckoutUpdateFromFormData(formData);
     await updateCart(data);
     revalidatePath('/[locale]/cart', 'page');
     revalidatePath('/[locale]/checkout', 'page');

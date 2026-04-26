@@ -1,11 +1,11 @@
 "use client"
 
 import { Heading, useToggleState } from "@medusajs/ui"
-import { setAddresses } from "@/lib/data/cart"
+import { applySavedAddressToCart, setAddresses } from "@/lib/data/cart"
 import compareAddresses from "@/lib/helpers/compare-addresses"
 import { HttpTypes } from "@medusajs/types"
 import { useRouter } from "next/navigation"
-import { useState, type FormEvent } from "react"
+import { startTransition, useState, type FormEvent } from "react"
 import { Button } from "@/components/atoms"
 import ErrorMessage from "@/components/molecules/ErrorMessage/ErrorMessage"
 import ShippingAddress from "@/components/organisms/ShippingAddress/ShippingAddress"
@@ -34,6 +34,7 @@ export const CartAddressSection = ({
   )
 
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   return (
     <div
@@ -52,11 +53,18 @@ export const CartAddressSection = ({
         onSubmit={async (e: FormEvent<HTMLFormElement>) => {
           e.preventDefault()
           setError(null)
-          const res = await setAddresses(sameAsBilling, new FormData(e.currentTarget))
-          if (res === "success") {
-            router.refresh()
-          } else if (typeof res === "string" && res.length) {
-            setError(res)
+          setSaving(true)
+          try {
+            const res = await setAddresses(sameAsBilling, new FormData(e.currentTarget))
+            if (res === "success") {
+              startTransition(() => {
+                router.refresh()
+              })
+            } else if (typeof res === "string" && res.length) {
+              setError(res)
+            }
+          } finally {
+            setSaving(false)
           }
         }}
       >
@@ -76,11 +84,33 @@ export const CartAddressSection = ({
             checked={sameAsBilling}
             onChange={toggleSameAsBilling}
             cart={cart}
+            onSavedAddressPicked={async (address: HttpTypes.StoreCustomerAddress) => {
+              setError(null)
+              setSaving(true)
+              try {
+                const res = await applySavedAddressToCart(
+                  address,
+                  (customer?.email || cart?.email || "").trim()
+                )
+                if (res === "success") {
+                  startTransition(() => {
+                    router.refresh()
+                  })
+                } else if (typeof res === "string" && res.length) {
+                  setError(res)
+                }
+              } finally {
+                setSaving(false)
+              }
+            }}
           />
           <Button
+            type="submit"
             className="mt-6 border border-[#d9d9d9] bg-[#f5f5f5] text-[#202223] hover:bg-[#ebebeb]"
             data-testid="submit-address-button"
             variant="tonal"
+            loading={saving}
+            disabled={saving}
           >
             {t("save")}
           </Button>

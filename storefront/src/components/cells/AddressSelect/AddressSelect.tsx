@@ -12,21 +12,21 @@ import clsx from "clsx"
 type AddressSelectProps = {
   addresses: HttpTypes.StoreCustomerAddress[]
   addressInput: HttpTypes.StoreCartAddress | null
-  onSelect: (
-    address: HttpTypes.StoreCartAddress | undefined,
-    email?: string
-  ) => void
+  onSelect: (address: HttpTypes.StoreCustomerAddress | undefined) => void
+  /** Placeholder Listbox quando nessun indirizzo è selezionato (next-intl). */
+  chooseSavedAddressLabel?: string
 }
 
 const AddressSelect = ({
   addresses,
   addressInput,
   onSelect,
+  chooseSavedAddressLabel = "Choose an address",
 }: AddressSelectProps) => {
   const handleSelect = (id: string) => {
     const savedAddress = addresses.find((a) => a.id === id)
     if (savedAddress) {
-      onSelect(savedAddress as HttpTypes.StoreCartAddress)
+      onSelect(savedAddress)
     }
   }
 
@@ -48,7 +48,7 @@ const AddressSelect = ({
               <span className="block truncate">
                 {selectedAddress
                   ? selectedAddress.address_name
-                  : "Choose an address"}
+                  : chooseSavedAddressLabel}
               </span>
               <ChevronUpDown
                 className={clx("transition-rotate duration-200", {
