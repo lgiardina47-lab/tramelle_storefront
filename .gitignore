@@ -23,6 +23,10 @@ dati_venditori/
 storefront/token.txt
 **/token.txt
 
+# Dump PostgreSQL (produzione / restore manuale)
+deploy/backups/
+*.dump
+
 # Python bytecode
 __pycache__/
 *.py[cod]
