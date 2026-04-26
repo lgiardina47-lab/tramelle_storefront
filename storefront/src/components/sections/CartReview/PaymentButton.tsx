@@ -48,13 +48,18 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   )
   if (isManual(paymentSession?.provider_id)) {
     return (
-      <Button
-        disabled
-        className="w-full rounded-md !bg-[#1773b0]/40 py-3.5 text-base font-semibold !text-white"
-        data-testid={dataTestId}
-      >
-        {t("paymentManualNotAvailable")}
-      </Button>
+      <>
+        <Button
+          disabled
+          className="w-full rounded-md py-3.5 text-base font-semibold !text-white !bg-[#b5b5b5] hover:!bg-[#b5b5b5]"
+          data-testid={dataTestId}
+        >
+          {t("placeOrder")}
+        </Button>
+        <p className="mt-2 text-center text-xs text-amber-900">
+          {t("paymentManualNotAvailable")}
+        </p>
+      </>
     )
   }
 
@@ -72,9 +77,10 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       return (
         <Button
           disabled
-          className="w-full rounded-md !bg-[#1773b0]/40 py-3.5 text-base font-semibold !text-white"
+          className="w-full rounded-md py-3.5 text-base font-semibold !text-white !bg-[#b5b5b5] hover:!bg-[#b5b5b5]"
+          data-testid={dataTestId}
         >
-          {t("selectPaymentMethod")}
+          {t("placeOrder")}
         </Button>
       )
   }
@@ -83,16 +89,19 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
 const StripePaymentButton = ({
   cart,
   notReady,
+  accountEmail = null,
   "data-testid": dataTestId,
 }: {
   cart: HttpTypes.StoreCart
   notReady: boolean
+  accountEmail?: string | null
   "data-testid"?: string
 }) => {
   const t = useTranslations("Checkout")
   const [submitting, setSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [disabled, setDisabled] = useState(true)
+  /** Carta non ancora valida o elemento ancora non montato nel DOM (sidebar renderizza prima del form). */
+  const [cardFieldIncomplete, setCardFieldIncomplete] = useState(true)
 
   const onPaymentCompleted = async () => {
     try {
@@ -113,54 +122,70 @@ const StripePaymentButton = ({
 
   const stripe = useStripe()
   const elements = useElements()
-  const card = elements?.getElement("card")
 
   const session = cart.payment_collection?.payment_sessions?.find(
     (s) => s.status === "pending"
   )
 
   useEffect(() => {
-    if (!card) {
-      setDisabled(true)
+    if (!elements) {
       return
     }
-    const stripeCard = card as StripeCardElement
-    const onChange = (e: StripeCardElementChangeEvent) => {
-      setDisabled(!e.complete)
-    }
-    stripeCard.on("change", onChange)
+    let detach: (() => void) | undefined
+    let cancelled = false
+    const poll = window.setInterval(() => {
+      if (cancelled) return
+      const el = elements.getElement("card") as StripeCardElement | null
+      if (!el) {
+        return
+      }
+      clearInterval(poll)
+      const onChange = (e: StripeCardElementChangeEvent) => {
+        setCardFieldIncomplete(!e.complete)
+      }
+      el.on("change", onChange)
+      detach = () => el.off("change", onChange)
+    }, 120)
+    const stop = window.setTimeout(() => {
+      clearInterval(poll)
+    }, 12000)
     return () => {
-      stripeCard.off("change", onChange)
+      cancelled = true
+      clearInterval(poll)
+      clearTimeout(stop)
+      detach?.()
     }
-  }, [card])
+  }, [elements, session?.id])
 
+  const billing = cart.billing_address ?? cart.shipping_address
   const handlePayment = async () => {
     setSubmitting(true)
 
+    const card = elements?.getElement("card") as StripeCardElement | null
     if (!stripe || !elements || !card || !cart) {
       setSubmitting(false)
       return
     }
+
+    const first = billing?.first_name ?? cart.shipping_address?.first_name ?? ""
+    const last = billing?.last_name ?? cart.shipping_address?.last_name ?? ""
 
     await stripe
       .confirmCardPayment(session?.data.client_secret as string, {
         payment_method: {
           card: card,
           billing_details: {
-            name:
-              cart.billing_address?.first_name +
-              " " +
-              cart.billing_address?.last_name,
+            name: `${first} ${last}`.trim() || undefined,
             address: {
-              city: cart.billing_address?.city ?? undefined,
-              country: cart.billing_address?.country_code ?? undefined,
-              line1: cart.billing_address?.address_1 ?? undefined,
-              line2: cart.billing_address?.address_2 ?? undefined,
-              postal_code: cart.billing_address?.postal_code ?? undefined,
-              state: cart.billing_address?.province ?? undefined,
+              city: billing?.city ?? undefined,
+              country: billing?.country_code ?? undefined,
+              line1: billing?.address_1 ?? undefined,
+              line2: billing?.address_2 ?? undefined,
+              postal_code: billing?.postal_code ?? undefined,
+              state: billing?.province ?? undefined,
             },
             email: cart.email || accountEmail || undefined,
-            phone: cart.billing_address?.phone ?? undefined,
+            phone: billing?.phone ?? undefined,
           },
         },
       })
@@ -181,7 +206,7 @@ const StripePaymentButton = ({
 
         if (
           (paymentIntent && paymentIntent.status === "requires_capture") ||
-          paymentIntent.status === "succeeded"
+          paymentIntent?.status === "succeeded"
         ) {
           return onPaymentCompleted()
         }
@@ -190,13 +215,21 @@ const StripePaymentButton = ({
       })
   }
 
+  const payDisabled = notReady || cardFieldIncomplete
+
   return (
     <>
       <Button
-        disabled={disabled || notReady}
+        disabled={payDisabled}
         onClick={handlePayment}
         loading={submitting}
-        className="w-full rounded-md !bg-[#1773b0] py-3.5 text-base font-semibold !text-white hover:!bg-[#135d91] disabled:!bg-[#b5b5b5]"
+        data-testid={dataTestId}
+        className={
+          "w-full rounded-md py-3.5 text-base font-semibold !text-white " +
+          (payDisabled
+            ? "!bg-[#b5b5b5] hover:!bg-[#b5b5b5]"
+            : "!bg-[#1773b0] hover:!bg-[#135d91]")
+        }
       >
         {t("placeOrder")}
       </Button>

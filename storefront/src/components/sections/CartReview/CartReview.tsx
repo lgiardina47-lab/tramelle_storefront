@@ -29,7 +29,6 @@ const Review = ({
   const t = useTranslations('Checkout');
   const { minimumOrderViolations } = useCartContext();
   const minimumOrderBlocked = (minimumOrderViolations?.length ?? 0) > 0;
-  const paidByGiftcard = cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0;
 
   const currencyCode = cart?.currency_code || 'eur';
   const itemMajor = medusaStoreAmountAsMajor(cart?.item_subtotal);
@@ -43,18 +42,6 @@ const Review = ({
   const taxMajor = medusaStoreAmountAsMajor(cart?.tax_total);
   const discMajor = medusaStoreAmountAsMajor(cart?.discount_total);
   const totalMajor = itemMajor + shipMajor + taxMajor - discMajor;
-
-  const needShip = cart ? requiredShippingMethodCountForCart(cart) : 0;
-  const haveShip = cart.shipping_methods?.length ?? 0;
-  const shippingReady = needShip > 0 && haveShip >= needShip;
-
-  /**
-   * Non richiedere `payment_collection` qui: la sessione Stripe può arrivare dopo (client/refresh);
-   * se lo richiediamo, il CTA nel riepilogo resta nascosto mentre il blocco carta è già disegnato.
-   */
-  const previousStepsCompleted =
-    paidByGiftcard ||
-    (Boolean(cart.shipping_address) && shippingReady);
 
   return (
     <div
@@ -89,14 +76,17 @@ const Review = ({
         />
       </div>
 
-      {previousStepsCompleted && (
+      <div className="mt-6 border-t border-[#e8e8e8] pt-6" data-testid="checkout-place-order-block">
+        <p className="mb-3 text-center text-xs text-[#6d7175]">
+          {t('placeOrderHelper')}
+        </p>
         <PaymentButton
           cart={cart}
           accountEmail={customer?.email ?? null}
           minimumOrderBlocked={minimumOrderBlocked}
           data-testid="submit-order-button"
         />
-      )}
+      </div>
     </div>
   );
 };
