@@ -30,6 +30,19 @@ services:
       timeout: 5s
       retries: 10
 
+  # UI web per PostgreSQL (solo loopback: da browser apri con tunnel SSH, non in Cloudflare)
+  # URL: http://127.0.0.1:8888/ — login: Sistema=PostgreSQL, Server=postgres, User=medusa, Pass=medusa, DB=medusa
+  adminer:
+    image: adminer:latest
+    restart: always
+    ports:
+      - "127.0.0.1:8888:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   meilisearch:
     image: getmeili/meilisearch:v1.11
     restart: always
