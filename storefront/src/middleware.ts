@@ -12,6 +12,12 @@ import {
 import { fetchWithTimeout } from './lib/helpers/fetch-with-timeout';
 import { MEDUSA_BACKEND_URL } from './lib/medusa-backend-url';
 import { TRAMELLE_CATEGORY_HANDLE_PREFIX } from './lib/helpers/category-public-url';
+import {
+  COFOUNDER_DOC_COOKIE,
+  COFOUNDER_DOC_PATH,
+  COFOUNDER_ENTER_PATH,
+  verifyCofounderSessionToken,
+} from './lib/cofounder-gate';
 
 const BACKEND_URL = MEDUSA_BACKEND_URL;
 const PUBLISHABLE_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY;
@@ -171,12 +177,51 @@ async function getCountryCode(
 }
 
 export async function middleware(request: NextRequest) {
-  // Short-circuit static assets
-  if (request.nextUrl.pathname.includes('.')) {
+  const p = request.nextUrl.pathname;
+  if (p === COFOUNDER_ENTER_PATH) {
+    return NextResponse.next();
+  }
+  if (p === COFOUNDER_DOC_PATH) {
+    const token = request.cookies.get(COFOUNDER_DOC_COOKIE)?.value;
+    if (!(await verifyCofounderSessionToken(token))) {
+      const url = new URL(COFOUNDER_ENTER_PATH, request.url);
+      url.searchParams.set('next', COFOUNDER_DOC_PATH);
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  // Short-circuit static assets (dopo /cofounder/*.html che richiede gate sopra)
+  if (p.includes('.')) {
     return NextResponse.next();
   }
 
   const { pathname } = request.nextUrl;
+
+  /** OAuth Google: URI registrata su Google Cloud senza prefisso locale (es. /auth/google/callback). */
+  if (pathname.startsWith('/auth/')) {
+    return NextResponse.next();
+  }
+
+  /** /{locale}/info/privacy → /{locale}/privacy (URL policy richiesto da verifiche OAuth / «formato web di base»). */
+  const legacyPrivacy = /^\/([a-z]{2})\/info\/privacy\/?$/i.exec(pathname);
+  if (legacyPrivacy) {
+    const loc = legacyPrivacy[1]!.toLowerCase();
+    return NextResponse.redirect(
+      new URL(`/${loc}/privacy${request.nextUrl.search}`, request.url),
+      301
+    );
+  }
+
+  /** /{locale}/info/terms → /{locale}/terms */
+  const legacyTerms = /^\/([a-z]{2})\/info\/terms\/?$/i.exec(pathname);
+  if (legacyTerms) {
+    const loc = legacyTerms[1]!.toLowerCase();
+    return NextResponse.redirect(
+      new URL(`/${loc}/terms${request.nextUrl.search}`, request.url),
+      301
+    );
+  }
 
   /** SEO / bookmark: URL legacy con prefisso handle Medusa → slug pubblico. */
   const catSegs = pathname.split('/').filter(Boolean);
