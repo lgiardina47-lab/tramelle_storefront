@@ -1,8 +1,11 @@
+"use client"
+
 import { Button, Card, StarRating } from "@/components/atoms"
 import { Order } from "@/lib/data/reviews"
 import { formatDateSafe } from "@/lib/helpers/format-date-safe"
-import Image from "next/image"
 import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
+import Image from "next/image"
+import { useTranslations } from "next-intl"
 
 export const OrderCard = ({
   order,
@@ -13,6 +16,7 @@ export const OrderCard = ({
   showForm?: (review: Order) => void
   testIdPrefix?: string
 }) => {
+  const t = useTranslations("Account")
   const firstThumb = order?.items?.[0]
     ? resolveLineItemThumbnailSrc(order.items[0])
     : null
@@ -48,7 +52,8 @@ export const OrderCard = ({
             {order?.items?.[0]?.subtitle}
           </p>
           <p className="label-md text-secondary" data-testid={testIdPrefix ? `${testIdPrefix}-date` : undefined}>
-            Date: {formatDateSafe(order.created_at, "MMM dd, yyyy")}
+            {t("orderCardDate")}{" "}
+            {formatDateSafe(order.created_at, "MMM dd, yyyy")}
           </p>
         </div>
       </div>
@@ -56,7 +61,7 @@ export const OrderCard = ({
         {showForm ? (
           <div className="flex justify-end w-full">
             <Button onClick={() => showForm(order)} className="w-fit uppercase" data-testid={testIdPrefix ? `${testIdPrefix}-write-review-button` : undefined}>
-              Write review
+              {t("writeReview")}
             </Button>
           </div>
         ) : (

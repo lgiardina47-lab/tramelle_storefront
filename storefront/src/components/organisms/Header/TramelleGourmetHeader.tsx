@@ -18,6 +18,7 @@ import { HeaderSearch } from "@/components/molecules/HeaderSearch/HeaderSearch"
 import { LanguageSwitcher } from "@/components/molecules/LanguageSwitcher/LanguageSwitcher"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { WishlistNavLink } from "@/components/molecules/WishlistNavLink/WishlistNavLink"
+import { fetchWithTimeout } from "@/lib/helpers/fetch-with-timeout"
 import { cn } from "@/lib/utils"
 import type { MegaNavCategory } from "@/lib/helpers/category-mega-nav"
 import { categoryPublicHref } from "@/lib/helpers/category-public-url"
@@ -25,7 +26,7 @@ import type { LanguageSwitcherOption } from "@/lib/helpers/language-switcher-opt
 import { countryCodeToStorefrontMessagesLocale } from "@/lib/i18n/storefront-messages-locale"
 import type { TramelleHeaderAccountRole } from "@/lib/tramelle-header-account-role"
 
-/** Fascia promo compatta (~1.5rem) + header 4rem + nav 3.5rem — overlay mega-menu. */
+/** Fascia promo (~1.5rem) + header 4rem + nav 3.5rem — overlay mega-menu. */
 const STICKY_CATEGORY_TOP = "5.5rem"
 const BACKDROP_TOP = "9rem"
 
@@ -46,13 +47,32 @@ function formatOriginLabel(s: string | undefined): string {
     .join("")
 }
 
+/** Pagina macrocategoria con filtri provenienza (allineati a `getFacedFilters`). */
+function macroCategoryProvenanceHref(
+  categoryHandle: string,
+  opts: { countryCode: string; region?: string | null }
+): string {
+  const base = categoryPublicHref(categoryHandle)
+  const cc = opts.countryCode.trim().toLowerCase()
+  if (!cc) return base
+  const params = new URLSearchParams()
+  params.set("provenance_country", cc)
+  const reg = opts.region?.trim()
+  if (reg) params.set("provenance_region", reg)
+  return `${base}?${params.toString()}`
+}
+
 type MegaOriginPlace = {
   nation: string
   region: string | null
+  /** ISO 3166-1 alpha-2 minuscolo — allineato a `provenance_country` in Meilisearch. */
+  country_code?: string
 }
 
 type MegaOriginByNation = {
   nation: string
+  /** Vuoto se sconosciuto (es. legacy): niente link filtro paese. */
+  countryCode: string
   regions: string[]
 }
 
@@ -60,17 +80,28 @@ type MegaOriginByNation = {
 function groupOriginsByNation(places: MegaOriginPlace[]): MegaOriginByNation[] {
   const map = new Map<
     string,
-    { displayNation: string; regions: Map<string, string> }
+    {
+      displayNation: string
+      countryCode: string
+      regions: Map<string, string>
+    }
   >()
 
   for (const p of places) {
     const nationRaw = p.nation.trim()
     if (!nationRaw) continue
-    const nationKey = nationRaw.toLowerCase()
+    const cc = (p.country_code ?? "").trim().toLowerCase()
+    const nationKey = cc || nationRaw.toLowerCase()
     let bucket = map.get(nationKey)
     if (!bucket) {
-      bucket = { displayNation: nationRaw, regions: new Map() }
+      bucket = {
+        displayNation: nationRaw,
+        countryCode: cc,
+        regions: new Map(),
+      }
       map.set(nationKey, bucket)
+    } else if (!bucket.countryCode && cc) {
+      bucket.countryCode = cc
     }
     const reg = p.region?.trim()
     if (reg) {
@@ -81,6 +112,7 @@ function groupOriginsByNation(places: MegaOriginPlace[]): MegaOriginByNation[] {
 
   const rows = [...map.values()].map((b) => ({
     nation: b.displayNation,
+    countryCode: b.countryCode,
     regions: [...b.regions.values()].sort((a, c) =>
       a.localeCompare(c, "it", { sensitivity: "base" })
     ),
@@ -130,20 +162,56 @@ function legacySellerPaeseToOrigin(
   if (!p) return { nation: "", region: null }
   if (/^[A-Za-z]{2}$/.test(p)) {
     const cc = p.toUpperCase()
+    const ccLower = cc.toLowerCase()
     try {
       const name =
         new Intl.DisplayNames([...intlLocales], { type: "region" }).of(cc) ??
         cc
-      return { nation: name, region: null }
+      return { nation: name, region: null, country_code: ccLower }
     } catch {
-      return { nation: cc, region: null }
+      return { nation: cc, region: null, country_code: ccLower }
     }
   }
   const nationFromTable = LEGACY_PAESI_NAZIONE[p.toLowerCase()]
   if (nationFromTable) {
-    return { nation: nationFromTable, region: null }
+    const code = legacyDisplayNationToCc(nationFromTable)
+    return {
+      nation: nationFromTable,
+      region: null,
+      ...(code ? { country_code: code } : {}),
+    }
   }
-  return { nation: "Italia", region: p }
+  return { nation: "Italia", region: p, country_code: "it" }
+}
+
+/** ISO2 per etichette legacy `LEGACY_PAESI_NAZIONE` (link filtro listing). */
+const LEGACY_DISPLAY_NATION_TO_CC: Record<string, string> = {
+  croazia: "hr",
+  francia: "fr",
+  germania: "de",
+  spagna: "es",
+  portogallo: "pt",
+  grecia: "gr",
+  austria: "at",
+  belgio: "be",
+  "regno unito": "gb",
+  svizzera: "ch",
+  olanda: "nl",
+  "paesi bassi": "nl",
+  slovenia: "si",
+  romania: "ro",
+  polonia: "pl",
+  ungheria: "hu",
+  bulgaria: "bg",
+  portugal: "pt",
+  france: "fr",
+  germany: "de",
+  spain: "es",
+}
+
+function legacyDisplayNationToCc(displayNation: string): string {
+  const k = displayNation.trim().toLowerCase()
+  return LEGACY_DISPLAY_NATION_TO_CC[k] ?? ""
 }
 
 /** Compat: risposta `{ origins }` oppure legacy `{ sellers, paese }`. */
@@ -160,10 +228,28 @@ function parseMegaOriginsPayload(
   const intlLocales = [ui, "it"] as const
 
   if (Array.isArray(d.origins) && d.origins.length > 0) {
-    return d.origins.filter(
-      (o): o is MegaOriginPlace =>
-        Boolean(o && typeof o.nation === "string" && o.nation.trim().length > 0)
-    )
+    return d.origins
+      .map((o): MegaOriginPlace | null => {
+        if (!o || typeof o !== "object" || typeof o.nation !== "string") {
+          return null
+        }
+        const nation = o.nation.trim()
+        if (!nation) return null
+        const region =
+          typeof o.region === "string" && o.region.trim()
+            ? o.region.trim()
+            : null
+        const country_code =
+          typeof (o as { country_code?: unknown }).country_code === "string"
+            ? (o as { country_code: string }).country_code.trim().toLowerCase()
+            : undefined
+        return {
+          nation,
+          region,
+          ...(country_code ? { country_code } : {}),
+        }
+      })
+      .filter((o): o is MegaOriginPlace => o !== null)
   }
   if (Array.isArray(d.sellers) && d.sellers.length > 0) {
     const out: MegaOriginPlace[] = []
@@ -305,7 +391,7 @@ export function TramelleGourmetHeader({
       window.location.origin
     )
     url.searchParams.set("parent_category_handle", parentHandleForOrigins)
-    fetch(url.toString(), { cache: "no-store" })
+    fetchWithTimeout(url.toString(), { cache: "no-store" })
       .then((res) => {
         if (!res.ok) throw new Error(String(res.status))
         return res.json() as Promise<{ origins?: MegaOriginPlace[] }>
@@ -378,11 +464,7 @@ export function TramelleGourmetHeader({
           </LocalizedClientLink>
 
           <div className="mx-1.5 hidden min-h-0 min-w-0 flex-1 basis-0 items-center rounded-full border border-[#E8E4DE] bg-white px-[18px] py-[10px] shadow-none transition-[border-color,box-shadow] focus-within:border-[#0F0E0B] focus-within:shadow-[0_2px_8px_rgba(15,14,11,0.12)] sm:mx-2 md:mx-3 md:flex">
-            <Suspense
-              fallback={
-                <div className="h-10 w-full rounded-full bg-gray-100" aria-hidden />
-              }
-            >
+            <Suspense fallback={null}>
               <HeaderSearch
                 variant="gourmet"
                 className="w-full max-w-none"
@@ -633,12 +715,26 @@ export function TramelleGourmetHeader({
                               className="flex w-full min-w-0 flex-col"
                               aria-labelledby={`gourmet-origin-nation-${nationIdx}`}
                             >
-                              <h3
-                                id={`gourmet-origin-nation-${nationIdx}`}
-                                className="w-full border-b border-gray-200 pb-2 text-left text-sm font-bold leading-tight text-gray-900 normal-case"
-                              >
-                                {formatOriginLabel(block.nation)}
-                              </h3>
+                              {block.countryCode ? (
+                                <LocalizedClientLink
+                                  id={`gourmet-origin-nation-${nationIdx}`}
+                                  href={macroCategoryProvenanceHref(active.handle, {
+                                    countryCode: block.countryCode,
+                                  })}
+                                  locale={locale}
+                                  onClick={closeMenu}
+                                  className="block w-full border-b border-gray-200 pb-2 text-left text-sm font-bold leading-tight text-gray-900 normal-case transition-colors hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/15"
+                                >
+                                  {formatOriginLabel(block.nation)}
+                                </LocalizedClientLink>
+                              ) : (
+                                <h3
+                                  id={`gourmet-origin-nation-${nationIdx}`}
+                                  className="w-full border-b border-gray-200 pb-2 text-left text-sm font-bold leading-tight text-gray-900 normal-case"
+                                >
+                                  {formatOriginLabel(block.nation)}
+                                </h3>
+                              )}
                               {block.regions.length > 0 ? (
                                 <ul className="mt-2.5 grid w-full min-w-0 list-none grid-cols-2 gap-x-3 gap-y-1.5 p-0">
                                   {block.regions.map((r) => (
@@ -646,7 +742,24 @@ export function TramelleGourmetHeader({
                                       key={`${block.nation}-${r.toLowerCase()}`}
                                       className="min-w-0 text-left text-xs font-medium leading-snug text-gray-700 normal-case"
                                     >
-                                      {formatOriginLabel(r)}
+                                      {block.countryCode ? (
+                                        <LocalizedClientLink
+                                          href={macroCategoryProvenanceHref(
+                                            active.handle,
+                                            {
+                                              countryCode: block.countryCode,
+                                              region: r,
+                                            }
+                                          )}
+                                          locale={locale}
+                                          onClick={closeMenu}
+                                          className="block rounded-md px-0.5 py-0.5 text-left transition-colors hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-900/15"
+                                        >
+                                          {formatOriginLabel(r)}
+                                        </LocalizedClientLink>
+                                      ) : (
+                                        formatOriginLabel(r)
+                                      )}
                                     </li>
                                   ))}
                                 </ul>

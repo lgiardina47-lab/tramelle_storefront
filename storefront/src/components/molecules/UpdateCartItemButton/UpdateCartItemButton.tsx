@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { useRouter } from 'next/navigation';
-
 import { Button } from '@/components/atoms';
 import { useCartContext } from '@/components/providers';
 import { toast } from '@/lib/helpers/toast';
+
+const COMMIT_MS = 200;
 
 export const UpdateCartItemButton = ({
   quantity,
@@ -19,13 +19,15 @@ export const UpdateCartItemButton = ({
   wholesaleBuyer?: boolean;
   piecesPerCarton?: number;
 }) => {
-  const { updateCartItem, isUpdatingItem } = useCartContext();
+  const { previewLineItemQuantity, commitLineItemQuantity, isUpdatingItem } =
+    useCartContext();
   const [pendingQuantity, setPendingQuantity] = useState(quantity);
-  const debounceTimerRef = useRef<NodeJS.Timeout>(null);
-  const router = useRouter();
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const commitQuantityRef = useRef(quantity);
 
   useEffect(() => {
     setPendingQuantity(quantity);
+    commitQuantityRef.current = quantity;
   }, [quantity]);
 
   useEffect(() => {
@@ -45,35 +47,38 @@ export const UpdateCartItemButton = ({
         : 0;
     if (wholesaleBuyer && batch > 0 && newQuantity % batch !== 0) {
       toast.error({
-        title: "Quantità non valida",
+        title: 'Quantità non valida',
         description: `Per questo articolo servono multipli di ${batch} pezzi (cartone).`,
       });
       return;
     }
 
-    // Update UI immediately (optimistic update)
     setPendingQuantity(newQuantity);
+    commitQuantityRef.current = newQuantity;
+    previewLineItemQuantity(lineItemId, newQuantity);
 
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
 
-    debounceTimerRef.current = setTimeout(async () => {
-      try {
-        await updateCartItem(lineItemId, newQuantity);
-        router.refresh();
-      } catch (error: unknown) {
-        setPendingQuantity(quantity);
-        const errorMessage =
-          error instanceof Error
-            ? error.message.replace('Error setting up the request: ', '')
-            : 'Failed to update quantity';
-        toast.error({
-          title: 'Error updating cart',
-          description: errorMessage
-        });
-      }
-    }, 500);
+    debounceTimerRef.current = setTimeout(() => {
+      const q = commitQuantityRef.current;
+      void (async () => {
+        try {
+          await commitLineItemQuantity(lineItemId, q);
+        } catch (error: unknown) {
+          setPendingQuantity(quantity);
+          const errorMessage =
+            error instanceof Error
+              ? error.message.replace('Error setting up the request: ', '')
+              : 'Failed to update quantity';
+          toast.error({
+            title: 'Error updating cart',
+            description: errorMessage,
+          });
+        }
+      })();
+    }, COMMIT_MS);
   };
 
   const isDecreaseDisabled = pendingQuantity === 1 || isUpdatingItem || !lineItemId;
@@ -90,7 +95,7 @@ export const UpdateCartItemButton = ({
         -
       </Button>
       <span
-        className={`font-medium transition-all duration-300 ${
+        className={`font-medium transition-all duration-200 ${
           isDecreaseDisabled || isIncreaseDisabled
             ? 'scale-95 text-secondary opacity-70'
             : 'scale-100 text-primary opacity-100'

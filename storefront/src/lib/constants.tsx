@@ -7,11 +7,11 @@ export const paymentInfoMap: Record<
   { title: string; icon: React.JSX.Element }
 > = {
   "pp_card_stripe-connect": {
-    title: "Credit card",
+    title: "Card, PayPal, Apple Pay, Google Pay",
     icon: <CreditCard />,
   },
   pp_stripe_stripe: {
-    title: "Credit card",
+    title: "Card and digital wallets",
     icon: <CreditCard />,
   },
   "pp_stripe-ideal_stripe": {
@@ -33,9 +33,16 @@ export const paymentInfoMap: Record<
   // Add more payment providers here
 }
 
-// This only checks if it is native stripe for card payments, it ignores the other stripe-based providers
+// Stripe Connect (Mercur): `pp_card_stripe-connect_*` | Stripe core Medusa `pp_stripe_*` / `pp_stripe-*`.
+// Alcuni ambienti possono normalizzare `-`/`_`: accettiamo entrambi i prefissi noti.
 export const isStripe = (providerId?: string) => {
-  return providerId?.startsWith("pp_card_stripe-connect")
+  if (!providerId) return false
+  return (
+    providerId.startsWith("pp_card_stripe-connect") ||
+    providerId.startsWith("pp_card_stripe_connect") ||
+    providerId.startsWith("pp_stripe_") ||
+    providerId.startsWith("pp_stripe-")
+  )
 }
 export const isPaypal = (providerId?: string) => {
   return providerId?.startsWith("pp_paypal")

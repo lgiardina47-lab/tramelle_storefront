@@ -41,6 +41,7 @@ export default async function SellerReviewsPage({
           locale={locale}
           currency_code={currency_code}
           region_id={region_id}
+          seller={seller}
         />
       </div>
     </main>

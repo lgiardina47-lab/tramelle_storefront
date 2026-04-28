@@ -1,6 +1,11 @@
 "use client"
 
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import {
+  cloudflareAvatarOrLogoDeliveryUrl,
+  cloudflareHeroBackdropBlurDeliveryUrl,
+  cloudflareHomeHeroCoverResponsive,
+} from "@/lib/helpers/cloudflare-images"
 import type { HeroCoverSlide } from "@/types/hero"
 import Image from "next/image"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -114,7 +119,11 @@ export function HomeCinematicHeroRotatingBackdrop({
       ? new Intl.NumberFormat(urlLocale).format(catalogTotal)
       : String(poolLen)
   const badgeSrc = decodeURIComponent((logoRaw || current.src).trim())
+  const badgeDelivery =
+    cloudflareAvatarOrLogoDeliveryUrl(badgeSrc, 56) ?? badgeSrc
   const slideMotionKey = `${idx}-${src}`
+  const heroCf = cloudflareHomeHeroCoverResponsive(src)
+  const blurSrc = cloudflareHeroBackdropBlurDeliveryUrl(src)
 
   return (
     <>
@@ -130,16 +139,50 @@ export function HomeCinematicHeroRotatingBackdrop({
           }
           onAnimationEnd={() => setHeroEnter(null)}
         >
-          <Image
-            src={src}
-            alt={current.alt}
-            fill
-            sizes="100vw"
-            quality={85}
-            priority={idx === priorityIdx}
-            fetchPriority={idx === priorityIdx ? "high" : "low"}
-            className="object-cover object-center"
-          />
+          {heroCf ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element -- blur: URL singola CF */}
+              <img
+                src={blurSrc}
+                alt=""
+                decoding="async"
+                className="pointer-events-none absolute inset-0 z-0 h-full w-full scale-110 object-cover object-center opacity-90 blur-2xl"
+                aria-hidden
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element -- srcset hero */}
+              <img
+                src={heroCf.src}
+                srcSet={heroCf.srcSet}
+                sizes={heroCf.sizes}
+                alt={current.alt}
+                decoding={idx === priorityIdx ? "sync" : "async"}
+                fetchPriority={idx === priorityIdx ? "high" : "low"}
+                className="absolute inset-0 z-[1] h-full w-full object-contain object-center"
+              />
+            </>
+          ) : (
+            <>
+              <Image
+                src={src}
+                alt=""
+                fill
+                sizes="100vw"
+                quality={65}
+                className="pointer-events-none scale-110 object-cover object-center opacity-90 blur-2xl"
+                aria-hidden
+              />
+              <Image
+                src={src}
+                alt={current.alt}
+                fill
+                sizes="100vw"
+                quality={85}
+                priority={idx === priorityIdx}
+                fetchPriority={idx === priorityIdx ? "high" : "low"}
+                className="z-[1] object-contain object-center"
+              />
+            </>
+          )}
         </div>
       </div>
 
@@ -202,8 +245,8 @@ export function HomeCinematicHeroRotatingBackdrop({
                 {!badgeImgFailed ? (
                   // eslint-disable-next-line @next/next/no-img-element -- badge CDN
                   <img
-                    key={`${current.handle}-${badgeSrc.slice(0, 80)}`}
-                    src={badgeSrc}
+                    key={`${current.handle}-${badgeDelivery.slice(0, 80)}`}
+                    src={badgeDelivery}
                     alt={displayName.length > 0 ? `Logo — ${displayName}` : "Logo"}
                     width={56}
                     height={56}

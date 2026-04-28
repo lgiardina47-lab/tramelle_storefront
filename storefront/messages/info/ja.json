@@ -38,7 +38,9 @@
       "instagram": "Instagram",
       "instagramAria": "TramelleのInstagram",
       "twitter": "Twitter",
-      "twitterAria": "TramelleのTwitter"
+      "twitterAria": "TramelleのTwitter",
+      "linkedin": "LinkedIn",
+      "linkedinAria": "TramelleのLinkedIn"
     },
     "aria": {
       "buying": "ご購入についてのリンク",
@@ -47,7 +49,8 @@
       "about": "Tramelleについてのリンク",
       "follow": "ソーシャルメディアのリンク"
     },
-    "copyright": "© {year} Tramelle"
+    "copyright": "© {year} Tramelle",
+    "creditByYondist": "yondist.com による制作・運用"
   },
   "InfoPages": {
     "common": {

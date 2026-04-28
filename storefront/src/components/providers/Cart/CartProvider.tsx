@@ -1,16 +1,13 @@
 'use client';
 
-import { PropsWithChildren, useCallback, useEffect, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   deleteLineItem as apiDeleteLineItem,
   updateLineItem as apiUpdateLineItem,
   retrieveCart
 } from '@/lib/data/cart';
-import {
-  getCartMinimumOrderViolations,
-  type MinimumOrderViolation
-} from '@/lib/data/seller-minimum-order';
+import { getCartMinimumOrderViolations } from '@/lib/data/seller-minimum-order';
 import { Cart, StoreCartLineItemOptimisticUpdate } from '@/types/cart';
 
 import { CartContext } from './context';
@@ -18,41 +15,34 @@ import { CartContext } from './context';
 interface CartProviderProps extends PropsWithChildren {
   cart: Cart | null;
   wholesaleBuyer?: boolean;
-  minimumOrderViolations?: MinimumOrderViolation[];
 }
 
 export function CartProvider({
   cart,
   children,
   wholesaleBuyer = false,
-  minimumOrderViolations: initialMinViol = []
 }: CartProviderProps) {
   const [cartState, setCartState] = useState(cart);
-  const [minimumOrderViolations, setMinimumOrderViolations] = useState(
-    initialMinViol
-  );
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingItem, setIsUpdatingItem] = useState(false);
   const [isRemovingItem, setIsRemovingItem] = useState(false);
+
+  const minimumOrderViolations = useMemo(
+    () =>
+      cartState && (cartState.currency_code || '').toLowerCase() === 'eur'
+        ? getCartMinimumOrderViolations(cartState)
+        : [],
+    [cartState]
+  );
 
   useEffect(() => {
     setCartState(cart);
   }, [cart]);
 
-  useEffect(() => {
-    setMinimumOrderViolations(initialMinViol);
-  }, [initialMinViol]);
-
   const refreshCart = useCallback(async () => {
     try {
       const cartData = await retrieveCart();
       setCartState(cartData);
-      if (cartData) {
-        const v = await getCartMinimumOrderViolations(cartData);
-        setMinimumOrderViolations(v);
-      } else {
-        setMinimumOrderViolations([]);
-      }
       return cartData;
     } catch (error) {
       console.error('Error fetching cart:', error);
@@ -122,25 +112,50 @@ export function CartProvider({
     });
   }
 
-  const updateCartItem = async (lineId: string, quantity: number) => {
-    if (!cartState?.items) return;
+  const previewLineItemQuantity = (lineId: string, quantity: number) => {
+    if (quantity < 1) return;
+    setCartState(prev => {
+      if (!prev?.items) return prev;
+      const oldItem = prev.items.find(i => i.id === lineId);
+      if (!oldItem) return prev;
+      const q0 = oldItem.quantity || 1;
+      const ratio = quantity / q0;
+      const newLineSub = (oldItem.subtotal ?? 0) * ratio;
+      const newLineTot = (oldItem.total ?? 0) * ratio;
+      const newLineTax = (oldItem.tax_total ?? 0) * ratio;
+      const newItems = prev.items.map(item => {
+        if (item.id !== lineId) return item;
+        return {
+          ...item,
+          quantity,
+          subtotal: (item.subtotal ?? 0) * ratio,
+          total: (item.total ?? 0) * ratio,
+          tax_total: (item.tax_total ?? 0) * ratio
+        };
+      });
+      return {
+        ...prev,
+        items: newItems,
+        item_subtotal: (prev.item_subtotal ?? 0) - (oldItem.subtotal ?? 0) + newLineSub,
+        tax_total: (prev.tax_total ?? 0) - (oldItem.tax_total ?? 0) + newLineTax,
+        total: (prev.total ?? 0) - (oldItem.total ?? 0) + newLineTot
+      } as Cart;
+    });
+  };
+
+  const commitLineItemQuantity = async (lineId: string, quantity: number) => {
+    if (!cartState?.items || quantity < 1) return;
+    if (!cartState.items.find(i => i.id === lineId)) return;
 
     setIsUpdatingItem(true);
     setIsUpdating(true);
-
-    const optimisticCart = {
-      ...cartState,
-      items: cartState.items.map(item => (item.id === lineId ? { ...item, quantity } : item))
-    };
-
-    setCartState(optimisticCart);
-
     try {
       await apiUpdateLineItem({ lineId, quantity });
       await refreshCart();
     } catch (error) {
       console.error('Error updating item quantity:', error);
       await refreshCart();
+      throw error;
     } finally {
       setIsUpdatingItem(false);
       setIsUpdating(false);
@@ -230,7 +245,8 @@ export function CartProvider({
         onAddToCart: handleAddToCart,
         addToCart,
         removeCartItem,
-        updateCartItem,
+        previewLineItemQuantity,
+        commitLineItemQuantity,
         refreshCart,
         isUpdating,
         isUpdatingItem,

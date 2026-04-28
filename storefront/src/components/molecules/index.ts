@@ -14,8 +14,8 @@ import { ParcelAccordion } from './ParcelAccordion/ParcelAccordion';
 import { ParentCategoryLinks } from './ParentCategoryLinks/ParentCategoryLinks';
 import { PrimeCategoryNavbar } from './PrimeCategoryNavbar/PrimeCategoryNavbar';
 import { ProductCarouselIndicator } from './ProductCarouselIndicator/ProductCarouselIndicator';
-import ProductListingLoadingView from './ProductListingLoadingView/ProductListingLoadingView';
 import ProductListingNoResultsView from './ProductListingNoResultsView/ProductListingNoResultsView';
+import { ProductListingGridSkeleton } from './ProductListingGridSkeleton/ProductListingGridSkeleton';
 import ProductListingProductsView from './ProductListingProductsView/ProductListingProductsView';
 import { ProductPageAccordion } from './ProductPageAccordion/ProductPageAccordion';
 import { ProductPostedDate } from './ProductPostedDate/ProductPostedDate';
@@ -79,7 +79,7 @@ export {
   AddressForm,
   ReviewForm,
   ProfileDetails,
-  ProductListingLoadingView,
   ProductListingNoResultsView,
+  ProductListingGridSkeleton,
   ProductListingProductsView
 };

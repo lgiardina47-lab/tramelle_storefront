@@ -11,11 +11,14 @@ interface ProvidersProps extends PropsWithChildren {
   wholesaleBuyer?: boolean
 }
 
-export function Providers({ children, cart, wholesaleBuyer = false }: ProvidersProps) {
+export function Providers({
+  children,
+  cart,
+  wholesaleBuyer = false,
+}: ProvidersProps) {
   return (
     <CartProvider cart={cart} wholesaleBuyer={wholesaleBuyer}>
       {children}
     </CartProvider>
   )
 }
-

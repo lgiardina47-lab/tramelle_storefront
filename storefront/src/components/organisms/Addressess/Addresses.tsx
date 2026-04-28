@@ -7,6 +7,7 @@ import { deleteCustomerAddress } from "@/lib/data/customer"
 import { cn } from "@/lib/utils"
 import { HttpTypes } from "@medusajs/types"
 import { isEmpty } from "lodash"
+import { useTranslations } from "next-intl"
 import { useState } from "react"
 
 export const Addresses = ({
@@ -16,6 +17,7 @@ export const Addresses = ({
   user: HttpTypes.StoreCustomer
   regions: HttpTypes.StoreRegion[]
 }) => {
+  const t = useTranslations("Account")
   const [showForm, setShowForm] = useState(false)
   const [deleteAddress, setDeleteAddress] = useState<string | null>(null)
 
@@ -65,18 +67,19 @@ export const Addresses = ({
         )}
         data-testid="addresses-container"
       >
-        <h1 className="heading-md uppercase" data-testid="addresses-heading">Addresses</h1>
+        <h1 className="heading-md uppercase" data-testid="addresses-heading">
+          {t("addresses")}
+        </h1>
         {isEmpty(user.addresses) ? (
           <div className="text-center" data-testid="addresses-empty-state">
             <h3 className="heading-lg text-primary uppercase" data-testid="addresses-empty-heading">
-              No saved shipping addresses
+              {t("addressesEmptyTitle")}
             </h3>
             <p className="text-lg text-secondary mt-2" data-testid="addresses-empty-description">
-              You currently have no saved shipping addresses. <br />
-              Add an address to make your checkout process quicker and easier.
+              {t("addressesEmptyDescription")}
             </p>
             <Button onClick={handleAdd} className="mt-4" data-testid="addresses-add-button">
-              Add address
+              {t("addressesAdd")}
             </Button>
           </div>
         ) : (
@@ -119,21 +122,23 @@ export const Addresses = ({
                       onClick={() => setDeleteAddress(address.id)}
                       data-testid={`address-delete-button-${address.id}`}
                     >
-                      Delete
+                      {t("addressesDelete")}
                     </Button>
                     <Button
                       variant="tonal"
                       onClick={() => handleEdit(address.id)}
                       data-testid={`address-edit-button-${address.id}`}
                     >
-                      Edit
+                      {t("addressesEdit")}
                     </Button>
                   </div>
                 </Card>
               ))}
             </div>
             {user.addresses.length < 6 && (
-              <Button onClick={handleAdd} data-testid="addresses-add-button">Add address</Button>
+              <Button onClick={handleAdd} data-testid="addresses-add-button">
+                {t("addressesAdd")}
+              </Button>
             )}
           </>
         )}
@@ -142,8 +147,8 @@ export const Addresses = ({
         <Modal
           heading={
             defaultValues?.addressId
-              ? `Edit address: ${defaultValues.addressName}`
-              : "Add address"
+              ? t("addressesModalEdit", { name: defaultValues.addressName })
+              : t("addressesModalAdd")
           }
           onClose={() => setShowForm(false)}
         >
@@ -156,22 +161,22 @@ export const Addresses = ({
       )}
       {deleteAddress && (
         <Modal
-          heading="Confirm your action"
+          heading={t("addressesDeleteConfirmTitle")}
           onClose={() => setDeleteAddress(null)}
           data-testid="address-delete-modal"
         >
           <div className="px-4 flex flex-col gap-4">
-            <p>Are you sure you want to delete this address?</p>
+            <p>{t("addressesDeleteConfirmBody")}</p>
             <div className="flex justify-end gap-4">
               <Button variant="tonal" onClick={() => setDeleteAddress(null)} data-testid="address-delete-cancel-button">
-                Cancel
+                {t("actionCancel")}
               </Button>
               <Button
                 variant="destructive"
                 onClick={() => handleDelete(deleteAddress)}
                 data-testid="address-delete-confirm-button"
               >
-                Delete
+                {t("addressesDelete")}
               </Button>
             </div>
           </div>

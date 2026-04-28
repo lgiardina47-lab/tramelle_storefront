@@ -109,32 +109,29 @@ export const retrieveRegion = async (
     .catch(() => null);
 };
 
-const regionMap = new Map<string, HttpTypes.StoreRegion>();
-
-export const getRegion = async (countryCode: string) => {
-  try {
-    const code = await resolveStorefrontLocaleToMedusaCountry(countryCode);
-
-    if (regionMap.has(code)) {
-      return regionMap.get(code);
+/**
+ * Deduplicazione per richiesta RSC: listProducts, header, … chiamano `getRegion(locale)`
+ * più volte con lo stesso `countryCode` → una sola risoluzione.
+ */
+export const getRegion = cache(
+  async (countryCode: string): Promise<HttpTypes.StoreRegion | null> => {
+    try {
+      const code = (await resolveStorefrontLocaleToMedusaCountry(countryCode))
+        .toLowerCase()
+      const regions = await listRegions()
+      if (!regions?.length) {
+        return null
+      }
+      const byIso = new Map<string, HttpTypes.StoreRegion>()
+      for (const region of regions) {
+        region.countries?.forEach((c) => {
+          const iso = c?.iso_2?.toLowerCase()
+          if (iso) byIso.set(iso, region)
+        })
+      }
+      return byIso.get(code) ?? (code ? null : (byIso.get("us") ?? null))
+    } catch {
+      return null
     }
-
-    const regions = await listRegions();
-
-    if (!regions?.length) {
-      return null;
-    }
-
-    regions.forEach(region => {
-      region.countries?.forEach(c => {
-        regionMap.set(c?.iso_2 ?? '', region);
-      });
-    });
-
-    const region = code ? regionMap.get(code) : regionMap.get('us');
-
-    return region;
-  } catch {
-    return null;
   }
-};
+)

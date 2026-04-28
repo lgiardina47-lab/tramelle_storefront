@@ -590,6 +590,7 @@ function GenericCheckboxFacet({
               disabled={false}
               onCheck={selectHandler}
               label={label}
+              filterValue={label}
               amount={count}
             />
           </li>

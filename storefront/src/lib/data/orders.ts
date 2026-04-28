@@ -9,25 +9,6 @@ import { MEDUSA_BACKEND_URL } from '../medusa-backend-url';
 import medusaError from '../helpers/medusa-error';
 import { getAuthHeaders, getCacheOptions } from './cookies';
 
-export const retrieveOrderSet = async (id: string) => {
-  const headers = {
-    ...(await getAuthHeaders())
-  };
-
-  return sdk.client
-    .fetch<any>(`/store/order-set/${id}`, {
-      method: 'GET',
-      query: {
-        fields:
-          '*orders,*orders.items,*orders.shipping_address,*orders.seller,*payment_collection'
-      },
-      headers,
-      cache: 'no-cache'
-    })
-    .then(({ order_set }) => order_set)
-    .catch(err => medusaError(err));
-};
-
 export const retrieveOrder = async (id: string) => {
   const headers = {
     ...(await getAuthHeaders())
@@ -140,6 +121,179 @@ export const listOrders = async (
     .then(({ orders }) => orders.filter(order => order.order_set))
     .catch(err => medusaError(err));
 };
+
+const ORDER_SET_DETAIL_FIELDS =
+  '*orders,*orders.items,*orders.shipping_address,*orders.seller,*payment_collection'
+
+const ORDER_SET_FALLBACK_LIST_FIELDS =
+  '*items,+items.thumbnail,+items.product.thumbnail,+items.metadata,*items.variant,*items.product,*seller,*reviews,*order_set,*shipping_address,shipping_total,total,created_at,currency_code'
+
+const FALLBACK_PAGE = 500
+/** Evita loop infiniti su account enormi; oltre questo serve route API dedicata. */
+const FALLBACK_MAX_PAGES = 30
+
+function buildSyntheticOrderSetFromStoreOrders(
+  orderSetId: string,
+  subset: any[]
+): any | null {
+  if (!subset.length) return null
+  const osMeta = subset[0].order_set as
+    | Record<string, unknown>
+    | undefined
+    | null
+  const first = subset[0] as Record<string, unknown>
+  return {
+    id: orderSetId,
+    display_id: osMeta?.display_id ?? first.display_id,
+    created_at: osMeta?.created_at ?? first.created_at,
+    orders: subset,
+    payment_collection: {
+      currency_code:
+        (subset[0] as { currency_code?: string }).currency_code ?? 'eur',
+    },
+    total: subset.reduce(
+      (s, o: any) => s + (typeof o.total === 'number' ? o.total : 0),
+      0
+    ),
+    shipping_total: subset.reduce(
+      (s, o: any) =>
+        s + (typeof o.shipping_total === 'number' ? o.shipping_total : 0),
+      0
+    ),
+  }
+}
+
+/**
+ * Tutti gli ordini store appartenenti a un order_set (liste paginate), per clienti B2C con molta cronologia.
+ */
+async function collectStoreOrdersForOrderSet(
+  headers: Record<string, string | undefined>,
+  orderSetId: string
+): Promise<any[]> {
+  const found = new Map<string, any>()
+  let offset = 0
+  for (let page = 0; page < FALLBACK_MAX_PAGES; page++) {
+    let orders: any[] = []
+    try {
+      const res = await sdk.client.fetch<{ orders: any[] }>(`/store/orders`, {
+        method: 'GET',
+        query: {
+          limit: FALLBACK_PAGE,
+          offset,
+          order: '-created_at',
+          fields: ORDER_SET_FALLBACK_LIST_FIELDS,
+        },
+        headers,
+        cache: 'no-cache',
+      })
+      orders = res.orders ?? []
+    } catch {
+      break
+    }
+    if (!orders.length) break
+    for (const o of orders) {
+      if (o.order_set?.id === orderSetId && o.id) {
+        found.set(o.id, o)
+      }
+    }
+    if (orders.length < FALLBACK_PAGE) break
+    offset += FALLBACK_PAGE
+  }
+  return [...found.values()]
+}
+
+/**
+ * Dettaglio order set (checkout marketplace Mercur).
+ * Se la route dedicata `/store/order-set/:id` non risponde o espone un payload diverso,
+ * ricostruiamo da `/store/orders` filtrando per `order_set.id` (stesso dato della lista ordini).
+ *
+ * Supporto URL con **`order_*`** (singola parcel): risolviamo via GET `/store/orders/:id` → `order_set.id`,
+ * tipico di link/email che puntano al singolo ordine B2C invece che all’`ordset_*`.
+ */
+export async function retrieveOrderSet(
+  id: string,
+  fromOrderLine = false
+): Promise<any | null> {
+  const headers = {
+    ...(await getAuthHeaders()),
+  }
+
+  const rawId = typeof id === 'string' ? id.trim() : ''
+  if (!rawId) return null
+
+  const unwrapOrderSet = (body: Record<string, unknown> | null | undefined) => {
+    if (!body || typeof body !== 'object') return null
+    const o = body as Record<string, unknown>
+    const direct =
+      (o.order_set as Record<string, unknown> | undefined) ??
+      (o.orderSet as Record<string, unknown> | undefined)
+    if (direct && typeof direct.id === 'string') {
+      return direct
+    }
+    return null
+  }
+
+  if (!fromOrderLine && rawId.startsWith('order_')) {
+    try {
+      const res = await sdk.client.fetch<{ order: any }>(
+        `/store/orders/${rawId}`,
+        {
+          method: 'GET',
+          query: {
+            fields: ORDER_SET_FALLBACK_LIST_FIELDS,
+          },
+          headers,
+          cache: 'no-cache',
+        }
+      )
+      const order = res.order
+      const osId =
+        order?.order_set &&
+        typeof order.order_set === 'object' &&
+        typeof (order.order_set as { id?: string }).id === 'string'
+          ? (order.order_set as { id: string }).id
+          : null
+      if (osId) {
+        return retrieveOrderSet(osId, true)
+      }
+      if (order?.id) {
+        return buildSyntheticOrderSetFromStoreOrders(rawId, [order])
+      }
+    } catch {
+      /* continua con lookup ordset_* */
+    }
+  }
+
+  for (const path of [
+    `/store/order-set/${encodeURIComponent(rawId)}`,
+    `/store/order-sets/${encodeURIComponent(rawId)}`,
+  ]) {
+    try {
+      const body = (await sdk.client.fetch<Record<string, unknown>>(path, {
+        method: 'GET',
+        query: { fields: ORDER_SET_DETAIL_FIELDS },
+        headers,
+        cache: 'no-cache',
+      })) as Record<string, unknown>
+      const os = unwrapOrderSet(body)
+      if (os?.id) {
+        return os
+      }
+    } catch {
+      /* prova fallback */
+    }
+  }
+
+  try {
+    const subset = await collectStoreOrdersForOrderSet(headers, rawId)
+    if (!subset.length) {
+      return null
+    }
+    return buildSyntheticOrderSetFromStoreOrders(rawId, subset)
+  } catch {
+    return null
+  }
+}
 
 export const createTransferRequest = async (
   state: {

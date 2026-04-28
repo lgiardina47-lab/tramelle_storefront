@@ -21,9 +21,13 @@ export default async function UserPage({
   const t = await getTranslations({ locale: messagesLocale, namespace: "Account" })
 
   const user = await retrieveCustomer()
+  if (!user) return redirect(`/${locale}/login`)
+
   const orderSet = await retrieveOrderSet(id)
 
-  if (!user) return redirect(`/${locale}/login`)
+  if (!orderSet?.id) {
+    redirect(`/${locale}/user/orders`)
+  }
 
   return (
     <main className="container">

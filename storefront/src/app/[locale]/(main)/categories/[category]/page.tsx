@@ -1,5 +1,5 @@
-import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { getCategoryByPageParam, listCategories } from "@/lib/data/categories"
+import { buildCategoryStaticParamList } from "@/lib/data/build-static-paths"
 import {
   categoryHandleMatchesUrlSegment,
   categorySlugForStorefrontUrl,
@@ -9,15 +9,20 @@ import {
   collectCategorySubtreeIds,
   mergeChildrenFromFlat,
   primarySubcategoryNavItems,
+  resolveMacroRootCategory,
 } from "@/lib/helpers/category-mega-nav"
-import { Suspense } from "react"
-
 import type { Metadata } from "next"
 import { getTranslations } from "next-intl/server"
 import { Breadcrumbs } from "@/components/atoms"
 import { SubcategoryRibbon } from "@/components/molecules/CategoryNavbar/components/SubcategoryRibbon"
 import { CatalogSearchListing, ProductListing } from "@/components/sections"
+import { HomeCinematicHero } from "@/components/sections/HomeCinematicHero/HomeCinematicHero"
 import { CategoryMacroSeoFooter } from "@/components/sections/CategoryMacroSeoFooter/CategoryMacroSeoFooter"
+import { getHeroHomeState } from "@/lib/hero/hero-home-load"
+import {
+  heroParentCategoryHandlesForPage,
+  parseCategoriesNameSearchParam,
+} from "@/lib/helpers/category-hero-handles"
 import { notFound, redirect } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
@@ -33,7 +38,17 @@ import {
 } from "@/lib/constants/site"
 import { parseProductListingPage } from "@/lib/helpers/product-listing-page"
 import { plainCategoryDescription } from "@/lib/helpers/category-seo"
-export const revalidate = 60
+export const dynamicParams = true
+/** Hero e scope seller dipendono da `?categories_name=`; serve RSC fresco su ogni URL. */
+export const dynamic = "force-dynamic"
+
+export async function generateStaticParams() {
+  try {
+    return await buildCategoryStaticParamList()
+  } catch {
+    return []
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -134,7 +149,12 @@ async function Category({
   }
 
   const { allCategoriesFlat } = await listCategories({ query: { limit: 2000 } })
+  const macroRoot = resolveMacroRootCategory(category, allCategoriesFlat)
   const mergedForRibbon = mergeChildrenFromFlat(category, allCategoriesFlat)
+  /** Figli del macro (non della foglia): serve alla sidebar filtri per elencare tutte le sottocategorie anche su URL foglia. */
+  const macroMergedForNav = mergeChildrenFromFlat(macroRoot, allCategoriesFlat)
+  const sidebarFacetSubcategories =
+    primarySubcategoryNavItems(macroMergedForNav)
   const listingCategoryIds = collectCategorySubtreeIds(mergedForRibbon)
   const ribbonSubcategories = primarySubcategoryNavItems(mergedForRibbon)
   const activeRibbonChildHandle = categoryHandleMatchesUrlSegment(
@@ -147,11 +167,43 @@ async function Category({
   /** Blocco SEO a fondo pagina: solo sulla URL della macro (non sulle sottocategorie). */
   const isMacroCategoryPage = mergedForRibbon.id === category.id
 
+  /** Scope hero catalogo: pagina + opzionale `categories_name` (OR handle risolti nel sottoalbero macro). */
+  const macroSubtreeIds = new Set(
+    collectCategorySubtreeIds(macroMergedForNav)
+  )
+  const filterNames = parseCategoriesNameSearchParam(sp)
+  const heroParentHandles = heroParentCategoryHandlesForPage({
+    pageCategoryHandle: category.handle,
+    filterDisplayNames: filterNames,
+    allFlat: allCategoriesFlat,
+    nameResolutionSubtreeIds: macroSubtreeIds,
+  })
+  const heroRemountKey = [
+    ...heroParentHandles.map((h) => h.toLowerCase()).sort(),
+    filterNames.join("\x1e"),
+  ].join("|")
+
   const categoryPath = categoryPublicHref(category.handle)
-  const t = await getTranslations({ locale, namespace: "CategoryPage" })
+
   const region = await getRegion(locale)
   const currency_code = region?.currency_code || "usd"
   const region_id = region?.id
+
+  const [t, heroCategoryState, jsonLdResult] = await Promise.all([
+    getTranslations({ locale, namespace: "CategoryPage" }),
+    getHeroHomeState(locale, {
+      parentCategoryHandles: heroParentHandles,
+      subcategoryPillScope: {
+        category_ids: listingCategoryIds,
+        currency_code,
+      },
+    }),
+    listProducts({
+      countryCode: locale,
+      queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
+      category_ids: listingCategoryIds,
+    }),
+  ])
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
 
@@ -164,11 +216,7 @@ async function Category({
   const baseUrl = publicSiteOrigin()
   const {
     response: { products: jsonLdProducts },
-  } = await listProducts({
-    countryCode: locale,
-    queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
-    category_ids: listingCategoryIds,
-  })
+  } = jsonLdResult
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
     "@type": "ListItem",
@@ -179,6 +227,22 @@ async function Category({
 
   return (
     <main className="flex flex-col">
+      <div className="w-full max-w-full min-w-0">
+        <HomeCinematicHero
+          key={heroRemountKey}
+          locale={locale}
+          initialState={heroCategoryState}
+          parentCategoryHandles={heroParentHandles}
+          subcategoryPillScope={{
+            category_ids: listingCategoryIds,
+            currency_code,
+          }}
+          subcategoryPillLinkBasePath={categoryPath}
+          primaryCtaHref={`${categoryPath}#category-heading`}
+          titleAsDecorative
+          categorySellerFocus
+        />
+      </div>
       <div className="container">
       <Script
         id="ld-breadcrumbs-category"
@@ -240,24 +304,32 @@ async function Category({
       </header>
 
       <section aria-labelledby="category-heading">
-        <Suspense
-          fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}
-        >
-          {bot || !preferBackendProductSearchListing() ? (
-            <ProductListing
-              category_ids={listingCategoryIds}
-              locale={locale}
-              page={listingPage}
-            />
-          ) : (
-            <CatalogSearchListing
-              category_ids={listingCategoryIds}
-              locale={locale}
-              currency_code={currency_code}
-              region_id={region_id}
-            />
-          )}
-        </Suspense>
+        {bot || !preferBackendProductSearchListing() ? (
+          <ProductListing
+            category_ids={listingCategoryIds}
+            locale={locale}
+            page={listingPage}
+          />
+        ) : (
+          <CatalogSearchListing
+            category_ids={listingCategoryIds}
+            locale={locale}
+            currency_code={currency_code}
+            region_id={region_id}
+            sidebarMacroSubcategoryNames={
+              sidebarFacetSubcategories.length > 0
+                ? sidebarFacetSubcategories
+                    .map((c) => c.name?.trim())
+                    .filter((n): n is string => Boolean(n && n.length > 0))
+                : undefined
+            }
+            sidebarMacroCategoryHeading={
+              sidebarFacetSubcategories.length > 0
+                ? macroRoot.name?.trim() || undefined
+                : undefined
+            }
+          />
+        )}
       </section>
       </div>
 

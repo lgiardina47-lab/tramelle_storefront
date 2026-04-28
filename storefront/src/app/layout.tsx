@@ -79,7 +79,9 @@ export default async function RootLayout({
       <body
         className={`${tramelleDmSans.className} relative bg-[#F7F6F3] text-primary antialiased`}
       >
-        <Providers cart={cart} wholesaleBuyer={wholesaleBuyer}>{children}</Providers>
+        <Providers cart={cart} wholesaleBuyer={wholesaleBuyer}>
+          {children}
+        </Providers>
         <MedusaToaster />
       </body>
     </html>

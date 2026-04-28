@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, Checkbox } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
 import {
@@ -9,9 +11,10 @@ import {
 import { clx } from "@medusajs/ui"
 import { ChevronUpDown } from "@medusajs/icons"
 
-import Image from "next/image"
-import { cn } from "@/lib/utils"
 import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
+import { useTranslations } from "next-intl"
 
 export const ReturnItemsTab = ({
   order,
@@ -26,11 +29,12 @@ export const ReturnItemsTab = ({
   returnReasons: any[]
   error: boolean
 }) => {
+  const t = useTranslations("Account")
   return (
     <div>
       <Card className="bg-secondary p-4">
         <p className="label-md">
-          Seller: <span className="font-semibold">{order.seller.name}</span>
+          {t("orderSeller")}: <span className="font-semibold">{order.seller.name}</span>
         </p>
       </Card>
       <Card className="flex items-center justify-between p-4">
@@ -107,7 +111,7 @@ export const ReturnItemsTab = ({
                                 selectedItems.find(
                                   (i) => i.line_item_id === item.id
                                 )?.reason_id
-                            )?.label || "Select Reason"}
+                            )?.label || t("returnSelectReason")}
                           </span>
                           <ChevronUpDown
                             className={clx("transition-rotate duration-200", {
@@ -132,7 +136,7 @@ export const ReturnItemsTab = ({
                       !selectedItems.find((i) => i.line_item_id === item.id)
                         ?.reason_id && (
                         <p className="absolute -bottom-6 text-red-700 label-md">
-                          Please select reason
+                          {t("returnErrorSelectReason")}
                         </p>
                       )}
                   </div>

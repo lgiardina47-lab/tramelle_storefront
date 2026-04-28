@@ -1,16 +1,17 @@
 "use client"
 
 import { Avatar, Badge, Card, Divider } from "@/components/atoms"
-import { CollapseIcon } from "@/icons"
-import { cn } from "@/lib/utils"
-import { Heading } from "@medusajs/ui"
+import { StepProgressBar } from "@/components/cells/StepProgressBar/StepProgressBar"
 import { formatDateSafe } from "@/lib/helpers/format-date-safe"
-import { useEffect, useRef, useState } from "react"
-import { Chat } from "../Chat/Chat"
-import Image from "next/image"
 import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
 import { convertToLocale } from "@/lib/helpers/money"
-import { StepProgressBar } from "@/components/cells/StepProgressBar/StepProgressBar"
+import { cn } from "@/lib/utils"
+import { CollapseIcon } from "@/icons"
+import { Heading } from "@medusajs/ui"
+import Image from "next/image"
+import { useTranslations } from "next-intl"
+import { useEffect, useRef, useState } from "react"
+import { Chat } from "../Chat/Chat"
 
 const steps = ["pending", "processing", "sent"]
 
@@ -29,6 +30,7 @@ export const SingleOrderReturn = ({
   priceTestId?: string
   testIdPrefix?: string
 }) => {
+  const t = useTranslations("Account")
   const [isOpen, setIsOpen] = useState(defaultOpen)
   const [height, setHeight] = useState(0)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -55,7 +57,7 @@ export const SingleOrderReturn = ({
         ...orderItem,
         reason_id:
           returnReason.find((r) => r.id === correspondingLineItem?.reason_id)
-            ?.label || "No reason provided",
+            ?.label || t("returnNoReason"),
       }
     })
 
@@ -70,10 +72,12 @@ export const SingleOrderReturn = ({
   return (
     <>
       <Card className="bg-secondary p-4 flex justify-between mt-8" data-testid={testIdPrefix ? `${testIdPrefix}-header` : undefined}>
-        <Heading level="h2" data-testid={testIdPrefix ? `${testIdPrefix}-order-id` : undefined}>Order: #{item.order.display_id}</Heading>
+        <Heading level="h2" data-testid={testIdPrefix ? `${testIdPrefix}-order-id` : undefined}>
+          {t("returnOrderLabel", { id: String(item.order.display_id) })}
+        </Heading>
         <div className="flex flex-col gap-2 items-center">
           <p className="label-sm text-secondary" data-testid={testIdPrefix ? `${testIdPrefix}-requested-date` : undefined}>
-            Return requested date:{" "}
+            {t("returnRequestedDate")}{" "}
             {formatDateSafe(item.line_items[0]?.created_at, "MMM dd, yyyy")}
           </p>
         </div>
@@ -87,8 +91,7 @@ export const SingleOrderReturn = ({
             {item.status}
           </Heading>
           <p className="label-sm text-secondary flex gap-2" data-testid={testIdPrefix ? `${testIdPrefix}-items-count` : undefined}>
-            {item.line_items.length}{" "}
-            {item.line_items.length > 1 ? "items" : "item"}
+            {t("returnLineItemCount", { count: item.line_items.length })}
             <CollapseIcon
               className={cn(
                 "w-5 h-5 text-secondary transition-transform duration-300",
@@ -161,7 +164,7 @@ export const SingleOrderReturn = ({
                   <div className="flex justify-between w-1/2">
                     <p className="label-md !font-semibold text-primary" data-testid={testIdPrefix ? `${testIdPrefix}-item-${filteredItem.id}-reason` : undefined}>
                       <Badge className="bg-primary text-primary border rounded-sm">
-                        {filteredItem.reason_id || "No reason provided"}
+                        {filteredItem.reason_id}
                       </Badge>
                     </p>
                     <p className="label-md !font-semibold text-primary" data-testid={testIdPrefix ? `${testIdPrefix}-item-${filteredItem.id}-price` : undefined}>
@@ -178,7 +181,7 @@ export const SingleOrderReturn = ({
           </div>
           <Divider />
           <div className="p-4 flex justify-between">
-            <p className="label-md text-secondary">Total:</p>
+            <p className="label-md text-secondary">{t("returnTotalLabel")}</p>
             <p className="label-md !font-semibold text-primary" data-testid={priceTestId}>
               {convertToLocale({
                 amount: total,

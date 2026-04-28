@@ -14,7 +14,7 @@ export const HomeCategories = async ({ heading }: { heading: string }) => {
   }
 
   return (
-    <section className="bg-primary py-8 w-full">
+    <section className="w-full border-t border-[#E8E4DE] bg-[#F5F3F0] px-4 py-8 lg:px-8">
       <div className="mb-8">
         <h2 className="heading-lg text-primary uppercase tracking-tight">{heading}</h2>
       </div>

@@ -5,10 +5,11 @@ import { isManual, isStripe } from "../../../lib/constants"
 import { placeOrder } from "@/lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import { useElements, useStripe } from "@stripe/react-stripe-js"
-import type { StripeCardElement } from "@stripe/stripe-js"
 import React, { useState } from "react"
 import { Button } from "@/components/atoms"
 import { useCheckoutCardComplete } from "@/components/organisms/PaymentContainer/CheckoutCardReadyContext"
+import { useCheckoutStripeCart } from "@/components/organisms/PaymentContainer/CheckoutStripeCartContext"
+import { pickPaymentSessionForStripeElements } from "@/lib/helpers/checkout-pick-payment-session"
 import { isCheckoutDeliveryAddressComplete } from "@/lib/helpers/checkout-delivery-address"
 import { isCartShippingReadyForPay } from "@/lib/helpers/tramelle-seller-shipping-display"
 import { useTranslations } from "next-intl"
@@ -29,6 +30,8 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
   "data-testid": dataTestId,
 }) => {
   const t = useTranslations("Checkout")
+  const stripeCart = useCheckoutStripeCart()
+  const cartForPay = stripeCart ?? cart
   const addressOk = isCheckoutDeliveryAddressComplete(cart.shipping_address)
   const emailOk =
     String(cart.email || "").trim() || String(accountEmail || "").trim()
@@ -40,9 +43,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
     !shippingOk ||
     minimumOrderBlocked
 
-  const paymentSession = cart.payment_collection?.payment_sessions?.find(
-    (s) => s.status === "pending"
-  )
+  const paymentSession = pickPaymentSessionForStripeElements(cartForPay)
   if (isManual(paymentSession?.provider_id)) {
     return (
       <>
@@ -120,66 +121,50 @@ const StripePaymentButton = ({
   const stripe = useStripe()
   const elements = useElements()
 
-  const session = cart.payment_collection?.payment_sessions?.find(
-    (s) => s.status === "pending"
-  )
-
-  const billing = cart.billing_address ?? cart.shipping_address
   const handlePayment = async () => {
     setSubmitting(true)
-
-    const card = elements?.getElement("card") as StripeCardElement | null
-    if (!stripe || !elements || !card || !cart) {
+    if (!stripe || !elements || !cart) {
       setSubmitting(false)
       return
     }
 
-    const first = billing?.first_name ?? cart.shipping_address?.first_name ?? ""
-    const last = billing?.last_name ?? cart.shipping_address?.last_name ?? ""
+    const origin =
+      typeof window !== "undefined" ? window.location.origin : ""
+    const path = typeof window !== "undefined" ? window.location.pathname : ""
+    const returnUrl = origin && path ? `${origin}${path}` : undefined
 
-    await stripe
-      .confirmCardPayment(session?.data.client_secret as string, {
-        payment_method: {
-          card: card,
-          billing_details: {
-            name: `${first} ${last}`.trim() || undefined,
-            address: {
-              city: billing?.city ?? undefined,
-              country: billing?.country_code ?? undefined,
-              line1: billing?.address_1 ?? undefined,
-              line2: billing?.address_2 ?? undefined,
-              postal_code: billing?.postal_code ?? undefined,
-              state: billing?.province ?? undefined,
-            },
-            email: cart.email || accountEmail || undefined,
-            phone: billing?.phone ?? undefined,
-          },
-        },
-      })
-      .then(({ error, paymentIntent }) => {
-        if (error) {
-          const pi = error.payment_intent
+    // Payment Element raccoglie il metodo; `payment_method_data` non va passato con Elements.
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: returnUrl ?? (typeof window !== "undefined" ? window.location.href : ""),
+      },
+      redirect: "if_required",
+    })
 
-          if (
-            (pi && pi.status === "requires_capture") ||
-            (pi && pi.status === "succeeded")
-          ) {
-            onPaymentCompleted()
-          }
+    if (error) {
+      const pi = error.payment_intent
+      if (
+        (pi && pi.status === "requires_capture") ||
+        (pi && pi.status === "succeeded")
+      ) {
+        await onPaymentCompleted()
+      } else {
+        setErrorMessage(error.message || null)
+      }
+      setSubmitting(false)
+      return
+    }
 
-          setErrorMessage(error.message || null)
-          return
-        }
-
-        if (
-          (paymentIntent && paymentIntent.status === "requires_capture") ||
-          paymentIntent?.status === "succeeded"
-        ) {
-          return onPaymentCompleted()
-        }
-
-        return
-      })
+    if (paymentIntent) {
+      if (
+        paymentIntent.status === "requires_capture" ||
+        paymentIntent.status === "succeeded"
+      ) {
+        await onPaymentCompleted()
+      }
+    }
+    setSubmitting(false)
   }
 
   const payDisabled = notReady || !cardComplete
@@ -192,10 +177,10 @@ const StripePaymentButton = ({
         loading={submitting}
         data-testid={dataTestId}
         className={
-          "w-full rounded-md py-3.5 text-base font-semibold !text-white " +
+          "w-full rounded-none border border-[#0f0e0b] py-3.5 text-base font-semibold !text-white " +
           (payDisabled
-            ? "!bg-[#b5b5b5] hover:!bg-[#b5b5b5]"
-            : "!bg-[#1773b0] hover:!bg-[#135d91]")
+            ? "!bg-[#b5b5b5] hover:!bg-[#b5b5b5] !border-[#b5b5b5]"
+            : "!bg-[#0f0e0b] hover:!bg-[#0f0e0b]")
         }
       >
         {t("placeOrder")}

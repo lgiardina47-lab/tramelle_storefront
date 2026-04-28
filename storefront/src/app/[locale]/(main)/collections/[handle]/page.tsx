@@ -1,14 +1,24 @@
 import NotFound from "@/app/not-found"
 import { Breadcrumbs } from "@/components/atoms"
-import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { CatalogSearchListing, ProductListing } from "@/components/sections"
+import { buildCollectionStaticParamList } from "@/lib/data/build-static-paths"
 import { getCollectionByHandle } from "@/lib/data/collections"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { preferBackendProductSearchListing } from "@/lib/constants/site"
 import { parseProductListingPage } from "@/lib/helpers/product-listing-page"
 import { headers } from "next/headers"
-import { Suspense } from "react"
+
+export const dynamic = "force-dynamic"
+export const dynamicParams = true
+
+export async function generateStaticParams() {
+  try {
+    return await buildCollectionStaticParamList()
+  } catch {
+    return []
+  }
+}
 const SingleCollectionsPage = async ({
   params,
   searchParams,
@@ -45,22 +55,20 @@ const SingleCollectionsPage = async ({
 
       <h1 className="heading-xl uppercase">{collection.title}</h1>
 
-      <Suspense fallback={<div data-testid="collection-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !preferBackendProductSearchListing() ? (
-          <ProductListing
-            collection_id={collection.id}
-            locale={locale}
-            page={listingPage}
-          />
-        ) : (
-          <CatalogSearchListing
-            collection_id={collection.id}
-            locale={locale}
-            currency_code={currency_code}
-            region_id={region_id}
-          />
-        )}
-      </Suspense>
+      {bot || !preferBackendProductSearchListing() ? (
+        <ProductListing
+          collection_id={collection.id}
+          locale={locale}
+          page={listingPage}
+        />
+      ) : (
+        <CatalogSearchListing
+          collection_id={collection.id}
+          locale={locale}
+          currency_code={currency_code}
+          region_id={region_id}
+        />
+      )}
     </main>
   )
 }

@@ -83,7 +83,7 @@ export const ProductCarouselIndicator = ({
                 >
                   {showPulse ? (
                     <div
-                      className="absolute inset-0 z-[1] animate-pulse bg-neutral-200"
+                      className="absolute inset-0 z-[1] bg-neutral-200"
                       aria-hidden
                     />
                   ) : null}

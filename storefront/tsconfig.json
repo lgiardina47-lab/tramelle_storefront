@@ -31,11 +31,12 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
+    ".next-compose/types/**/*.ts",
     ".next-production/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     ".next/types/**/*.ts",
     "next-env.d.ts",
-    ".next-compose/types/**/*.ts"
+    ".next-production-staging/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

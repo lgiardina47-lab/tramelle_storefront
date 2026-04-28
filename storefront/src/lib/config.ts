@@ -1,5 +1,6 @@
 import Medusa from "@medusajs/js-sdk"
 
+import { fetchWithTimeout } from "./helpers/fetch-with-timeout"
 import { MEDUSA_BACKEND_URL } from "./medusa-backend-url"
 
 export { MEDUSA_BACKEND_URL }
@@ -31,7 +32,7 @@ export async function fetchQuery(
     ""
   )
 
-  const res = await fetch(
+  const res = await fetchWithTimeout(
     `${MEDUSA_BACKEND_URL}${url}${params && `?${params}`}`,
     {
       method,

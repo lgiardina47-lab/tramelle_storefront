@@ -26,25 +26,28 @@ export type HeaderCatalogBundle = {
 async function computeHeaderCatalogBundle(
   localeSeg: string
 ): Promise<HeaderCatalogBundle> {
-  const [regions, categoriesData, region] = await Promise.all([
-    listRegions(),
-    listCategoriesForHeaderNav() as Promise<{
-      categories: HttpTypes.StoreProductCategory[]
-      parentCategories: HttpTypes.StoreProductCategory[]
-      allCategoriesFlat: HttpTypes.StoreProductCategory[]
-    }>,
-    getRegion(localeSeg),
-  ])
+  const [regions, categoriesData, region, storeCollectionsResult] =
+    await Promise.all([
+      listRegions(),
+      listCategoriesForHeaderNav() as Promise<{
+        categories: HttpTypes.StoreProductCategory[]
+        parentCategories: HttpTypes.StoreProductCategory[]
+        allCategoriesFlat: HttpTypes.StoreProductCategory[]
+      }>,
+      getRegion(localeSeg),
+      listCollections({ limit: "100", offset: "0" }).catch(() => ({
+        collections: [] as HttpTypes.StoreCollection[],
+        count: 0,
+      })),
+    ])
 
   const { categories, parentCategories, allCategoriesFlat } = categoriesData
 
-  const [producersByParentId, storeCollectionsResult] = await Promise.all([
-    getProducersByParentId(parentCategories, localeSeg, allCategoriesFlat),
-    listCollections({ limit: "100", offset: "0" }).catch(() => ({
-      collections: [] as HttpTypes.StoreCollection[],
-      count: 0,
-    })),
-  ])
+  const producersByParentId = await getProducersByParentId(
+    parentCategories,
+    localeSeg,
+    allCategoriesFlat
+  )
 
   const storeCollections = storeCollectionsResult.collections ?? []
   const megaNavCategories = buildMegaNavCategories(

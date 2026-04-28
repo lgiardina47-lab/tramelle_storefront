@@ -15,6 +15,10 @@
 
 # next.js
 /.next/
+# deploy produzione: build parallela + swap (vedi scripts/deploy-storefront-on-server.sh)
+/.next-production/
+/.next-production-staging/
+/.next-production-prev/
 /out/
 
 # production

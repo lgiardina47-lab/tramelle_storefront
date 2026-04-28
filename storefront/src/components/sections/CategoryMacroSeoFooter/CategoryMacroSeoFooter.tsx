@@ -80,11 +80,11 @@ export function CategoryMacroSeoFooter({
 
   return (
     <section
-      className="w-full border-t border-[#E8E4DE] bg-white px-7 py-[52px] sm:px-8"
+      className="flex w-full min-h-[min(52vh,640px)] flex-col items-center justify-center border-t border-[#E8E4DE] bg-white px-7 py-[52px] sm:px-8 sm:py-16"
       aria-label="Informazioni sulla categoria"
       data-testid="category-macro-seo-footer"
     >
-      <div className="mx-auto max-w-[760px]">
+      <div className="mx-auto w-full max-w-[760px] text-center">
         <h2 className="mb-3.5 font-tramelle-hero text-sm font-bold uppercase tracking-[0.08em] text-[#0F0E0B]">
           {data.title}
         </h2>

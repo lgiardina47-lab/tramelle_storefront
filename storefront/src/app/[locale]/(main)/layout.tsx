@@ -2,7 +2,6 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 
 import { Footer, Header } from '@/components/organisms';
-import { HeaderShellFallback } from '@/components/organisms/Header/HeaderShellFallback';
 import { TalkJsProvider } from '@/components/providers';
 import { CustomerStorefrontLocaleSync } from '@/components/utilities/CustomerStorefrontLocaleSync/CustomerStorefrontLocaleSync';
 import { retrieveCustomer } from '@/lib/data/customer';
@@ -40,7 +39,7 @@ export default async function RootLayout({
     return (
       <>
         {localeSync}
-        <Suspense fallback={<HeaderShellFallback />}>
+        <Suspense fallback={null}>
           <Header locale={locale} />
         </Suspense>
         {children}
@@ -58,7 +57,7 @@ export default async function RootLayout({
       userEmail={user.email}
     >
       {localeSync}
-      <Suspense fallback={<HeaderShellFallback />}>
+      <Suspense fallback={null}>
         <Header locale={locale} />
       </Suspense>
       {children}

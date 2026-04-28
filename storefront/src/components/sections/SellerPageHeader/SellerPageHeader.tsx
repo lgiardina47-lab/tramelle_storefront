@@ -11,6 +11,7 @@ import {
   sellerPrimaryLogoOrPhotoUrl,
 } from "@/lib/helpers/seller-media-url"
 import type { SellerProps, StoreSellerListItem } from "@/types/seller"
+import { countryCodeToStorefrontMessagesLocale } from "@/lib/i18n/storefront-messages-locale"
 import { HttpTypes } from "@medusajs/types"
 import { getTranslations } from "next-intl/server"
 
@@ -51,7 +52,10 @@ export async function SellerPageHeader({
       ? reviews.reduce((sum, r) => sum + (r?.rating || 0), 0) / reviewCount
       : 0
 
-  const t = await getTranslations("ProductSheet")
+  const t = await getTranslations({
+    locale: countryCodeToStorefrontMessagesLocale(urlLocale),
+    namespace: "ProductSheet",
+  })
 
   return (
     <div className="w-full">

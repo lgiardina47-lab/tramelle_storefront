@@ -62,7 +62,7 @@ export const ProductCarousel = ({
                 <div className="relative h-full w-full overflow-hidden lg:mx-auto lg:aspect-square lg:max-h-[698px] lg:w-full lg:max-w-[min(100%,698px)]">
                   {showPulse ? (
                     <div
-                      className="absolute inset-0 z-[1] animate-pulse bg-neutral-100"
+                      className="absolute inset-0 z-[1] bg-neutral-100"
                       aria-hidden
                     />
                   ) : null}

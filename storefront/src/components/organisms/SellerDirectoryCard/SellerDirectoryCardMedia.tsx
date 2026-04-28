@@ -136,7 +136,7 @@ export function SellerDirectoryCardMedia({
     if (!canShowMedia) {
       return (
         <div
-          className="absolute inset-0 z-[1] bg-neutral-200 animate-pulse"
+          className="absolute inset-0 z-[1] bg-neutral-200 "
           aria-hidden
         />
       )
@@ -157,7 +157,7 @@ export function SellerDirectoryCardMedia({
       <>
         {!heroImageLoaded ? (
           <div
-            className="absolute inset-0 z-[1] bg-neutral-200 animate-pulse"
+            className="absolute inset-0 z-[1] bg-neutral-200 "
             aria-hidden
           />
         ) : null}
@@ -205,7 +205,7 @@ export function SellerDirectoryCardMedia({
       if (!canShowMedia) {
         return (
           <div
-            className="flex h-11 w-11 shrink-0 rounded-full border border-neutral-200 bg-neutral-200 animate-pulse"
+            className="flex h-11 w-11 shrink-0 rounded-full border border-neutral-200 bg-neutral-200 "
             aria-hidden
           />
         )
@@ -222,7 +222,7 @@ export function SellerDirectoryCardMedia({
     if (!canShowMedia) {
       return (
         <div
-          className="h-11 w-11 shrink-0 rounded-full border border-neutral-200 bg-neutral-200 animate-pulse"
+          className="h-11 w-11 shrink-0 rounded-full border border-neutral-200 bg-neutral-200 "
           aria-hidden
         />
       )
@@ -234,7 +234,7 @@ export function SellerDirectoryCardMedia({
       <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-neutral-200 bg-white shadow-sm">
         {!logoImageLoaded ? (
           <div
-            className="absolute inset-0 z-[1] bg-neutral-200 animate-pulse rounded-full"
+            className="absolute inset-0 z-[1] bg-neutral-200 rounded-full"
             aria-hidden
           />
         ) : null}

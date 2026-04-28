@@ -7,6 +7,7 @@ import {
   ProductAdditionalAttributes,
 } from "@/components/cells"
 
+import { getSellerByHandle } from "@/lib/data/seller"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { getUserWishlists } from "@/lib/data/wishlist"
 import { AdditionalAttributeProps } from "@/types/product"
@@ -32,6 +33,17 @@ export const ProductDetails = async ({
     wishlist = await getUserWishlists({countryCode: locale})
   }
 
+  const s = product.seller
+  const hasReviewRows =
+    s && Array.isArray(s.reviews) && s.reviews.filter(Boolean).length > 0
+  let sellerForUi = s
+  if (s?.handle && !hasReviewRows) {
+    const full = await getSellerByHandle(s.handle)
+    if (full) {
+      sellerForUi = { ...s, ...full, reviews: full.reviews }
+    }
+  }
+
   const localized = getLocalizedProductContentForCountry(product, locale)
 
   return (
@@ -48,7 +60,7 @@ export const ProductDetails = async ({
         attributes={product?.attribute_values || []}
       />
       <ProductDetailsShipping />
-      <ProductDetailsSeller seller={product?.seller} />
+      <ProductDetailsSeller seller={sellerForUi} />
       <ProductDetailsFooter
         tags={product?.tags || []}
         posted={product?.created_at}

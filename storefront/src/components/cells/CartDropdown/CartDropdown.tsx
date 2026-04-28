@@ -4,7 +4,12 @@ import { Button } from "@/components/atoms"
 import { CartDropdownItem, Dropdown } from "@/components/molecules"
 import { usePrevious } from "@/hooks/usePrevious"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
-import { convertToLocale } from "@/lib/helpers/money"
+import { tramelleDisplayTotalShippingEur } from "@/lib/helpers/tramelle-seller-shipping-display"
+import {
+  cartShippingAmountAsMajor,
+  convertToLocale,
+  medusaStoreAmountAsMajor
+} from "@/lib/helpers/money"
 import { filterValidCartItems } from "@/lib/helpers/filter-valid-cart-items"
 import { CartIcon } from "@/icons"
 import { useCartContext } from "@/components/providers"
@@ -82,24 +87,37 @@ export const CartDropdown = ({
   // Filter out items with invalid data (missing prices/variants)
   const validItems = filterValidCartItems(cart?.items)
 
+  const currencyCode = cart?.currency_code || "eur"
+  const itemMajor = medusaStoreAmountAsMajor(cart?.item_subtotal)
+  const shipCountry = (
+    cart?.shipping_address as { country_code?: string } | null | undefined
+  )?.country_code
+  const shipMajor =
+    cart && currencyCode.toLowerCase() === "eur"
+      ? tramelleDisplayTotalShippingEur(cart, shipCountry)
+      : cartShippingAmountAsMajor(cart?.shipping_subtotal, currencyCode)
+  const taxMajor = medusaStoreAmountAsMajor(cart?.tax_total)
+  const discMajor = medusaStoreAmountAsMajor(cart?.discount_subtotal)
+  const totalMajor = itemMajor + shipMajor + taxMajor - discMajor
+
   const total = convertToLocale({
-    amount: cart?.total || 0,
-    currency_code: cart?.currency_code || "eur",
+    amount: Number.isFinite(totalMajor) ? totalMajor : (cart?.total || 0),
+    currency_code: currencyCode,
   })
 
   const delivery = convertToLocale({
-    amount: cart?.shipping_subtotal || 0,
-    currency_code: cart?.currency_code || "eur",
+    amount: shipMajor,
+    currency_code: currencyCode,
   })
 
   const tax = convertToLocale({
-    amount: cart?.tax_total || 0,
-    currency_code: cart?.currency_code || "eur",
+    amount: taxMajor,
+    currency_code: currencyCode,
   })
 
   const items = convertToLocale({
-    amount: cart?.item_subtotal || 0,
-    currency_code: cart?.currency_code || "eur",
+    amount: itemMajor,
+    currency_code: currencyCode,
   })
 
   useEffect(() => {

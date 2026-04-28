@@ -44,6 +44,19 @@ export function medusaStoreAmountAsMajor(
   return Number.isFinite(n) ? n : 0
 }
 
+/**
+ * I totali riga prodotto nel carrello store sono in unità principali (es. 5,90 €).
+ * `shipping_subtotal` / `shipping_total` dalla API arrivano in **centesimi** (es. 710 → 7,10 €),
+ * come le opzioni spedizione (`calculated_price.amount`). Stessa conversione usata in
+ * `CartShippingMethodsSection` via `minorUnitsToMajor` sui prezzi consegna.
+ */
+export function cartShippingAmountAsMajor(
+  amount: number | null | undefined,
+  currencyCode: string | null | undefined
+): number {
+  return minorUnitsToMajor(amount ?? 0, currencyCode)
+}
+
 export const convertToLocale = ({
   amount,
   currency_code,

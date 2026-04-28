@@ -1,10 +1,9 @@
-import { Suspense } from 'react';
-
-import type { HttpTypes } from '@medusajs/types';
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 
+import { CheckoutPaymentReturn } from '@/components/organisms/PaymentContainer/CheckoutPaymentReturn';
 import PaymentWrapper from '@/components/organisms/PaymentContainer/PaymentWrapper';
 import { CartAddressSection } from '@/components/sections/CartAddressSection/CartAddressSection';
 import CartPaymentSection from '@/components/sections/CartPaymentSection/CartPaymentSection';
@@ -15,8 +14,10 @@ import { countryCodeToStorefrontMessagesLocale } from '@/lib/i18n/storefront-mes
 import {
   ensureCartEmailFromCustomer,
   ensureDefaultPaymentSessionForCheckout,
+  reissueTramelleStripeConnectIntentIfPresent,
   retrieveCart
 } from '@/lib/data/cart';
+import { buildCheckoutStripeBootstrap } from '@/lib/helpers/checkout-resolve-stripe-session';
 import { retrieveCustomer } from '@/lib/data/customer';
 import { listCartShippingMethods } from '@/lib/data/fulfillment';
 import { listCartPaymentMethods } from '@/lib/data/payment';
@@ -36,42 +37,6 @@ export async function generateMetadata({
     title: t('pageTitle'),
     description: t('pageDescription'),
   };
-}
-
-/** Skeleton per i blocchi indirizzo / consegna / pagamento (dati in streaming). */
-function CheckoutStepSkeleton() {
-  return (
-    <div
-      className="animate-pulse border-b border-[#e8e8e8] pb-10"
-      data-testid="checkout-step-skeleton"
-      aria-busy
-    >
-      <div className="mb-5 h-6 w-48 rounded bg-[#e8e8e8]" />
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="h-11 rounded bg-[#f3f3f3]" />
-        <div className="h-11 rounded bg-[#f3f3f3]" />
-        <div className="h-11 rounded sm:col-span-2 bg-[#f3f3f3]" />
-        <div className="h-11 rounded sm:col-span-2 bg-[#f3f3f3]" />
-      </div>
-    </div>
-  );
-}
-
-async function CheckoutAddressStep({
-  cart,
-  customer,
-}: {
-  cart: HttpTypes.StoreCart;
-  customer: HttpTypes.StoreCustomer | null;
-}) {
-  return <CartAddressSection cart={cart} customer={customer} />;
-}
-
-async function CheckoutPaymentStep({ cart }: { cart: HttpTypes.StoreCart }) {
-  const paymentMethods = await listCartPaymentMethods(cart.region?.id ?? '');
-  return (
-    <CartPaymentSection cart={cart} availablePaymentMethods={paymentMethods} />
-  );
 }
 
 export default async function CheckoutPage({
@@ -98,14 +63,22 @@ export default async function CheckoutPage({
   cart =
     (await ensureCartEmailFromCustomer(cart, customer)) ?? cart;
   cart = (await ensureDefaultPaymentSessionForCheckout(cart)) ?? cart;
+  /** Intent strict card+paypal senza seconda round trip client (evita rotellina + PE vuoto). */
+  cart = (await reissueTramelleStripeConnectIntentIfPresent(cart)) ?? cart;
 
-  /**
-   * Spedizione: stessa risposta del carrello; parallelizzata solo con se stessa (già no-store).
-   */
-  const availableShippingForCart = await listCartShippingMethods(cart.id, false);
+  const regionId = cart.region?.id ?? "";
+  const [availableShippingForCart, availablePaymentMethods] = await Promise.all([
+    listCartShippingMethods(cart.id, false),
+    listCartPaymentMethods(regionId),
+  ]);
+
+  const checkoutStripeBootstrap = buildCheckoutStripeBootstrap(cart);
 
   return (
-    <PaymentWrapper cart={cart}>
+    <PaymentWrapper cart={cart} checkoutStripeBootstrap={checkoutStripeBootstrap}>
+      <Suspense fallback={null}>
+        <CheckoutPaymentReturn />
+      </Suspense>
       <div
         className="checkout-shopify flex min-h-[calc(100dvh-3.75rem)] w-full flex-1 flex-col lg:min-h-0 lg:flex-row"
         data-testid="checkout-page"
@@ -123,16 +96,15 @@ export default async function CheckoutPage({
           <main className="w-full max-w-none px-5 py-8 sm:px-8 lg:px-10 lg:py-10 xl:pr-14">
             <CheckoutBreadcrumb customer={customer} locale={locale} />
             <div className="flex flex-col" data-testid="checkout-steps-container">
-              <Suspense fallback={<CheckoutStepSkeleton />}>
-                <CheckoutAddressStep cart={cart} customer={customer} />
-              </Suspense>
+              <CartAddressSection cart={cart} customer={customer} />
               <CartShippingMethodsSection
                 cart={cart}
                 availableShippingMethods={availableShippingForCart}
               />
-              <Suspense fallback={<CheckoutStepSkeleton />}>
-                <CheckoutPaymentStep cart={cart} />
-              </Suspense>
+              <CartPaymentSection
+                cart={cart}
+                availablePaymentMethods={availablePaymentMethods}
+              />
             </div>
           </main>
         </section>

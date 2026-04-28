@@ -4,12 +4,13 @@ export const OrderParcelItems = ({
   items,
   currency_code,
 }: {
-  items: any[]
+  items: any[] | undefined
   currency_code: string
 }) => {
+  const rows = Array.isArray(items) ? items : []
   return (
     <>
-      {items.map((item) => (
+      {rows.map((item) => (
         <OrderProductListItem
           key={item.id + item.variant_id}
           item={item}

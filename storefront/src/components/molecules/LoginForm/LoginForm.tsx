@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { FieldError, FieldValues, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { Button } from '@/components/atoms';
@@ -14,6 +14,22 @@ import { login } from '@/lib/data/customer';
 import { toast } from '@/lib/helpers/toast';
 
 import { LoginFormData, loginFormSchema } from './schema';
+import {
+  GoogleContinueButton,
+  GoogleOAuthDivider,
+} from '@/components/molecules/GoogleContinueButton/GoogleContinueButton';
+import { messageForGoogleOAuthErrorCode } from '@/lib/auth/google-oauth-messages';
+
+function safeInternalReturnPath(raw: string | null): string | null {
+  if (raw == null || typeof raw !== 'string') return null;
+  try {
+    const decoded = decodeURIComponent(raw.trim());
+    if (!decoded.startsWith('/') || decoded.startsWith('//')) return null;
+    return decoded;
+  } catch {
+    return null;
+  }
+}
 
 export const LoginForm = () => {
   const methods = useForm<LoginFormData>({
@@ -39,9 +55,18 @@ const Form = () => {
     formState: { errors, isSubmitting }
   } = useFormContext();
   const router = useRouter();
+  const params = useParams();
+  const locale = typeof params?.locale === 'string' ? params.locale : 'it';
   const searchParams = useSearchParams();
   const isSessionExpired = searchParams.get('sessionExpired') === 'true';
   const isSessionRequired = searchParams.get('sessionRequired') === 'true';
+  const returnAfterLogin =
+    safeInternalReturnPath(searchParams.get('returnUrl')) ?? '/user';
+  const oauthReturnPath = returnAfterLogin.startsWith(`/${locale}/`)
+    ? returnAfterLogin
+    : `/${locale}${returnAfterLogin.startsWith('/') ? returnAfterLogin : `/${returnAfterLogin}`}`;
+  const googleErrCode = searchParams.get('google_error');
+  const googleErrMessage = messageForGoogleOAuthErrorCode(googleErrCode);
 
   const submit = async (data: FieldValues) => {
     const formData = new FormData();
@@ -52,7 +77,7 @@ const Form = () => {
 
     if (res.success) {
       router.refresh();
-      router.push('/user');
+      router.push(oauthReturnPath);
     } else {
       setIsAuthError(true);
       toast.error({ title: res.message || 'An error occurred. Please try again.' });
@@ -94,6 +119,16 @@ const Form = () => {
           data-testid="login-form-container"
         >
           <h1 className="heading-md mb-8 uppercase text-primary">Log in</h1>
+          {googleErrMessage && (
+            <Alert
+              title={googleErrMessage}
+              className="mb-6 w-full"
+              icon
+              data-testid="login-google-error-alert"
+            />
+          )}
+          <GoogleContinueButton returnPath={oauthReturnPath} />
+          <GoogleOAuthDivider />
           <form
             onSubmit={handleSubmit(submit)}
             data-testid="login-form"

@@ -10,6 +10,7 @@ import {
   buildHeroCatalogSlideFromSeller,
   type HeroCatalogSlide,
 } from "@/lib/helpers/hero-catalog-slide"
+import { getHeroCategoryLabelByHandleMap } from "@/lib/hero/hero-category-label-map"
 import { normalizeListingContentLocale } from "@/lib/i18n/listing-content-locale"
 import { countryCodeToStorefrontMessagesLocale } from "@/lib/i18n/storefront-messages-locale"
 import { sellerListingRegionLabel } from "@/lib/helpers/seller-listing-region"
@@ -29,6 +30,10 @@ import it from "../../../messages/it.json"
 import ja from "../../../messages/ja.json"
 
 import type { HeroCoverSlide } from "@/types/hero"
+import {
+  enrichHeroCatalogSlideSubcategories,
+  type HeroSubcategoryPillScope,
+} from "@/lib/hero/hero-slide-product-subcategories"
 
 const HERO_MSG: Record<StorefrontI18nLocale, (typeof it)["Hero"]> = {
   it: it.Hero,
@@ -45,7 +50,7 @@ type HeroT = (key: string, values?: Record<string, string | number>) => string
 
 function makeHeroT(ui: StorefrontI18nLocale): HeroT {
   const h = HERO_MSG[ui] ?? HERO_MSG.it
-  return (key: string, values?: TranslationValues) => {
+  return (key: string, values?: Record<string, string | number>) => {
     const v = h[key as keyof typeof h]
     if (typeof v !== "string") return key
     if (!values) return v
@@ -133,9 +138,14 @@ async function pickInitialHeroCatalogSlide(
   total: number,
   t: HeroT,
   intlLocales: readonly string[],
-  listingContentLocale: string | undefined
+  listingContentLocale: string | undefined,
+  urlLocaleSegment: string,
+  parentCategoryHandles?: string[],
+  subcategoryPillScope?: HeroSubcategoryPillScope
 ): Promise<{ offset0: number; slide: HeroCatalogSlide } | null> {
   if (total <= 0) return null
+
+  const labelByHandle = await getHeroCategoryLabelByHandleMap()
 
   const tSlide = {
     altForName: (name: string) => t("cinematicImageAlt", { name }),
@@ -147,6 +157,11 @@ async function pickInitialHeroCatalogSlide(
   const maxChunkAttempts = Math.min(nChunks, 3)
   const firstChunk = Math.floor(Math.random() * nChunks)
 
+  const scope =
+    parentCategoryHandles && parentCategoryHandles.length > 0
+      ? { parentCategoryHandles }
+      : {}
+
   for (let a = 0; a < maxChunkAttempts; a++) {
     const ci = (firstChunk + a) % nChunks
     const off = ci * CHUNK
@@ -157,6 +172,7 @@ async function pickInitialHeroCatalogSlide(
       limit,
       offset: off,
       ...(listingContentLocale ? { contentLocale: listingContentLocale } : {}),
+      ...scope,
     })
     const sellers = row?.sellers ?? []
     if (!sellers.length) continue
@@ -171,9 +187,23 @@ async function pickInitialHeroCatalogSlide(
         s,
         tSlide,
         intlLocales,
-        offset0 + 1
+        offset0 + 1,
+        labelByHandle
       )
-      if (slide) return { offset0, slide }
+      if (!slide) continue
+      let out = slide
+      if (subcategoryPillScope?.category_ids.length) {
+        out = await withTimeout(
+          enrichHeroCatalogSlideSubcategories(
+            slide,
+            urlLocaleSegment,
+            subcategoryPillScope
+          ),
+          12_000,
+          slide
+        )
+      }
+      return { offset0, slide: out }
     }
   }
 
@@ -189,21 +219,49 @@ export type HeroHomeStatePayload = {
   coverSlides: HeroCoverSlide[]
 }
 
+export type { HeroSubcategoryPillScope } from "@/lib/hero/hero-slide-product-subcategories"
+
+export type HeroHomeStateOptions = {
+  /**
+   * Solo seller collegati a queste radici categoria (OR), come `GET /store/sellers?parent_category_handles=`.
+   * Assente = catalogo completo (home).
+   */
+  parentCategoryHandles?: string[]
+  /**
+   * Pagina categoria: pillole sottocategoria da prodotti indicizzati (Meilisearch facet), non solo metadata seller.
+   */
+  subcategoryPillScope?: HeroSubcategoryPillScope
+}
+
 /**
  * Stesso flusso di `HomeCinematicHero` (useEffect) ma eseguito in ambiente **Node** (SDK Medusa, cache, timeout).
  */
 export async function getHeroHomeState(
-  urlLocaleSegment: string
+  urlLocaleSegment: string,
+  options?: HeroHomeStateOptions
 ): Promise<HeroHomeStatePayload> {
   const ui = countryCodeToStorefrontMessagesLocale(urlLocaleSegment)
   const intlLocales = [ui, "it"] as const
   const t = makeHeroT(ui)
   const listingContentLocale = normalizeListingContentLocale(urlLocaleSegment)
 
+  const scopeHandles =
+    options?.parentCategoryHandles?.filter(
+      (h) => typeof h === "string" && h.trim().length > 0
+    ) ?? []
+  const scope =
+    scopeHandles.length > 0
+      ? { parentCategoryHandles: scopeHandles }
+      : undefined
+
   try {
     const facets = await withTimeout(
       fetchStoreSellersFacetsRaw(
-        listingContentLocale ? { contentLocale: listingContentLocale } : {}
+        listingContentLocale
+          ? { contentLocale: listingContentLocale, ...scope }
+          : scope
+            ? { ...scope }
+            : {}
       ),
       14_000,
       null
@@ -217,7 +275,10 @@ export async function getHeroHomeState(
               tot,
               t,
               intlLocales,
-              listingContentLocale
+              listingContentLocale,
+              urlLocaleSegment,
+              scopeHandles.length > 0 ? scopeHandles : undefined,
+              options?.subcategoryPillScope
             ),
             22_000,
             null
@@ -240,6 +301,7 @@ export async function getHeroHomeState(
                 ...(listingContentLocale
                   ? { contentLocale: listingContentLocale }
                   : {}),
+                ...(scope ?? {}),
               }),
               18_000,
               null

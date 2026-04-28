@@ -41,9 +41,14 @@ export const FilterCheckboxOption = ({
       }}
       {...props}
     >
-      {/* Checkbox è già un <label>: non annidare in un altro label (doppio click = toggle annullato). */}
+      {/* I click passano al `div` esterno: niente toggle nativo; `preventDefault` sull’input per sicurezza. */}
       <span className="pointer-events-none shrink-0">
-        <Checkbox checked={checked} disabled={disabled} readOnly />
+        <Checkbox
+          checked={checked}
+          disabled={disabled}
+          readOnly
+          onClick={(e) => e.preventDefault()}
+        />
       </span>
       <p
         className={cn(

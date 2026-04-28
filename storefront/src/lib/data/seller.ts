@@ -5,14 +5,11 @@ import { cache } from "react"
 import { sdk } from '../config';
 
 const SELLER_FIELDS =
-  '+created_at,+email,+metadata,+reviews.seller.name,+reviews.rating,+reviews.customer_note,+reviews.seller_note,+reviews.created_at,+reviews.updated_at,+reviews.customer.first_name,+reviews.customer.last_name';
+  '+created_at,+email,+metadata,' +
+  '+reviews.id,+reviews.seller.name,+reviews.rating,+reviews.customer_note,+reviews.seller_note,' +
+  '+reviews.created_at,+reviews.updated_at,+reviews.customer.first_name,+reviews.customer.last_name';
 
-/**
- * Carica il seller per **handle** (`alpe-magna`) o per **id** (`sel_...`).
- * Usa sempre `/store/sellers/by-ref/:ref`: unisce `seller_listing_profile.metadata`
- * (hero, `tramelle_description_i18n`, …). L'endpoint Mercur `/store/seller/:handle` non li espone.
- */
-export const getSellerByHandle = async (
+const getSellerByHandleImpl = async (
   handleOrId: string
 ): Promise<SellerProps | null> => {
   const ref = encodeURIComponent(handleOrId.trim())
@@ -38,7 +35,12 @@ export const getSellerByHandle = async (
   } catch {
     return null;
   }
-};
+}
+
+/**
+ * `cache(React)`: stesso handle in PDP + sezioni seller nella stessa richiesta = una sola fetch.
+ */
+export const getSellerByHandle = cache(getSellerByHandleImpl)
 
 export type StoreSellersListResponse = {
   sellers: StoreSellerListItem[]
@@ -72,16 +74,47 @@ const SELLERS_FACETS_REVALIDATE_SEC =
 const SELLERS_LIST_REVALIDATE_SEC =
   process.env.NODE_ENV === "development" ? 30 : 60
 
+const PARENT_HANDLE_RE = /^[a-z0-9][a-z0-9-]{0,118}$/i
+
+function serializeParentCategoryHandles(
+  handles?: string[]
+): string | undefined {
+  if (!handles?.length) return undefined
+  const cleaned = [
+    ...new Set(
+      handles
+        .map((h) => h.trim())
+        .filter((h) => h && PARENT_HANDLE_RE.test(h))
+    ),
+  ]
+  if (!cleaned.length) return undefined
+  return cleaned.join(",")
+}
+
 /** Implementazione facets (dedup tra RSC paralleli via `cache()`). */
 async function listStoreSellersFacetsUncached(params?: {
   contentLocale?: string
+  /** Stessi criteri di `parent_category_handle` sull’elenco seller. */
+  parentCategoryHandle?: string
+  /** OR di più radici categoria (`parent_category_handles` API). Ha priorità su `parentCategoryHandle`. */
+  parentCategoryHandles?: string[]
 }): Promise<StoreSellersFacetsResponse | null> {
   const contentLocale = normalizeListingContentLocale(params?.contentLocale)
+  const multi = serializeParentCategoryHandles(params?.parentCategoryHandles)
+  const pch = params?.parentCategoryHandle?.trim()
+  const parent_category_handle =
+    !multi && pch && PARENT_HANDLE_RE.test(pch) ? pch : undefined
+  const parent_category_handles = multi
   try {
     return await sdk.client.fetch<StoreSellersFacetsResponse>(`/store/sellers`, {
       query: {
         facets: "1",
         ...(contentLocale ? { content_locale: contentLocale } : {}),
+        ...(parent_category_handles
+          ? { parent_category_handles }
+          : parent_category_handle
+            ? { parent_category_handle }
+            : {}),
       },
       cache: "force-cache",
       next: { revalidate: SELLERS_FACETS_REVALIDATE_SEC },
@@ -92,11 +125,35 @@ async function listStoreSellersFacetsUncached(params?: {
 }
 
 /**
- * Stessa fetch dei facets **senza** `cache(React)`: usare in Route Handler / script
+ * Facets per la macro categoria, **no-store** (mega-menu: dati allineati al deploy senza cache lunga).
+ */
+export async function fetchStoreSellersFacetsForParentCategoryNoStore(
+  parentCategoryHandle: string
+): Promise<StoreSellersFacetsResponse | null> {
+  const h = parentCategoryHandle.trim()
+  if (!h || !/^[a-z0-9][a-z0-9-]{0,118}$/i.test(h)) {
+    return null
+  }
+  try {
+    return await sdk.client.fetch<StoreSellersFacetsResponse>(`/store/sellers`, {
+      query: { facets: "1", parent_category_handle: h },
+      cache: "no-store",
+    })
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Stessa fetch dei facets **senza** `cache(React)**: usare in Route Handler / script
  * dove `cache` non è disponibile o non è adatto.
  */
 export async function fetchStoreSellersFacetsRaw(
-  params?: { contentLocale?: string }
+  params?: {
+    contentLocale?: string
+    parentCategoryHandle?: string
+    parentCategoryHandles?: string[]
+  }
 ): Promise<StoreSellersFacetsResponse | null> {
   return listStoreSellersFacetsUncached(params)
 }
@@ -116,6 +173,7 @@ export async function listStoreSellers(params?: {
   region?: string
   /** Handle categoria macro (`taste_category_handles` nel listing). */
   parentCategoryHandle?: string
+  parentCategoryHandles?: string[]
 }): Promise<StoreSellersListResponse | null> {
   const limit = params?.limit ?? 48
   const offset = params?.offset ?? 0
@@ -125,9 +183,11 @@ export async function listStoreSellers(params?: {
     cc && /^[A-Z]{2}$/.test(cc) ? cc : undefined
   const reg = params?.region?.trim()
   const region = reg && reg.length > 0 ? reg : undefined
+  const multi = serializeParentCategoryHandles(params?.parentCategoryHandles)
   const pch = params?.parentCategoryHandle?.trim()
   const parent_category_handle =
-    pch && /^[a-z0-9][a-z0-9-]{0,118}$/i.test(pch) ? pch : undefined
+    !multi && pch && PARENT_HANDLE_RE.test(pch) ? pch : undefined
+  const parent_category_handles = multi
   try {
     return await sdk.client.fetch<StoreSellersListResponse>(`/store/sellers`, {
       query: {
@@ -136,9 +196,11 @@ export async function listStoreSellers(params?: {
         ...(contentLocale ? { content_locale: contentLocale } : {}),
         ...(country_code ? { country_code } : {}),
         ...(region ? { region } : {}),
-        ...(parent_category_handle
-          ? { parent_category_handle }
-          : {}),
+        ...(parent_category_handles
+          ? { parent_category_handles }
+          : parent_category_handle
+            ? { parent_category_handle }
+            : {}),
       },
       cache: "force-cache",
       next: { revalidate: SELLERS_LIST_REVALIDATE_SEC },
@@ -155,17 +217,29 @@ export async function listStoreSellersNoStore(params: {
   limit: number
   offset: number
   contentLocale?: string
+  parentCategoryHandle?: string
+  parentCategoryHandles?: string[]
 }): Promise<StoreSellersListResponse | null> {
   /** Allineato a `GET /store/sellers` (max 100). */
   const limit = Math.max(1, Math.min(100, params.limit))
   const offset = Math.max(0, params.offset)
   const contentLocale = normalizeListingContentLocale(params.contentLocale)
+  const multi = serializeParentCategoryHandles(params.parentCategoryHandles)
+  const pch = params.parentCategoryHandle?.trim()
+  const parent_category_handle =
+    !multi && pch && PARENT_HANDLE_RE.test(pch) ? pch : undefined
+  const parent_category_handles = multi
   try {
     return await sdk.client.fetch<StoreSellersListResponse>(`/store/sellers`, {
       query: {
         limit,
         offset,
         ...(contentLocale ? { content_locale: contentLocale } : {}),
+        ...(parent_category_handles
+          ? { parent_category_handles }
+          : parent_category_handle
+            ? { parent_category_handle }
+            : {}),
       },
       cache: "no-store",
     })

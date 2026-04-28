@@ -3,12 +3,18 @@ import { retrieveCustomer } from "@/lib/data/customer"
 import { redirect } from "next/navigation"
 import { Addresses } from "@/components/organisms"
 import { listRegions } from "@/lib/data/regions"
-export default async function Page() {
+
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
   const user = await retrieveCustomer()
   const regions = await listRegions()
 
   if (!user) {
-    redirect("/login")
+    redirect(`/${locale}/login`)
   }
 
   return (

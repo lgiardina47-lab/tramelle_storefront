@@ -63,19 +63,15 @@ const nextConfig: NextConfig = {
    * rispondono 200: il modulo `send` rifiuta il path (decode). Chunking disabilitato = meno edge case e
    * hash CSS stabili dopo ogni `yarn build`; dopo il deploy conviene purge cache HTML su CDN.
    */
+  /**
+   * `MEDUSA_BACKEND_URL_INTERNAL` in `.env` (vedi `.env.local.example`): le chiamate Medusa
+   * dal data layer e dal middleware usano `medusa-backend-url.ts`, non un proxy qua. Next non
+   * inoltra l’API store; imposta l’URL interno sull’host dove gira `next start` o Docker.
+   */
   experimental: {
     cssChunking: false,
     /** Meno JS dai barrel `lodash` / `date-fns` senza refactor manuale ovunque. */
     optimizePackageImports: ['lodash', 'date-fns'],
-    /**
-     * Next 15: default `staleTimes.dynamic` = 0 → ogni navigazione rifà il fetch RSC
-     * della pagina (sensazione “non SPA”). Valori > 0 riusano il payload in memoria come
-     * una webapp classica, con rischio dati non freschissimi per pochi secondi.
-     */
-    staleTimes: {
-      dynamic: 60,
-      static: 300,
-    },
   },
   /**
    * Dev: Next 15 accetta HMR/WebSocket solo da questi host.

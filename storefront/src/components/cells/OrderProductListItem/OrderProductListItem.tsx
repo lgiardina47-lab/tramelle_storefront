@@ -1,10 +1,13 @@
+"use client"
+
 import { Divider } from "@/components/atoms"
-import { convertToLocale } from "@/lib/helpers/money"
-import { cn } from "@/lib/utils"
-import Image from "next/image"
 import { TramelleProductImage } from "@/components/atoms"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { convertToLocale } from "@/lib/helpers/money"
 import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
+import { cn } from "@/lib/utils"
+import Image from "next/image"
+import { useTranslations } from "next-intl"
 import { Fragment } from "react"
 
 export const OrderProductListItem = ({
@@ -16,6 +19,7 @@ export const OrderProductListItem = ({
   currency_code: string
   withDivider?: boolean
 }) => {
+  const t = useTranslations("Account")
   const thumb = resolveLineItemThumbnailSrc(item)
   return (
   <Fragment>
@@ -56,7 +60,7 @@ export const OrderProductListItem = ({
         </div>
         <div className="sm:col-span-2 flex items-center">
           <p className="label-md text-secondary">
-            {`Variant: `}
+            {t("orderLineVariant")}{" "}
             <span className="text-primary">
               {item?.variant_title || item?.variant?.title}
             </span>
@@ -64,7 +68,7 @@ export const OrderProductListItem = ({
         </div>
         <div className="sm:col-span-2 flex items-center justify-center">
           <p className="label-md text-secondary">
-            {`Quantity: `}
+            {t("orderLineQuantity")}{" "}
             <span className="text-primary">{item?.quantity}</span>
           </p>
         </div>

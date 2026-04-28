@@ -38,7 +38,9 @@
       "instagram": "Instagram",
       "instagramAria": "Tramelle su Instagram",
       "twitter": "Twitter",
-      "twitterAria": "Tramelle su Twitter"
+      "twitterAria": "Tramelle su Twitter",
+      "linkedin": "LinkedIn",
+      "linkedinAria": "Tramelle su LinkedIn"
     },
     "aria": {
       "buying": "Navigazione acquisti con noi",
@@ -47,7 +49,8 @@
       "about": "Navigazione chi siamo",
       "follow": "Link ai social"
     },
-    "copyright": "© {year} Tramelle"
+    "copyright": "© {year} Tramelle",
+    "creditByYondist": "realizzato e gestito da yondist.com"
   },
   "InfoPages": {
     "common": {

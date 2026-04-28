@@ -63,13 +63,13 @@ export async function Footer() {
           <nav className="space-y-3" aria-label={t("aria.follow")}>
             {FOOTER_SOCIAL.map(({ key, envVar }) => {
               const href = readSocialUrl(envVar)
-              const isRemote = /^https?:\/\//i.test(href)
+              const openInNewTab = href !== "#"
               return (
                 <a
                   key={key}
                   href={href}
                   className="block label-md uppercase"
-                  {...(isRemote
+                  {...(openInNewTab
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
                   aria-label={t(`social.${key}Aria`)}
@@ -83,9 +83,20 @@ export async function Footer() {
         </div>
       </div>
 
-      <div className="py-6 border rounded-sm " data-testid="footer-copyright">
-        <p className="text-md text-secondary text-center ">
+      <div className="py-6" data-testid="footer-copyright">
+        <p className="text-md text-secondary text-center">
           {t("copyright", { year })}
+        </p>
+        <p className="mt-3 text-center text-sm text-secondary">
+          <a
+            href="https://yondist.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="lowercase tracking-normal hover:text-primary hover:underline"
+            data-testid="footer-credit-yondist"
+          >
+            {t("creditByYondist")}
+          </a>
         </p>
       </div>
     </footer>

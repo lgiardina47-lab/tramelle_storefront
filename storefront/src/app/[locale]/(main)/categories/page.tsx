@@ -1,6 +1,3 @@
-import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { Suspense } from "react"
-
 import { Breadcrumbs } from "@/components/atoms"
 import { CatalogSearchListing, ProductListing } from "@/components/sections"
 import { getRegion } from "@/lib/data/regions"
@@ -18,7 +15,8 @@ import {
   resolvedSiteName,
 } from "@/lib/constants/site"
 import { parseProductListingPage } from "@/lib/helpers/product-listing-page"
-export const revalidate = 60
+
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({
   params,
@@ -144,17 +142,15 @@ async function AllCategories({
 
       <h1 className="heading-xl uppercase">All Products</h1>
 
-      <Suspense fallback={<div data-testid="all-categories-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !preferBackendProductSearchListing() ? (
-          <ProductListing locale={locale} page={listingPage} />
-        ) : (
-          <CatalogSearchListing
-            locale={locale}
-            currency_code={currency_code}
-            region_id={region_id}
-          />
-        )}
-      </Suspense>
+      {bot || !preferBackendProductSearchListing() ? (
+        <ProductListing locale={locale} page={listingPage} />
+      ) : (
+        <CatalogSearchListing
+          locale={locale}
+          currency_code={currency_code}
+          region_id={region_id}
+        />
+      )}
     </main>
   )
 }

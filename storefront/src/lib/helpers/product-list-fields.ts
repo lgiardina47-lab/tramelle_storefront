@@ -27,15 +27,18 @@ export function storefrontHomeCarouselProductFields(): string {
 }
 
 /**
- * Scheda prodotto: niente `*seller.reviews*`, niente `*seller.products*`
- * (evita payload >10MB e “Failed to set Next.js data cache”). Con Meilisearch attivo
- * la PDP preferisce {@link getCachedPdpBundle}; in fallback restano listing + {@link getPdpMoreFromSellerProducts}.
+ * Scheda prodotto: **no** `*seller.products*` (quello gonfia oltre 10MB).
+ * Le recensioni usano **campi espliciti** (non `*seller.reviews*`), o arrivano da
+ * `getSellerByHandle` in {@link ProductDetails} quando il prodotto viene da Meili (`pdp-bundle` senza reviews).
  */
 export function storefrontPdpProductFields(): string {
   return (
     "+thumbnail,*images," +
     "*variants.calculated_price,+variants.inventory_quantity,+metadata," +
     "*variants,*seller," +
+    "+seller.reviews.id,+seller.reviews.rating,+seller.reviews.customer_note,+seller.reviews.seller_note," +
+    "+seller.reviews.created_at,+seller.reviews.updated_at," +
+    "+seller.reviews.customer.first_name,+seller.reviews.customer.last_name," +
     "*attribute_values,*attribute_values.attribute"
   )
 }

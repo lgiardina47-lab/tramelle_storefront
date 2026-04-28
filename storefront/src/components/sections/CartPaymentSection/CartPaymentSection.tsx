@@ -1,6 +1,13 @@
 'use client';
 
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Fragment,
+  startTransition,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { RadioGroup } from '@headlessui/react';
 import { CheckCircleSolid } from '@medusajs/icons';
@@ -8,6 +15,7 @@ import { Heading, Text } from '@medusajs/ui';
 
 import ErrorMessage from '@/components/molecules/ErrorMessage/ErrorMessage';
 import { initiatePaymentSession } from '@/lib/data/cart';
+import { pickPaymentSessionForStripeElements } from '@/lib/helpers/checkout-pick-payment-session';
 import { useRouter } from 'next/navigation';
 
 import { isCartShippingReadyForPay } from '@/lib/helpers/tramelle-seller-shipping-display';
@@ -17,6 +25,7 @@ import {
   isStripe as isStripeFunc,
   paymentInfoMap
 } from '../../../lib/constants';
+import { useCheckoutStripeCart } from '../../organisms/PaymentContainer/CheckoutStripeCartContext';
 import PaymentContainer, {
   StripeCardContainer
 } from '../../organisms/PaymentContainer/PaymentContainer';
@@ -39,26 +48,35 @@ const CartPaymentSection = ({
 }) => {
   const t = useTranslations('Checkout');
   const router = useRouter();
-  const activeSession = cart.payment_collection?.payment_sessions?.find(
-    (paymentSession: any) => paymentSession.status === 'pending'
-  );
+  const stripeCart = useCheckoutStripeCart();
+  const cartForPayments = stripeCart ?? cart;
+  /** Allineato a PaymentWrapper + refresh browser (client_secret). */
+  const activeSession = pickPaymentSessionForStripeElements(cartForPayments);
 
   const [error, setError] = useState<string | null>(null);
   const [cardBrand, setCardBrand] = useState<string | null>(null);
   const [cardComplete, setCardComplete] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(
-    activeSession?.provider_id ?? ''
-  );
+  /** Stessa logica di PaymentWrapper: sessione Stripe anche se lo stato non è solo `pending`. */
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(() => {
+    const fromPick = pickPaymentSessionForStripeElements(cart)?.provider_id;
+    if (fromPick) {
+      return fromPick;
+    }
+    const first = (availablePaymentMethods ?? []).find(
+      p => p?.id && !isManual(p.id)
+    )?.id;
+    return first ?? '';
+  });
   const didReplaceManual = useRef(false);
   const didEnsurePaymentAfterShipping = useRef(false);
   const cartRef = useRef(cart);
-  cartRef.current = cart;
+  cartRef.current = cartForPayments;
 
   const setPaymentMethod = async (method: string) => {
     setError(null);
     setSelectedPaymentMethod(method);
     try {
-      await initiatePaymentSession(cart, {
+      await initiatePaymentSession(cartForPayments, {
         provider_id: method
       });
       startTransition(() => {
@@ -96,6 +114,13 @@ const CartPaymentSection = ({
       )?.id,
     [availablePaymentMethods]
   );
+
+  const defaultBillingEmail = useMemo(() => {
+    const fromCart = [cart?.email, cart?.customer?.email]
+      .map((e: unknown) => (typeof e === "string" ? e.trim() : ""))
+      .find(Boolean);
+    return fromCart || null;
+  }, [cart?.email, cart?.customer?.email]);
 
   useEffect(() => {
     didReplaceManual.current = false;
@@ -163,7 +188,7 @@ const CartPaymentSection = ({
           level="h2"
           className="flex flex-row items-baseline gap-x-2 text-lg font-semibold text-[#202223]"
         >
-          {paymentReady && <CheckCircleSolid className="text-[#1773b0]" />}
+          {paymentReady && <CheckCircleSolid className="text-[#0f0e0b]" />}
           {t('payment')}
         </Heading>
       </div>
@@ -176,7 +201,7 @@ const CartPaymentSection = ({
               onChange={(value: string) => setPaymentMethod(value)}
             >
               {payMethods.map(paymentMethod => (
-                <div key={paymentMethod.id}>
+                <Fragment key={paymentMethod.id}>
                   {isStripeFunc(paymentMethod.id) ? (
                     <StripeCardContainer
                       paymentProviderId={paymentMethod.id}
@@ -185,6 +210,7 @@ const CartPaymentSection = ({
                       setCardBrand={setCardBrand}
                       setError={setError}
                       setCardComplete={setCardComplete}
+                      defaultBillingEmail={defaultBillingEmail}
                     />
                   ) : (
                     <PaymentContainer
@@ -193,7 +219,7 @@ const CartPaymentSection = ({
                       selectedPaymentOptionId={selectedPaymentMethod}
                     />
                   )}
-                </div>
+                </Fragment>
               ))}
             </RadioGroup>
           </>

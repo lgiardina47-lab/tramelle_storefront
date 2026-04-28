@@ -10,6 +10,8 @@ import { useUnreads } from "@talkjs/react"
 import { useParams, usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 
+import { isAccountPathActive } from "@/lib/helpers/account-nav-active"
+
 const navigationItems = [
   { labelKey: "orders" as const, href: "/user/orders" },
   { labelKey: "messages" as const, href: "/user/messages" },
@@ -18,16 +20,6 @@ const navigationItems = [
   { labelKey: "reviews" as const, href: "/user/reviews" },
   { labelKey: "wishlist" as const, href: "/user/wishlist" },
 ]
-
-function isNavActive(
-  fullPath: string,
-  href: string,
-  locale: string
-): boolean {
-  if (!fullPath) return false
-  const prefix = `/${locale}${href}`
-  return fullPath === prefix
-}
 
 function UserNavigationInner({ showUnreadBadge }: { showUnreadBadge: boolean }) {
   const t = useTranslations("Account")
@@ -42,7 +34,7 @@ function UserNavigationInner({ showUnreadBadge }: { showUnreadBadge: boolean }) 
         <NavigationItem
           key={item.href}
           href={item.href}
-          active={isNavActive(path, item.href, locale)}
+          active={isAccountPathActive(path, item.href, locale)}
           className="relative"
         >
           {t(item.labelKey)}
@@ -58,7 +50,7 @@ function UserNavigationInner({ showUnreadBadge }: { showUnreadBadge: boolean }) 
       <Divider className="my-2" />
       <NavigationItem
         href={"/user/settings"}
-        active={isNavActive(path, "/user/settings", locale)}
+        active={isAccountPathActive(path, "/user/settings", locale)}
       >
         {t("settings")}
       </NavigationItem>
@@ -79,7 +71,7 @@ function UserNavigationNoTalk() {
         <NavigationItem
           key={item.href}
           href={item.href}
-          active={isNavActive(path, item.href, locale)}
+          active={isAccountPathActive(path, item.href, locale)}
           className="relative"
         >
           {t(item.labelKey)}
@@ -88,7 +80,7 @@ function UserNavigationNoTalk() {
       <Divider className="my-2" />
       <NavigationItem
         href={"/user/settings"}
-        active={isNavActive(path, "/user/settings", locale)}
+        active={isAccountPathActive(path, "/user/settings", locale)}
       >
         {t("settings")}
       </NavigationItem>

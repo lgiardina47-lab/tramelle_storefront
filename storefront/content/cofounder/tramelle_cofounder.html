@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tramelle Source Gourmet — Cofounder</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#0a0a0a;--dark:#1a1a1a;--dark2:#2a2a2a;--mid:#666;--light:#ccc;--cream:#f5f5f5;--cream2:#e8e8e8;--white:#ffffff}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:#111}
+.wrapper{max-width:860px;margin:0 auto;padding:20px 16px 40px}
+.deck{background:var(--white);border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 26px;background:var(--black);border-bottom:1px solid #333}
+.logo{font-family:'Playfair Display',serif;color:var(--white);font-size:14px;letter-spacing:.1em}
+.sc{font-size:10px;color:#666;letter-spacing:.1em}
+.nbs{display:flex;gap:8px}
+.nb{background:none;border:1px solid #444;color:#ccc;padding:5px 16px;border-radius:3px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;transition:.15s}
+.nb:hover{background:#222}
+.dotsbar{display:flex;gap:5px;padding:8px 26px;background:var(--black)}
+.d{width:5px;height:5px;border-radius:50%;background:#333;cursor:pointer;transition:.2s}
+.d.on{width:18px;border-radius:3px;background:var(--white)}
+.slide{display:none;padding:32px 36px 28px;animation:fi .3s ease;min-height:480px}
+.slide.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.stag{font-size:10px;letter-spacing:.2em;color:var(--mid);text-transform:uppercase;margin-bottom:10px}
+h1{font-family:'Playfair Display',serif;font-size:32px;color:var(--black);line-height:1.25;margin-bottom:8px}
+h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--black);line-height:1.3;margin-bottom:12px}
+.sub{font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:18px;max-width:580px}
+.bl{width:36px;height:2px;background:var(--black);margin:12px 0 18px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+.mc{background:var(--black);border-radius:6px;padding:16px;text-align:center}
+.mn{font-family:'Playfair Display',serif;font-size:30px;color:var(--white);line-height:1}
+.ml{font-size:10px;color:#666;margin-top:5px;letter-spacing:.07em;text-transform:uppercase}
+.wc{background:var(--cream);border:1px solid var(--cream2);border-radius:8px;padding:15px 16px}
+.wc h3{font-family:'Playfair Display',serif;font-size:14px;color:var(--black);margin-bottom:5px}
+.wc p{font-size:12px;color:var(--mid);line-height:1.6}
+.wc-ico{font-size:18px;margin-bottom:7px}
+.db{background:var(--black);border-radius:8px;padding:20px 22px}
+.db h3{font-family:'Playfair Display',serif;font-size:16px;color:var(--white);margin-bottom:14px}
+.dr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #222}
+.dr:last-child{border:none}
+.dl{font-size:12px;color:#666}
+.dv{font-size:13px;color:var(--light);font-weight:500}
+.dv-white{font-size:13px;color:var(--white);font-weight:500}
+.sk-box{background:var(--cream);border:1px solid var(--cream2);border-radius:8px;padding:16px 18px;margin-bottom:12px}
+.sk-box h3{font-family:'Playfair Display',serif;font-size:15px;color:var(--black);margin-bottom:11px}
+.sk-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--cream2);font-size:12px}
+.sk-row:last-child{border:none}
+.sk-label{color:var(--mid)}
+.sk-val{color:var(--black);font-weight:500}
+.sk-total{background:var(--black);padding:9px 11px;border-radius:5px;display:flex;justify-content:space-between;font-size:13px;margin-top:9px}
+.sk-total span:first-child{color:#666}
+.sk-total span:last-child{font-weight:500;color:var(--white);font-family:'Playfair Display',serif;font-size:16px}
+.quote{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:var(--black);line-height:1.65;border-left:3px solid var(--black);padding-left:16px;margin:16px 0}
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.step{display:flex;gap:12px;align-items:flex-start}
+.sn{width:26px;height:26px;min-width:26px;border-radius:50%;background:var(--black);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500}
+.st h4{font-size:13px;color:var(--black);font-weight:500;margin-bottom:2px}
+.st p{font-size:12px;color:var(--mid);line-height:1.5}
+.cats{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.ctag{background:var(--cream);border:1px solid var(--cream2);color:var(--dark);padding:4px 10px;border-radius:3px;font-size:10px;letter-spacing:.04em}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin:14px 0}
+.vs-d{background:var(--black);border-radius:8px;padding:16px 18px}
+.vs-w{background:var(--cream);border:1px solid var(--cream2);border-radius:8px;padding:16px 18px}
+.vs-t{font-size:10px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:11px;font-weight:500}
+.vs-d .vs-t{color:#888}
+.vs-w .vs-t{color:var(--mid)}
+.vi{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:12px}
+.vs-d .vi{color:#aaa}
+.vs-w .vi{color:var(--mid)}
+.vdot{width:4px;height:4px;min-width:4px;border-radius:50%;margin-top:5px}
+.vdot-w{background:var(--white)}
+.vdot-m{background:var(--cream2)}
+.note{background:var(--cream);border:1px solid var(--cream2);border-radius:6px;padding:11px 14px;font-size:12px;color:var(--mid);margin-top:12px;line-height:1.6}
+.note strong{color:var(--black)}
+.cta{background:var(--black);border-radius:8px;padding:22px 24px;text-align:center;margin-top:16px}
+.cta p{color:#666;font-size:13px;line-height:1.7;margin-bottom:12px}
+.cta-url{font-family:'Playfair Display',serif;font-size:18px;color:var(--white);display:block;margin-bottom:16px}
+.cta-btn{background:var(--white);color:var(--black);border:none;padding:10px 28px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.04em;text-decoration:none;display:inline-block}
+.cta-btn:hover{background:var(--cream)}
+.big-entry{text-align:center;padding:18px 0 10px}
+.be-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);margin-bottom:7px}
+.be-val{font-family:'Playfair Display',serif;font-size:48px;color:var(--black);line-height:1}
+.be-sub{font-size:12px;color:var(--mid);margin-top:5px}
+.rischio-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin:14px 0}
+.rc{border-radius:8px;padding:14px 15px}
+.rc-done{background:var(--black)}
+.rc-now{background:var(--cream);border:1px solid var(--cream2)}
+.rc-future{background:var(--white);border:1px solid var(--cream2)}
+.rc-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rc-done .rc-label{color:#666}
+.rc-now .rc-label{color:var(--mid)}
+.rc-future .rc-label{color:var(--light)}
+.rc-title{font-family:'Playfair Display',serif;font-size:13px;margin-bottom:6px}
+.rc-done .rc-title{color:var(--white)}
+.rc-now .rc-title{color:var(--black)}
+.rc-future .rc-title{color:var(--mid)}
+.rc-who{font-size:11px}
+.rc-done .rc-who{color:#555}
+.rc-now .rc-who{color:var(--mid)}
+.rc-future .rc-who{color:var(--light)}
+.badge-done{display:inline-block;background:#222;color:#aaa;border:1px solid #333;padding:2px 8px;border-radius:3px;font-size:10px;margin-top:7px}
+.badge-now{display:inline-block;background:var(--black);color:var(--white);padding:2px 8px;border-radius:3px;font-size:10px;margin-top:7px}
+.hero-dark{background:var(--black)}
+.hero-dark h1{color:var(--white)}
+.hero-dark .sub{color:#666}
+.hero-dark .stag{color:#555}
+@media(max-width:600px){
+  .g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}
+  .vs{grid-template-columns:1fr}.rischio-grid{grid-template-columns:1fr}
+  .slide{padding:22px 18px 20px}h1{font-size:24px}h2{font-size:18px}
+  .be-val{font-size:36px}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="deck">
+    <div class="topbar">
+      <span class="logo">TRAMELLE · SOURCE GOURMET</span>
+      <span class="sc" id="sc">1 / 7</span>
+      <div class="nbs">
+        <button class="nb" onclick="prev()">← Prec</button>
+        <button class="nb" onclick="next()">Succ →</button>
+      </div>
+    </div>
+    <div class="dotsbar" id="dotsbar"></div>
+
+    <!-- S1 HERO -->
+    <div class="slide hero-dark on" id="s0">
+      <div class="stag">Cofounder Opportunity · 2026</div>
+      <h1>Il Primo Marketplace<br>dell'Eccellenza<br><em>Alimentare Mondiale</em></h1>
+      <div class="bl" style="background:#444"></div>
+      <p class="sub">La parte più difficile è già fatta. Cerco un cofounder che ci creda e voglia portarlo al mercato insieme a me.</p>
+      <div class="g3">
+        <div class="mc"><div class="mn">1.037</div><div class="ml">Brand inseriti</div></div>
+        <div class="mc"><div class="mn">15.000</div><div class="ml">Potenziale mondiale</div></div>
+        <div class="mc"><div class="mn">20</div><div class="ml">Anni esperienza</div></div>
+      </div>
+      <div class="cats">
+        <span class="ctag">La Norcineria</span><span class="ctag">Il Caseificio</span><span class="ctag">L'Oleario</span>
+        <span class="ctag">La Cantina</span><span class="ctag">Il Mare</span><span class="ctag">L'Arte Bianca</span>
+        <span class="ctag">La Distilleria</span><span class="ctag">Il Bosco</span><span class="ctag">L'Alta Pasticceria</span>
+        <span class="ctag">L'Alveare</span><span class="ctag">L'Orto</span><span class="ctag">+ 5 altre</span>
+      </div>
+    </div>
+
+    <!-- S2 MVP -->
+    <div class="slide" id="s1">
+      <div class="stag">Il Progetto</div>
+      <h2>Ho costruito il negozio<br><em>e riempito gli scaffali</em></h2>
+      <p class="sub">Tramelle è un MVP live e funzionante. La parte tecnicamente più complessa è già completata.</p>
+      <div class="g2">
+        <div class="wc"><div class="wc-ico">🏪</div><h3>Piattaforma MVP live</h3><p>tramelle.com è online, navigabile e funzionante. Architettura scalabile già operativa.</p></div>
+        <div class="wc"><div class="wc-ico">🗂️</div><h3>1.037 brand catalogati</h3><p>Ogni brand selezionato e inserito manualmente. Un lavoro editoriale enorme già completato.</p></div>
+        <div class="wc"><div class="wc-ico">📐</div><h3>177 categorie strutturate</h3><p>16 macro-aree tematiche con tassonomia professionale. Struttura solida e completa.</p></div>
+        <div class="wc"><div class="wc-ico">🌍</div><h3>Mercato mondiale</h3><p>1.037 brand inseriti su un potenziale di 15.000 brand worldwide. Siamo al 7% della penetrazione possibile.</p></div>
+      </div>
+      <div class="note"><strong>Fase attuale:</strong> MVP con catalogo completo. Il passo successivo è portare il progetto alla fase commerciale — quello che facciamo insieme.</div>
+    </div>
+
+    <!-- S3 RISCHIO -->
+    <div class="slide" id="s2">
+      <div class="stag">Il Rischio</div>
+      <h2>Ho già rischiato da solo.<br><em>Tu entri quando è già fatto.</em></h2>
+      <p class="sub">Costruire una piattaforma del genere poteva non portare a nulla. L'ho fatto lo stesso, a mie spese.</p>
+      <div class="rischio-grid">
+        <div class="rc rc-done">
+          <div class="rc-label">Fase 1 — completata</div>
+          <div class="rc-title">Idea → piattaforma → catalogo</div>
+          <div class="rc-who">Rischio al 100% mio</div>
+          <div class="badge-done">✓ già fatto</div>
+        </div>
+        <div class="rc rc-now">
+          <div class="rc-label">Fase 2 — adesso</div>
+          <div class="rc-title">Sviluppo commerciale e primi brand attivi</div>
+          <div class="rc-who">Rischio condiviso 50/50</div>
+          <div class="badge-now">→ entriamo insieme</div>
+        </div>
+        <div class="rc rc-future">
+          <div class="rc-label">Fase 3 — obiettivo</div>
+          <div class="rc-title">Break-even e distribuzione profitti</div>
+          <div class="rc-who">Profitti 50/50</div>
+        </div>
+      </div>
+      <div class="quote">"€20.000 non è il prezzo di un'idea. È il prezzo di entrare dopo che qualcun altro ha già corso il rischio più grande — da solo, a sue spese."</div>
+    </div>
+
+    <!-- S4 FONDATORE -->
+    <div class="slide" id="s3">
+      <div class="stag">Il Fondatore</div>
+      <h2>Luca Giardina —<br><em>tecnologia, marketing e gestione</em></h2>
+      <p class="sub">Gestisco tutto da solo: sviluppo, architettura, UX, copywriting, sistemistica, email marketing. Sul mercato queste figure costano €180.000+ l'anno.</p>
+      <div class="sk-box">
+        <h3>Costo equivalente sul mercato</h3>
+        <div class="sk-row"><span class="sk-label">Full Stack Developer Senior</span><span class="sk-val">€65.000 – 80.000/anno</span></div>
+        <div class="sk-row"><span class="sk-label">UX / UI Designer</span><span class="sk-val">€40.000 – 50.000/anno</span></div>
+        <div class="sk-row"><span class="sk-label">Copywriter specializzato</span><span class="sk-val">€30.000 – 40.000/anno</span></div>
+        <div class="sk-row"><span class="sk-label">Sistemista / DevOps</span><span class="sk-val">€45.000 – 60.000/anno</span></div>
+        <div class="sk-total"><span>Costo totale team equivalente</span><span>€180.000 – 230.000/anno</span></div>
+      </div>
+      <div class="db">
+        <div class="dr"><span class="dl">Costo operativo fondatore</span><span class="dv-white">€31.200/anno</span></div>
+        <div class="dr"><span class="dl">Risparmio annuo rispetto al mercato</span><span class="dv-white">€150.000+</span></div>
+        <div class="dr"><span class="dl">Anni di esperienza</span><span class="dv-white">20 anni</span></div>
+      </div>
+    </div>
+
+    <!-- S5 COFOUNDER IDEALE -->
+    <div class="slide" id="s4">
+      <div class="stag">Il Cofounder Ideale</div>
+      <h2>Chi cerco</h2>
+      <p class="sub">Cerco un cofounder con passione per il food, capitale disponibile e altri business attivi. I dettagli li definiamo insieme in call.</p>
+      <div class="vs">
+        <div class="vs-d">
+          <div class="vs-t">Cosa deve avere</div>
+          <div class="vi"><span class="vdot vdot-w"></span>Passione genuina per il food di qualità</div>
+          <div class="vi"><span class="vdot vdot-w"></span>Altri business attivi — non dipende da Tramelle</div>
+          <div class="vi"><span class="vdot vdot-w"></span>Liquidità disponibile per sostenere la crescita</div>
+          <div class="vi"><span class="vdot vdot-w"></span>Visione di medio termine — 12/24 mesi</div>
+          <div class="vi"><span class="vdot vdot-w"></span>Voglia di investire in qualcosa che costruisce valore</div>
+        </div>
+        <div class="vs-w">
+          <div class="vs-t">Cosa non serve</div>
+          <div class="vi"><span class="vdot vdot-m"></span>Competenze tecniche — gestisco tutto io</div>
+          <div class="vi"><span class="vdot vdot-m"></span>Bisogno di reddito immediato da Tramelle</div>
+          <div class="vi"><span class="vdot vdot-m"></span>Esperienza in marketplace o e-commerce</div>
+          <div class="vi"><span class="vdot vdot-m"></span>Tempo pieno dedicato al progetto</div>
+        </div>
+      </div>
+      <div class="quote">"L'idea è mia. Ho costruito tutto a mie spese. Cerco qualcuno che ci creda e abbia la liquidità per portarlo al mercato."</div>
+    </div>
+
+    <!-- S6 DEAL -->
+    <div class="slide" id="s5">
+      <div class="stag">La Struttura</div>
+      <h2>Cosa mette il cofounder</h2>
+      <div class="big-entry">
+        <div class="be-label">Fee di ingresso una tantum</div>
+        <div class="be-val">€ 20.000</div>
+        <div class="be-sub">50% della nuova società — pagato una volta sola</div>
+      </div>
+      <div class="db" style="margin-top:14px">
+        <h3>Costi operativi mensili</h3>
+        <div class="dr"><span class="dl">Costo operativo fondatore</span><span class="dv">(sviluppo + email marketing brand)</span></div>
+        <div class="dr"><span class="dl"></span><span class="dv-white">€ 2.600 / mese</span></div>
+        <div class="dr"><span class="dl">Tool e infrastruttura</span><span class="dv-white">€ 150 / mese</span></div>
+        <div class="dr"><span class="dl">Totale costo fisso mensile</span><span class="dv-white">€ 2.750 / mese</span></div>
+        <div class="dr"><span class="dl">Tecnologia, marketing, gestione</span><span class="dv">Luca Giardina</span></div>
+        <div class="dr"><span class="dl">Distribuzione utili</span><span class="dv-white">50% / 50%</span></div>
+      </div>
+      <div class="note"><strong>Costo fisso reale: solo €2.750/mese.</strong> Tutto il resto — strategia commerciale, brand da contattare, passi successivi — lo definiamo insieme in call.</div>
+    </div>
+
+    <!-- S7 CTA -->
+    <div class="slide" id="s6">
+      <div class="stag">Prossimo Passo</div>
+      <h2>Una call.<br><em>Poi decidiamo insieme.</em></h2>
+      <p class="sub">Se il progetto ti incuriosisce, il modo migliore per capire è parlarne direttamente.</p>
+      <div class="steps">
+        <div class="step"><div class="sn">1</div><div class="st"><h4>Call esplorativa</h4><p>Ci conosciamo, racconto il progetto nel dettaglio, rispondi alle tue domande</p></div></div>
+        <div class="step"><div class="sn">2</div><div class="st"><h4>Due diligence</h4><p>Ti mostro la piattaforma live, il catalogo, l'architettura tecnica</p></div></div>
+        <div class="step"><div class="sn">3</div><div class="st"><h4>Accordo e società</h4><p>Fee €20.000 · Nuova società 50/50 · Tutto definito nero su bianco</p></div></div>
+        <div class="step"><div class="sn">4</div><div class="st"><h4>Si parte</h4><p>Sviluppo continuo, email marketing ai brand, primi passi commerciali — obiettivo break-even 6/12 mesi</p></div></div>
+      </div>
+      <div class="cta">
+        <p>L'idea è mia. La piattaforma è costruita. Il rischio iniziale è già stato corso da solo.<br>Cerco qualcuno che ci creda.</p>
+        <span class="cta-url">tramelle.com</span><br>
+        <a class="cta-btn" href="https://tramelle.com" target="_blank">Visita la piattaforma →</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const total=7;let cur=0;
+const db=document.getElementById('dotsbar');
+for(let i=0;i<total;i++){const d=document.createElement('div');d.className='d'+(i===0?' on':'');d.onclick=()=>go(i);db.appendChild(d)}
+function go(n){document.getElementById('s'+cur).classList.remove('on');db.children[cur].classList.remove('on');cur=n;document.getElementById('s'+cur).classList.add('on');db.children[cur].classList.add('on');document.getElementById('sc').textContent=(cur+1)+' / '+total;window.scrollTo({top:0,behavior:'smooth'})}
+function next(){go(Math.min(cur+1,total-1))}
+function prev(){go(Math.max(cur-1,0))}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();if(e.key==='ArrowLeft')prev()});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){dx<0?next():prev()}});
+</script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 "use client"
 
-import Image from "next/image"
+import { cloudflareSellerPageCoverResponsive } from "@/lib/helpers/cloudflare-images"
 import clsx from "clsx"
+import Image from "next/image"
 import { useCallback, useState } from "react"
 
 /** Cover orizzontale a tutta larghezza (solo immagine, senza overlay testo/logo). */
@@ -35,6 +36,8 @@ export function SellerPageCoverBanner({
       ? coverCandidates[attempt]!
       : null
 
+  const cf = src ? cloudflareSellerPageCoverResponsive(src) : null
+
   return (
     <div className={clsx("w-full bg-neutral-100", className)}>
       <div
@@ -44,16 +47,30 @@ export function SellerPageCoverBanner({
         )}
       >
         {src ? (
-          <Image
-            src={src}
-            alt={`${name} — cover`}
-            fill
-            sizes="100vw"
-            priority
-            unoptimized
-            className="object-cover object-center"
-            onError={onError}
-          />
+          cf ? (
+            // eslint-disable-next-line @next/next/no-img-element -- srcset Cloudflare flexible
+            <img
+              key={src}
+              src={cf.src}
+              srcSet={cf.srcSet}
+              sizes={cf.sizes}
+              alt={`${name} — cover`}
+              decoding="async"
+              className="absolute inset-0 z-[1] h-full w-full object-cover object-center"
+              onError={onError}
+            />
+          ) : (
+            <Image
+              src={src}
+              alt={`${name} — cover`}
+              fill
+              sizes="100vw"
+              priority
+              unoptimized
+              className="object-cover object-center"
+              onError={onError}
+            />
+          )
         ) : (
           <div className="flex h-full min-h-[220px] w-full items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-100 md:min-h-[280px]" />
         )}

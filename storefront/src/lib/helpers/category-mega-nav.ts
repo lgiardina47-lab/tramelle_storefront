@@ -60,6 +60,36 @@ export function mergeChildrenFromFlat(
   return parent
 }
 
+/**
+ * Risale `parent_category_id` sulla lista piatta fino al nodo senza genitore (macro vetrina / radice albero).
+ */
+export function resolveMacroRootCategory(
+  category: HttpTypes.StoreProductCategory,
+  allFlat: HttpTypes.StoreProductCategory[] | undefined
+): HttpTypes.StoreProductCategory {
+  if (!allFlat?.length) {
+    return category
+  }
+  const byId = new Map<string, HttpTypes.StoreProductCategory>()
+  for (const c of allFlat) {
+    const id = c.id?.trim()
+    if (id) byId.set(id, c)
+  }
+  let current: HttpTypes.StoreProductCategory | undefined = category
+  for (let i = 0; i < 64 && current; i++) {
+    const pid = current.parent_category_id
+    if (pid == null || String(pid).trim() === "") {
+      return current
+    }
+    const parent = byId.get(pid)
+    if (!parent) {
+      return current
+    }
+    current = parent
+  }
+  return current ?? category
+}
+
 /** Id della categoria corrente e di tutti i discendenti (per listing macro → prodotti nelle foglie). */
 export function collectCategorySubtreeIds(
   root: HttpTypes.StoreProductCategory

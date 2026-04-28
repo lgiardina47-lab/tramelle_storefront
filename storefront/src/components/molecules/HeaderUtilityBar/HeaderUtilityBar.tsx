@@ -28,23 +28,33 @@ export function HeaderUtilityBar({
   const tHead = useTranslations("Header")
 
   if (presentation === "gourmet") {
+    const barTextClass =
+      "font-tramelle text-[11px] font-normal leading-tight text-[#8A8580] sm:text-xs sm:leading-snug"
     return (
       <div
-        className="flex w-full shrink-0 items-center justify-center border-b border-[#E8E4DE] bg-[#F5F3F0] px-5 py-0.5 sm:px-7 sm:py-1"
+        className="flex w-full shrink-0 flex-col items-stretch gap-y-0.5 border-b border-[#E8E4DE] bg-[#F5F3F0] px-4 py-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-x-3 sm:gap-y-0 sm:px-6 sm:py-1 lg:px-7"
         data-testid="header-utility-bar"
       >
-        <div className="mx-auto w-full max-w-4xl text-center">
-          <p className="font-tramelle text-balance text-[11px] font-normal leading-tight text-[#8A8580] sm:text-xs sm:leading-snug">
-            <span>{tHead("gourmet.topBarLead")}</span>{" "}
-            <LocalizedClientLink
-              href="/registrati"
-              locale={locale}
-              className="inline font-medium normal-case tracking-normal text-[#0F0E0B] underline decoration-[#0F0E0B]/35 underline-offset-[3px] transition-opacity hover:opacity-90"
-            >
-              {tHead("gourmet.topBarRegister")}
-            </LocalizedClientLink>
-          </p>
-        </div>
+        <p
+          className={`min-w-0 shrink-0 text-balance text-left ${barTextClass}`}
+          data-testid="header-topbar-demo"
+        >
+          {tHead("gourmet.topBarDemo")}
+        </p>
+        <p
+          className={`min-w-0 max-w-full text-balance text-right sm:max-w-[60%] lg:max-w-[55%] ${barTextClass}`}
+          data-testid="header-topbar-producer-cta"
+        >
+          <span>{tHead("gourmet.topBarProducerQuestion")}</span>{" "}
+          <LocalizedClientLink
+            href="/registrati"
+            locale={locale}
+            className="inline font-medium normal-case tracking-normal text-[#0F0E0B] underline decoration-[#0F0E0B]/35 underline-offset-[3px] transition-opacity hover:opacity-90"
+          >
+            {tHead("gourmet.topBarRegister")}
+          </LocalizedClientLink>
+          <span aria-hidden="true">.</span>
+        </p>
       </div>
     )
   }

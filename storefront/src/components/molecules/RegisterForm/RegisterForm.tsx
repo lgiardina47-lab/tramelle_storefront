@@ -14,10 +14,16 @@ import { signup } from "@/lib/data/customer"
 import { useState } from "react"
 import { Container } from "@medusajs/ui"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { PasswordValidator } from "@/components/cells/PasswordValidator/PasswordValidator"
 import { toast } from "@/lib/helpers/toast"
 import { cn } from "@/lib/utils"
+import { Alert } from "@/components/atoms/Alert/Alert"
+import {
+  GoogleContinueButton,
+  GoogleOAuthDivider,
+} from "@/components/molecules/GoogleContinueButton/GoogleContinueButton"
+import { messageForGoogleOAuthErrorCode } from "@/lib/auth/google-oauth-messages"
 
 export const RegisterForm = () => {
   const methods = useForm<RegisterFormData>({
@@ -44,6 +50,12 @@ export const RegisterForm = () => {
 
 const Form = () => {
   const router = useRouter()
+  const params = useParams()
+  const locale = typeof params?.locale === "string" ? params.locale : "it"
+  const searchParams = useSearchParams()
+  const googleErrMessage = messageForGoogleOAuthErrorCode(
+    searchParams.get("google_error")
+  )
   const [passwordError, setPasswordError] = useState({
     isValid: false,
     lower: false,
@@ -98,7 +110,7 @@ const Form = () => {
 
     if (res?.id) {
       toast.success({ title: "Account created" })
-      router.push("/user")
+      router.push(`/${locale}/user`)
       router.refresh()
     }
   }
@@ -112,6 +124,16 @@ const Form = () => {
         <h1 className="heading-md text-primary uppercase mb-6">
           Create account
         </h1>
+        {googleErrMessage && (
+          <Alert
+            title={googleErrMessage}
+            className="mb-6 w-full"
+            icon
+            data-testid="register-google-error-alert"
+          />
+        )}
+        <GoogleContinueButton returnPath={`/${locale}/user`} />
+        <GoogleOAuthDivider />
 
         <div
           className="flex border-b border-secondary/20 mb-8 gap-1"

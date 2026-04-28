@@ -1,11 +1,16 @@
 "use client"
 
-import { Stripe, StripeElementsOptions } from "@stripe/stripe-js"
-import { Elements } from "@stripe/react-stripe-js"
 import { HttpTypes } from "@medusajs/types"
 import { createContext } from "react"
+import { Elements } from "@stripe/react-stripe-js"
+import { Stripe, StripeElementsOptions } from "@stripe/stripe-js"
+import { useTranslations } from "next-intl"
+
+import { getStripeClientSecretFromPaymentSession } from "@/lib/helpers/checkout-stripe-elements"
+import { tramelleStripeAppearance } from "@/lib/stripe/tramelle-stripe-appearance"
 
 import { CheckoutCardReadyProvider } from "./CheckoutCardReadyContext"
+import { StripeCheckoutAvailabilityContext } from "./StripeCheckoutAvailabilityContext"
 
 type StripeWrapperProps = {
   paymentSession: HttpTypes.StorePaymentSession
@@ -22,9 +27,8 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
   stripePromise,
   children,
 }) => {
-  const options: StripeElementsOptions = {
-    clientSecret: paymentSession!.data?.client_secret as string | undefined,
-  }
+  const t = useTranslations("Checkout")
+  const clientSecret = getStripeClientSecretFromPaymentSession(paymentSession)
 
   if (!stripeKey) {
     throw new Error(
@@ -38,24 +42,45 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
     )
   }
 
-  if (!paymentSession?.data?.client_secret) {
-    throw new Error(
-      "Stripe client secret is missing. Cannot initialize Stripe."
+  if (!clientSecret) {
+    return (
+      <StripeCheckoutAvailabilityContext.Provider value="missing-credentials">
+        <StripeContext.Provider value={false}>
+          <CheckoutCardReadyProvider>
+            <div
+              role="alert"
+              className="mx-auto mb-4 max-w-[min(100%,42rem)] rounded border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+              data-testid="stripe-missing-client-secret"
+            >
+              {t("stripePaymentMissingClientSecret")}
+            </div>
+            {children}
+          </CheckoutCardReadyProvider>
+        </StripeContext.Provider>
+      </StripeCheckoutAvailabilityContext.Provider>
     )
   }
 
-  const elementsKey = `${paymentSession.id}:${String(paymentSession.data?.client_secret ?? '')}`
+  const options: StripeElementsOptions = {
+    clientSecret,
+    appearance: tramelleStripeAppearance,
+    loader: "auto",
+  }
+
+  const elementsKey = `${paymentSession.id}:${clientSecret}`
 
   return (
-    <StripeContext.Provider value={true}>
-      <Elements
-        key={elementsKey}
-        options={options}
-        stripe={stripePromise}
-      >
-        <CheckoutCardReadyProvider>{children}</CheckoutCardReadyProvider>
-      </Elements>
-    </StripeContext.Provider>
+    <StripeCheckoutAvailabilityContext.Provider value="ready">
+      <StripeContext.Provider value={true}>
+        <Elements
+          key={elementsKey}
+          options={options}
+          stripe={stripePromise}
+        >
+          <CheckoutCardReadyProvider>{children}</CheckoutCardReadyProvider>
+        </Elements>
+      </StripeContext.Provider>
+    </StripeCheckoutAvailabilityContext.Provider>
   )
 }
 

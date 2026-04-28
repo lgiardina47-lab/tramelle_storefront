@@ -396,10 +396,12 @@ export function cloudflareDirectoryCardHeroResponsive(
 }
 
 /**
- * Logo badge card (~36px, 2x retina): una richiesta CF piccola.
+ * Logo / avatar: larghezza ≈ 2× il lato CSS (retina), tetto 512px.
+ * Usare per badge directory, avatar scheda produttore, carrello, ecc.
  */
-export function cloudflareDirectoryCardLogoDeliveryUrl(
-  deliveryAbsoluteUrl: string
+export function cloudflareAvatarOrLogoDeliveryUrl(
+  deliveryAbsoluteUrl: string,
+  cssPixelSize: number
 ): string | null {
   const base = deliveryAbsoluteUrl.trim()
   if (!base || !cloudflareFlexibleVariantsEnabled()) {
@@ -410,9 +412,80 @@ export function cloudflareDirectoryCardLogoDeliveryUrl(
   }
   const q = cloudflareFlexibleImageQuality()
   const sh = cloudflareFlexibleSharpen()
+  const px = Number(cssPixelSize)
+  const w = Math.min(
+    512,
+    Math.max(64, Math.ceil(Number.isFinite(px) && px > 0 ? px * 2 : 96))
+  )
   return rewriteCfImagesDeliveryVariant(
     base,
-    `w=96,fit=scale-down,quality=${q},sharpen=${sh}`
+    `w=${w},fit=scale-down,quality=${q},sharpen=${sh}`
+  )
+}
+
+/**
+ * Logo badge card directory (~44px visivi, 2×): delega a {@link cloudflareAvatarOrLogoDeliveryUrl}.
+ */
+export function cloudflareDirectoryCardLogoDeliveryUrl(
+  deliveryAbsoluteUrl: string
+): string | null {
+  return cloudflareAvatarOrLogoDeliveryUrl(deliveryAbsoluteUrl, 48)
+}
+
+/** Cover scheda produttore: full-bleed, `sizes=100vw`. */
+const DEFAULT_SELLER_PAGE_COVER_WIDTHS = [
+  768, 1024, 1280, 1600, 1920, 2560,
+] as const
+
+export function cloudflareSellerPageCoverResponsive(
+  deliveryAbsoluteUrl: string
+): { src: string; srcSet: string; sizes: string } | null {
+  return cloudflareFlexibleImageResponsive(deliveryAbsoluteUrl, {
+    widths: parseWidthsListFromEnv(
+      process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_SELLER_COVER_WIDTHS,
+      DEFAULT_SELLER_PAGE_COVER_WIDTHS
+    ),
+    sizes: "100vw",
+    fit: "scale-down",
+  })
+}
+
+/** Hero home cinematic: viewport pieno, tetto larghezze più alto per LCP. */
+const DEFAULT_HOME_HERO_COVER_WIDTHS = [
+  1280, 1600, 1920, 2560, 3200,
+] as const
+
+export function cloudflareHomeHeroCoverResponsive(
+  deliveryAbsoluteUrl: string
+): { src: string; srcSet: string; sizes: string } | null {
+  return cloudflareFlexibleImageResponsive(deliveryAbsoluteUrl, {
+    widths: parseWidthsListFromEnv(
+      process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_HERO_COVER_WIDTHS,
+      DEFAULT_HOME_HERO_COVER_WIDTHS
+    ),
+    sizes: "100vw",
+    fit: "scale-down",
+  })
+}
+
+/**
+ * Sfocato dietro l’hero: stessa immagine ma larghezza modesta (meno byte del doppio `fill`).
+ */
+export function cloudflareHeroBackdropBlurDeliveryUrl(
+  deliveryAbsoluteUrl: string
+): string {
+  const base = deliveryAbsoluteUrl.trim()
+  if (!base || !cloudflareFlexibleVariantsEnabled()) {
+    return base
+  }
+  if (!isCloudflareImagesDeliveryAbsoluteUrl(base)) {
+    return base
+  }
+  const q = Math.min(85, cloudflareFlexibleImageQuality())
+  const sh = cloudflareFlexibleSharpen()
+  return rewriteCfImagesDeliveryVariant(
+    base,
+    `w=640,fit=scale-down,quality=${q},sharpen=${sh}`
   )
 }
 

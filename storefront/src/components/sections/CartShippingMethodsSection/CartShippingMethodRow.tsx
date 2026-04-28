@@ -3,7 +3,7 @@
 import { Button } from "@/components/atoms"
 import { BinIcon } from "@/icons"
 
-import { convertToLocale } from "@/lib/helpers/money"
+import { convertToLocale, minorUnitsToMajor } from "@/lib/helpers/money"
 import { HttpTypes } from "@medusajs/types"
 import { Text } from "@medusajs/ui"
 
@@ -23,7 +23,10 @@ export const CartShippingMethodRow = ({
         <Text className="txt-medium text-ui-fg-subtle">
           {method?.name}{" "}
           {convertToLocale({
-            amount: method?.amount!,
+            amount: minorUnitsToMajor(
+              method?.amount ?? 0,
+              currency_code
+            ),
             currency_code: currency_code,
           })}
         </Text>

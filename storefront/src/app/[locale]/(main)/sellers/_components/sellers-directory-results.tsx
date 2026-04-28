@@ -1,18 +1,13 @@
 import { SellersDirectoryLocationFilters } from "@/components/molecules/SellersDirectoryLocationFilters/SellersDirectoryLocationFilters"
 import { listStoreSellersFacets } from "@/lib/data/seller"
 import { redirect } from "next/navigation"
-import { Suspense } from "react"
-import { ProducerSkeletonGrid } from "./producer-skeleton"
 import { SellersDirectorySellerGrid } from "./sellers-directory-seller-grid"
 import {
   resolveSellersDirectory,
   type SellersDirectorySearchParams,
 } from "./sellers-directory-shared"
 
-/**
- * Facets + filtri subito (cache React + HTTP); griglia in Suspense così i select non smontano
- * durante il fetch lista — evita UI “bloccata” / skeleton sui filtri.
- */
+/** Facets + filtri e griglia venditori (RSC). */
 export async function SellersDirectoryResults({
   locale,
   searchParams: sp,
@@ -42,8 +37,6 @@ export async function SellersDirectoryResults({
 
   const categoryFacets = facets?.categories ?? []
 
-  const suspenseKey = `grid-${countryCode ?? "all"}-${region ?? "all"}-${categoryHandle ?? "all"}-${page}`
-
   return (
     <>
       {facetCountries.length > 0 || categoryFacets.length > 0 ? (
@@ -61,9 +54,7 @@ export async function SellersDirectoryResults({
         />
       ) : null}
 
-      <Suspense key={suspenseKey} fallback={<ProducerSkeletonGrid count={12} />}>
-        <SellersDirectorySellerGrid locale={locale} resolved={r} />
-      </Suspense>
+      <SellersDirectorySellerGrid locale={locale} resolved={r} />
     </>
   )
 }

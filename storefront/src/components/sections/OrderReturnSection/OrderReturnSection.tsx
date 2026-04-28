@@ -10,7 +10,8 @@ import { ReturnSummaryTab } from "./ReturnSummaryTab"
 import { ReturnMethodsTab } from "./ReturnMethodsTab"
 import { StepProgressBar } from "@/components/cells/StepProgressBar/StepProgressBar"
 import { createReturnRequest } from "@/lib/data/orders"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 
 export const OrderReturnSection = ({
   order,
@@ -21,6 +22,9 @@ export const OrderReturnSection = ({
   returnReasons: any[]
   shippingMethods: any[]
 }) => {
+  const t = useTranslations("Account")
+  const params = useParams()
+  const locale = typeof params?.locale === "string" ? params.locale : "it"
   const [tab, setTab] = useState(0)
   const [selectedItems, setSelectedItems] = useState<any[]>([])
   const [error, setError] = useState<boolean>(false)
@@ -75,7 +79,9 @@ export const OrderReturnSection = ({
       return console.log("Error creating return request")
     }
 
-    router.push(`/user/orders/${order_return_request.id}/request-success`)
+    router.push(
+      `/${locale}/user/orders/${order_return_request.id}/request-success`
+    )
   }
 
   return (
@@ -89,7 +95,7 @@ export const OrderReturnSection = ({
               className="label-md text-action-on-secondary uppercase flex items-center gap-2"
             >
               <ArrowLeftIcon className="size-4" />
-              Order details
+              {t("orderDetailsCta")}
             </Button>
           </LocalizedClientLink>
         ) : (
@@ -99,14 +105,17 @@ export const OrderReturnSection = ({
             onClick={() => setTab(0)}
           >
             <ArrowLeftIcon className="size-4" />
-            Select items
+            {t("selectItemsCta")}
           </Button>
         )}
         <div className="grid grid-cols-1 md:grid-cols-8 gap-4 mt-8">
           <div className="col-span-4">
             <div className="mb-4">
               <StepProgressBar
-                steps={["SELECT ITEMS TO RETURN", "SELECT RETURN METHOD"]}
+                steps={[
+                  t("returnStepSelectItems"),
+                  t("returnStepSelectMethod"),
+                ]}
                 currentStep={tab}
               />
             </div>

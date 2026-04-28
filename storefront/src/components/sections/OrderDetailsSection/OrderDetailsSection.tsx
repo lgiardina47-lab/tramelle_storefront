@@ -5,7 +5,7 @@ import { OrderTotals } from "@/components/organisms/OrderTotals/OrderTotals"
 export const OrderDetailsSection = ({ orderSet }: { orderSet: any }) => {
   return (
     <div>
-      <OrderParcels orders={orderSet.orders} />
+      <OrderParcels orders={orderSet.orders ?? []} />
       <OrderTotals orderSet={orderSet} />
       {/* <OrderAddresses /> */}
     </div>

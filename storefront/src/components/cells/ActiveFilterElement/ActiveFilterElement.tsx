@@ -17,7 +17,6 @@ const filtersLabels: Record<string, string> = {
   condition: "Condition",
   rating: "Rating",
   categories_name: "Category",
-  seller_handle: "Seller",
   type_value: "Product type",
   tags_value: "Tags",
 }
@@ -33,8 +32,8 @@ export const ActiveFilterElement = ({ filter }: { filter: string[] }) => {
 
   const activeFilters = filter[1].split(",")
 
-  const removeFilterHandler = (filter: string) => {
-    updateFilters(filter)
+  const removeFilterHandler = (raw: string) => {
+    updateFilters(raw.trim())
   }
 
   const heading =
@@ -42,7 +41,9 @@ export const ActiveFilterElement = ({ filter }: { filter: string[] }) => {
       ? tListing("provenanceCountry")
       : filter[0] === "provenance_region"
         ? tListing("provenanceRegion")
-        : (filtersLabels[filter[0]] ?? filter[0])
+        : filter[0] === "seller_handle"
+          ? tListing("facetBrand")
+          : (filtersLabels[filter[0]] ?? filter[0])
 
   const chipLabel = (raw: string) => {
     if (filter[0] === "provenance_country") {

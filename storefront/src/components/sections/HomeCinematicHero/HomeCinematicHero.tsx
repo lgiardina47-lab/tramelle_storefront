@@ -1,123 +1,92 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
-import type { HeroCatalogSlide } from "@/lib/helpers/hero-catalog-slide"
 import Link from "next/link"
+import { useEffect, useState } from "react"
+import { normalizeListingContentLocale } from "@/lib/i18n/listing-content-locale"
+import type {
+  HeroHomeStatePayload,
+  HeroSubcategoryPillScope,
+} from "@/lib/hero/hero-home-load"
+import type { HeroCatalogSlide } from "@/lib/helpers/hero-catalog-slide"
 
+import { CategoryBrandHeroIntro } from "./CategoryBrandHeroIntro"
+import { CategoryBrandHeroSubcategoryStack } from "./CategoryBrandHeroSubcategoryStack"
 import { HomeCinematicHeroFrame } from "./HomeCinematicHeroFrame"
 import { HomeCinematicHeroRotatingBackdrop } from "./HomeCinematicHeroRotatingBackdrop"
-import type { HeroCoverSlide } from "@/types/hero"
-import { normalizeListingContentLocale } from "@/lib/i18n/listing-content-locale"
-
-type HeroStateJson = {
-  total: number
-  heroInit: { offset0: number; slide: HeroCatalogSlide } | null
-  coverSlides: HeroCoverSlide[]
-}
 
 /** Altezza hero home (cover alta; trust bar assoluta in basso). */
 const HERO_MIN_H =
   "min-h-[min(82vh,620px)] sm:min-h-[min(78vh,680px)] md:min-h-[720px] lg:min-h-[min(80vh,800px)]"
 
-export function HomeCinematicHeroSkeleton() {
-  return (
-    <section
-      className={`relative w-full ${HERO_MIN_H} overflow-hidden bg-[#1a1714]`}
-      aria-hidden
-    >
-      <div className="absolute inset-0 animate-pulse bg-neutral-800" />
-      <div
-        className={`pointer-events-none relative z-[2] flex ${HERO_MIN_H} flex-col justify-center px-4 pb-24 pt-8 sm:px-8 sm:pb-24 sm:pt-10 lg:px-14`}
-      >
-        <div className="pointer-events-auto max-w-[620px] space-y-5">
-          <div className="h-3 w-48 rounded bg-white/20" />
-          <div className="space-y-3">
-            <div className="h-12 w-full max-w-md rounded bg-white/15" />
-            <div className="h-12 w-4/5 max-w-sm rounded bg-white/10" />
-          </div>
-          <div className="h-px w-11 bg-white/20" />
-          <div className="h-16 w-full max-w-sm rounded bg-white/10" />
-          <div className="flex gap-3 pt-2">
-            <div className="h-12 w-40 rounded-full bg-white/25" />
-            <div className="h-12 w-36 rounded-full bg-white/10" />
-          </div>
-        </div>
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 z-[5] grid grid-cols-2 border-t border-white/10 bg-[rgba(8,7,5,0.42)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(8,7,5,0.35)] lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div
-            key={i}
-            className="min-w-0 border-b border-r border-white/[0.08] p-3.5 last:border-r-0 sm:p-4 lg:border-b-0"
-          >
-            <div className="space-y-1.5">
-              <div className="h-3 w-20 rounded bg-white/20" />
-              <div className="h-2.5 w-28 rounded bg-white/10" />
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 /**
- * Dati Medusa: **non** chiamare l’SDK dal browser (cache React + `next` su fetch incompatibili col client).
- * Carichiamo lo stato con `GET /api/tramelle/hero-home-state` (stessa logica server di prima).
+ * Dati hero da RSC (`getHeroHomeState`): nessun fetch client al primo paint della home.
+ * L’interattività (frecce catalogo) usa ancora `POST /api/tramelle/hero-catalog-step`.
  */
-export function HomeCinematicHero({ locale }: { locale: string }) {
+export function HomeCinematicHero({
+  locale,
+  initialState,
+  parentCategoryHandles,
+  primaryCtaHref = "/categories",
+  titleAsDecorative = false,
+  /** Pagina categoria: marchio in evidenza a sinistra, niente card a destra. */
+  categorySellerFocus = false,
+  subcategoryPillScope,
+  /** Pagina categoria: base path per link pillole (`?categories_name=`). */
+  subcategoryPillLinkBasePath,
+}: {
+  locale: string
+  initialState: HeroHomeStatePayload
+  /** Scope elenco seller (frecce hero / API step); allineato al server state. */
+  parentCategoryHandles?: string[]
+  /** CTA principale sotto il testo (home: `/categories`; categoria: anchor al contenuto). */
+  primaryCtaHref?: string
+  /** Evita secondo <h1> quando la pagina ha già titolo categoria sotto. */
+  titleAsDecorative?: boolean
+  categorySellerFocus?: boolean
+  subcategoryPillScope?: HeroSubcategoryPillScope
+  subcategoryPillLinkBasePath?: string
+}) {
   const t = useTranslations("Hero")
 
-  const [ready, setReady] = useState(false)
-  const [total, setTotal] = useState(0)
-  const [heroInit, setHeroInit] = useState<{
-    offset0: number
-    slide: HeroCatalogSlide
-  } | null>(null)
-  const [coverSlides, setCoverSlides] = useState<HeroCoverSlide[]>([])
+  const resolved = initialState
+
+  const total = resolved.total
+  const heroInit = resolved.heroInit
+  const [catalogSlide, setCatalogSlide] = useState<HeroCatalogSlide | null>(
+    () => heroInit?.slide ?? null
+  )
 
   useEffect(() => {
-    setReady(false)
-    let cancelled = false
-    const q = new URLSearchParams({ locale })
-    void (async () => {
-      try {
-        const res = await fetch(
-          `/api/tramelle/hero-home-state?${q.toString()}`,
-          { cache: "no-store" }
-        )
-        if (!res.ok) throw new Error(String(res.status))
-        const data = (await res.json()) as HeroStateJson
-        if (cancelled) return
-        setTotal(data.total)
-        setHeroInit(data.heroInit)
-        setCoverSlides(data.coverSlides ?? [])
-      } catch {
-        if (!cancelled) {
-          setTotal(0)
-          setHeroInit(null)
-          setCoverSlides([])
-        }
-      } finally {
-        if (!cancelled) setReady(true)
-      }
-    })()
-    return () => {
-      cancelled = true
-    }
-  }, [locale])
-
-  if (!ready) {
-    return <HomeCinematicHeroSkeleton />
+    if (!heroInit?.slide) return
+    setCatalogSlide(heroInit.slide)
+    // Solo allineamento allo stato SSR (cambio offset/handle nel listing).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- evita loop su ogni nuovo oggetto slide
+  }, [heroInit?.offset0, heroInit?.slide?.handle])
+  let coverSlides = resolved.coverSlides ?? []
+  if (!heroInit && coverSlides.length === 0) {
+    coverSlides = [
+      {
+        src: "/images/hero/Image.jpg",
+        alt: t("cinematicImageAltFallback"),
+      },
+    ]
   }
 
   const listingContentLocale = normalizeListingContentLocale(locale)
-  const primaryHref = "/categories"
+  const primaryHref = primaryCtaHref
+  const HeadingTag = titleAsDecorative ? "div" : "h1"
+  const heroHeadingId = titleAsDecorative
+    ? undefined
+    : "home-cinematic-hero-heading"
+
+  const showCategoryBrandIntro =
+    categorySellerFocus && Boolean(heroInit) && catalogSlide !== null
 
   return (
     <section
       className={`relative w-full ${HERO_MIN_H} overflow-hidden bg-[#1a1714]`}
-      aria-labelledby="home-cinematic-hero-heading"
+      aria-labelledby={heroHeadingId}
     >
       {heroInit ? (
         <HomeCinematicHeroFrame
@@ -130,6 +99,12 @@ export function HomeCinematicHero({ locale }: { locale: string }) {
           prevAria={t("cinematicHeroPrev")}
           nextAria={t("cinematicHeroNext")}
           sellerCta={t("cinematicSellerStoreCta")}
+          parentCategoryHandles={parentCategoryHandles}
+          subcategoryPillScope={subcategoryPillScope}
+          hideSellerCard={categorySellerFocus}
+          onActiveSlideChange={
+            categorySellerFocus ? setCatalogSlide : undefined
+          }
         />
       ) : (
         <HomeCinematicHeroRotatingBackdrop
@@ -143,41 +118,60 @@ export function HomeCinematicHero({ locale }: { locale: string }) {
         />
       )}
       <div
-        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-[rgba(8,7,5,0.78)] via-[rgba(8,7,5,0.38)] to-[rgba(8,7,5,0.06)]"
+        className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-r from-[rgba(8,7,5,0.5)] via-[rgba(8,7,5,0.18)] to-transparent"
         aria-hidden
       />
 
       <div
         className={`pointer-events-none relative z-[2] flex ${HERO_MIN_H} flex-col justify-center px-4 pb-24 pt-8 sm:px-8 sm:pb-24 sm:pt-10 lg:px-14`}
       >
-        <div className="pointer-events-auto max-w-[620px]">
-          <div className="font-tramelle mb-3 text-[10px] font-normal uppercase leading-snug tracking-[0.22em] text-white sm:mb-3.5">
-            <p>{t("cinematicEyebrowLine1")}</p>
-          </div>
-          <h1
-            id="home-cinematic-hero-heading"
-            className="text-white sm:tracking-[-0.01em]"
-          >
-            <span className="block font-tramelle-hero text-[clamp(1.85rem,4.2vw,2.75rem)] font-bold leading-[1.05] sm:text-[clamp(2.1rem,3.8vw,3.25rem)] md:text-[38px] lg:text-[clamp(2.5rem,3.2vw,3.5rem)]">
-              {t("cinematicHeadlineLead")}
-            </span>
-            <em className="mt-0.5 block font-tramelle-display text-[clamp(1.85rem,4.2vw,2.75rem)] font-light italic leading-[1.12] text-white/[0.78] sm:mt-1 sm:text-[clamp(2.1rem,3.8vw,3.25rem)] md:text-[38px] lg:text-[clamp(2.5rem,3.2vw,3.5rem)]">
-              {t("cinematicHeadlineEm")}
-            </em>
-          </h1>
-          <div className="my-3.5 h-px w-11 bg-white/20 sm:my-4" aria-hidden />
-          <p className="font-tramelle mb-5 max-w-[400px] text-[13px] font-normal leading-[1.7] text-white sm:mb-6 sm:text-[14px]">
-            {t("cinematicSub")}
-          </p>
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-            <Link
-              href={primaryHref}
-              prefetch={false}
-              className="inline-flex items-center justify-center rounded-full border border-white bg-white px-7 py-3 font-tramelle text-[11px] font-medium uppercase tracking-[0.12em] text-[#0F0E0B] shadow-[0_2px_16px_rgba(0,0,0,0.2)] transition-[background-color,color,border-color,opacity] hover:border-[#0F0E0B] hover:bg-[#0F0E0B] hover:text-white active:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              {t("buyNow")} →
-            </Link>
-          </div>
+        <div
+          className={`pointer-events-auto w-full ${showCategoryBrandIntro ? "max-w-[min(100%,1240px)]" : "max-w-[620px]"}`}
+        >
+          {showCategoryBrandIntro && catalogSlide ? (
+            <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-10 xl:gap-14">
+              <div className="min-w-0 flex-1 lg:max-w-[min(100%,640px)]">
+                <CategoryBrandHeroIntro
+                  slide={catalogSlide}
+                  locale={locale}
+                />
+              </div>
+              <div className="shrink-0 lg:pt-2">
+                <CategoryBrandHeroSubcategoryStack
+                  slide={catalogSlide}
+                  locale={locale}
+                  subcategoryLinkBaseHref={subcategoryPillLinkBasePath}
+                />
+              </div>
+            </div>
+          ) : (
+            <>
+              <HeadingTag
+                {...(heroHeadingId ? { id: heroHeadingId } : {})}
+                className="text-white sm:tracking-[-0.01em]"
+              >
+                <span className="block font-tramelle-hero text-[clamp(1.85rem,4.2vw,2.75rem)] font-bold leading-[1.05] sm:text-[clamp(2.1rem,3.8vw,3.25rem)] md:text-[38px] lg:text-[clamp(2.5rem,3.2vw,3.5rem)]">
+                  {t("cinematicHeadlineLead")}
+                </span>
+                <em className="mt-0.5 block font-tramelle-display text-[clamp(1.85rem,4.2vw,2.75rem)] font-light italic leading-[1.12] text-white/[0.78] sm:mt-1 sm:text-[clamp(2.1rem,3.8vw,3.25rem)] md:text-[38px] lg:text-[clamp(2.5rem,3.2vw,3.5rem)]">
+                  {t("cinematicHeadlineEm")}
+                </em>
+              </HeadingTag>
+              <div className="my-3.5 h-px w-11 bg-white/20 sm:my-4" aria-hidden />
+              <p className="font-tramelle mb-5 max-w-[400px] text-[13px] font-normal leading-[1.7] text-white sm:mb-6 sm:text-[14px]">
+                {t("cinematicSub")}
+              </p>
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <Link
+                  href={primaryHref}
+                  prefetch={false}
+                  className="inline-flex items-center justify-center rounded-full border border-white bg-white px-7 py-3 font-tramelle text-[11px] font-medium uppercase tracking-[0.12em] text-[#0F0E0B] shadow-[0_2px_16px_rgba(0,0,0,0.2)] transition-[background-color,color,border-color,opacity] hover:border-[#0F0E0B] hover:bg-[#0F0E0B] hover:text-white active:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                >
+                  {t("buyNow")} →
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

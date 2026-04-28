@@ -221,7 +221,7 @@ export function SellersDirectoryLocationFilters({
                   {labelWithSellerCount(
                     formatLocationFilterLabel(r),
                     uiCountry
-                      ? sellerCountByRegion[uiCountry]?.[r] ?? 0
+                      ? sellerCountByRegion[uiCountry]?.[r.toUpperCase()] ?? 0
                       : 0
                   )}
                 </option>

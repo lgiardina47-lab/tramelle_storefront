@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 
 import { Badge } from "@/components/atoms"
+import { fetchWithTimeout } from "@/lib/helpers/fetch-with-timeout"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { HeartIcon } from "@/icons"
 
@@ -36,9 +37,12 @@ export function WishlistNavLink({
       return
     }
     let cancelled = false
-    fetch(`/api/wishlist-count?locale=${encodeURIComponent(locale)}`, {
-      credentials: "same-origin",
-    })
+    fetchWithTimeout(
+      `/api/wishlist-count?locale=${encodeURIComponent(locale)}`,
+      {
+        credentials: "same-origin",
+      }
+    )
       .then((r) => r.json())
       .then((d: { count?: unknown }) => {
         if (cancelled) return

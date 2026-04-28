@@ -5,16 +5,13 @@ import {
   HomeProductSection,
   ShopByStyleSection,
 } from "@/components/sections"
-import {
-  HomeCinematicHero,
-  HomeCinematicHeroSkeleton,
-} from "@/components/sections/HomeCinematicHero/HomeCinematicHero"
+import { HomeCinematicHero } from "@/components/sections/HomeCinematicHero/HomeCinematicHero"
 import { HomeFeaturedSellersSection } from "@/components/sections/HomeFeaturedSellersSection/HomeFeaturedSellersSection"
 import { HomeHowItWorksSection } from "@/components/sections/HomeHowItWorksSection/HomeHowItWorksSection"
+import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 
 import type { Metadata } from "next"
 import Script from "next/script"
-import { Suspense } from "react"
 import { getTranslations } from "next-intl/server"
 import { getCachedHomeHreflangLanguages } from "@/lib/data/home-hreflang-alternates"
 import { toHreflang } from "@/lib/helpers/hreflang"
@@ -23,81 +20,10 @@ import {
   publicSiteOrigin,
   resolvedSiteName,
 } from "@/lib/constants/site"
+import { getHeroHomeState } from "@/lib/hero/hero-home-load"
 
-function HomeTrendingSkeleton() {
-  return (
-    <div className="w-full px-4 lg:px-8">
-      <section
-        className="w-full animate-pulse py-8"
-        aria-hidden
-      >
-        <div className="mb-6 h-8 w-48 max-w-full rounded bg-neutral-100" />
-        <div className="flex gap-4 overflow-hidden">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-[3/4] w-40 shrink-0 rounded-sm bg-neutral-100 sm:w-48"
-            />
-          ))}
-        </div>
-      </section>
-    </div>
-  )
-}
-
-function HomeCategoriesSkeleton() {
-  return (
-    <div className="w-full px-4 lg:px-8">
-      <section
-        className="w-full animate-pulse bg-primary py-8"
-        aria-hidden
-      >
-        <div className="mb-6 h-8 w-64 max-w-full rounded bg-white/20" />
-        <div className="flex gap-3 overflow-hidden">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-28 w-24 shrink-0 rounded-sm bg-white/20 sm:h-32 sm:w-28"
-            />
-          ))}
-        </div>
-      </section>
-    </div>
-  )
-}
-
-function HomeWideCardSkeleton() {
-  return (
-    <div
-      className="container animate-pulse py-8"
-      aria-hidden
-    >
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="h-48 rounded-sm bg-neutral-100 lg:h-64" />
-        <div className="aspect-[4/3] rounded-sm bg-neutral-100" />
-      </div>
-    </div>
-  )
-}
-
-function HomeCollectionsListSkeleton() {
-  return (
-    <div
-      className="container animate-pulse py-12"
-      aria-hidden
-    >
-      <div className="mb-10 h-8 w-64 rounded bg-neutral-100" />
-      <div className="space-y-4">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-6 w-2/3 max-w-md rounded bg-neutral-100" />
-        ))}
-      </div>
-    </div>
-  )
-}
-
-/** Home catalogo: rigenerazione periodica (ISR) — il layout resta dinamico (cookie/sessione). */
-export const revalidate = 300
+/** Dati catalogo senza ISR: pagina renderizzata a ogni richiesta. */
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({
   params,
@@ -170,11 +96,14 @@ export default async function Home({
 
   const siteName = resolvedSiteName()
 
-  const tHome = await getTranslations("Home")
+  const [tHome, tFooter, heroHomeState] = await Promise.all([
+    getTranslations("Home"),
+    getTranslations("Footer"),
+    getHeroHomeState(locale),
+  ])
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start text-primary">
-      {/* Organization JSON-LD */}
       <Script
         id="ld-org"
         type="application/ld+json"
@@ -188,7 +117,6 @@ export default async function Home({
           }),
         }}
       />
-      {/* WebSite JSON-LD */}
       <Script
         id="ld-website"
         type="application/ld+json"
@@ -204,55 +132,39 @@ export default async function Home({
       />
 
       <div className="w-full max-w-full min-w-0">
-        <Suspense fallback={<HomeCinematicHeroSkeleton />}>
-          <HomeCinematicHero locale={locale} />
-        </Suspense>
+        <HomeCinematicHero locale={locale} initialState={heroHomeState} />
       </div>
 
-      {/* Prodotti in evidenza */}
-      <Suspense fallback={<HomeTrendingSkeleton />}>
-        <div className="w-full px-4 lg:px-8">
-          <HomeProductSection
-            heading={tHome("trending")}
-            locale={locale}
-            home
-          />
-        </div>
-      </Suspense>
+      <div
+        className="w-full border-y border-primary/15 bg-primary/5 px-4 py-3 text-center"
+        data-testid="home-privacy-notice"
+      >
+        <LocalizedClientLink
+          href="/privacy"
+          locale={locale}
+          className="label-md font-medium text-primary underline-offset-4 hover:underline"
+        >
+          {tFooter("links.privacy")}
+        </LocalizedClientLink>
+      </div>
 
-      {/* Produttori selezionati */}
-      <Suspense fallback={
-        <div className="w-full px-4 lg:px-8 animate-pulse py-8">
-          <div className="mb-8 h-8 w-56 rounded bg-neutral-100" />
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="aspect-[4/3] rounded-lg bg-neutral-100" />
-            ))}
-          </div>
-        </div>
-      }>
-        <HomeFeaturedSellersSection locale={locale} />
-      </Suspense>
+      <div className="w-full px-4 lg:px-8">
+        <HomeProductSection
+          heading={tHome("trending")}
+          locale={locale}
+          home
+        />
+      </div>
 
-      {/* Come funziona */}
+      <HomeFeaturedSellersSection locale={locale} />
+
       <HomeHowItWorksSection />
 
-      {/* Sfoglia per categoria */}
-      <Suspense fallback={<HomeCategoriesSkeleton />}>
-        <div className="w-full px-4 lg:px-8">
-          <HomeCategories heading={tHome("shopByCategory")} />
-        </div>
-      </Suspense>
+      <HomeCategories heading={tHome("shopByCategory")} />
 
-      {/* Banner collezione */}
-      <Suspense fallback={<HomeWideCardSkeleton />}>
-        <BannerSection />
-      </Suspense>
+      <BannerSection />
 
-      {/* Selezioni / collezioni */}
-      <Suspense fallback={<HomeCollectionsListSkeleton />}>
-        <ShopByStyleSection />
-      </Suspense>
+      <ShopByStyleSection />
 
       <BlogSection />
     </main>

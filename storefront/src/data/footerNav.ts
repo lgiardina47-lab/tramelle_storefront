@@ -63,19 +63,24 @@ export const FOOTER_NAV_SECTIONS: FooterNavSection[] = [
       { kind: "internal", href: "/info/who-we-are", labelKey: "whoWeAre" },
       { kind: "internal", href: "/info/reviews", labelKey: "customerReviews" },
       { kind: "internal", href: "/blog", labelKey: "blog" },
-      { kind: "internal", href: "/info/terms", labelKey: "terms" },
-      { kind: "internal", href: "/info/privacy", labelKey: "privacy" },
+      { kind: "internal", href: "/terms", labelKey: "terms" },
+      { kind: "internal", href: "/privacy", labelKey: "privacy" },
       { kind: "internal", href: "/info/press", labelKey: "press" },
     ],
   },
 ]
 
-export type FooterSocialKey = "facebook" | "instagram" | "twitter"
+export type FooterSocialKey =
+  | "facebook"
+  | "instagram"
+  | "twitter"
+  | "linkedin"
 
 export const FOOTER_SOCIAL: { key: FooterSocialKey; envVar: string }[] = [
   { key: "facebook", envVar: "NEXT_PUBLIC_SOCIAL_FACEBOOK_URL" },
   { key: "instagram", envVar: "NEXT_PUBLIC_SOCIAL_INSTAGRAM_URL" },
   { key: "twitter", envVar: "NEXT_PUBLIC_SOCIAL_TWITTER_URL" },
+  { key: "linkedin", envVar: "NEXT_PUBLIC_SOCIAL_LINKEDIN_URL" },
 ]
 
 export function readSocialUrl(envVar: string): string {

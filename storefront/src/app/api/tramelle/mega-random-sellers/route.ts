@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import {
-  listStoreSellers,
-  listStoreSellersForParentCategory,
+  fetchStoreSellersFacetsForParentCategoryNoStore,
+  type StoreSellersFacetsResponse,
 } from "@/lib/data/seller"
-import { sellerListingRegionLabel } from "@/lib/helpers/seller-listing-region"
-import type { StoreSellerListItem } from "@/types/seller"
 
 export const dynamic = "force-dynamic"
 
-const MAX_ORIGINS = 36
-const POOL_LIMIT = 80
+const MAX_ORIGINS = 64
 
 function nationFromCountryCode(countryCode: string | undefined): string {
   const cc = (countryCode ?? "").trim().toUpperCase()
@@ -28,51 +25,59 @@ function originKey(nation: string, region: string | null): string {
   return `${n}|${r}`
 }
 
-function rowFromSeller(s: StoreSellerListItem): {
+/**
+ * Stessi seller della directory per macro: `GET /store/sellers?facets=1&parent_category_handle=…`
+ * (taste o prodotto pubblicato in sottoalbero). Niente campione casuale né shuffle.
+ */
+function originsFromFacets(f: StoreSellersFacetsResponse): {
   nation: string
   region: string | null
-} | null {
-  const nation = nationFromCountryCode(s.country_code)
-  const rawRegion =
-    sellerListingRegionLabel(s) ||
-    (typeof s.state === "string" && s.state.trim() ? s.state.trim() : "") ||
-    (typeof s.city === "string" && s.city.trim() ? s.city.trim() : "") ||
-    ""
-
-  if (nation) {
-    const region =
-      rawRegion && rawRegion.toLowerCase() !== nation.toLowerCase()
-        ? rawRegion
-        : null
-    return { nation, region }
-  }
-
-  if (rawRegion) {
-    return { nation: rawRegion, region: null }
-  }
-
-  return null
-}
-
-function originsFromSellers(raw: StoreSellerListItem[]): {
-  nation: string
-  region: string | null
+  country_code: string
 }[] {
-  const shuffled = [...raw].sort(() => Math.random() - 0.5)
-  const seen = new Set<string>()
-  const origins: { nation: string; region: string | null }[] = []
+  const countries = f.countries ?? []
+  if (!countries.length) return []
+  const { regionsByCountry, sellerCountByCountry, sellerCountByRegion } = f
 
-  for (const s of shuffled) {
-    const row = rowFromSeller(s)
-    if (!row) continue
-    const k = originKey(row.nation, row.region)
-    if (seen.has(k)) continue
+  const out: { nation: string; region: string | null; country_code: string }[] =
+    []
+  const seen = new Set<string>()
+  const add = (
+    nation: string,
+    region: string | null,
+    countryCode: string
+  ) => {
+    const k = originKey(nation, region)
+    if (seen.has(k)) return
     seen.add(k)
-    origins.push(row)
-    if (origins.length >= MAX_ORIGINS) break
+    out.push({ nation, region, country_code: countryCode })
   }
 
-  origins.sort((a, b) => {
+  for (const cc of countries) {
+    const nation = nationFromCountryCode(cc)
+    if (!nation) continue
+    const ccLower = cc.trim().toLowerCase()
+    if (!ccLower) continue
+    const regs = regionsByCountry[cc] ?? []
+    const nCountry = sellerCountByCountry[cc] ?? 0
+    const regMap = sellerCountByRegion[cc] ?? {}
+    const sumReg = Object.values(regMap).reduce(
+      (a, b) => a + (Number.isFinite(b) ? b : 0),
+      0
+    )
+
+    if (regs.length === 0) {
+      add(nation, null, ccLower)
+      continue
+    }
+    for (const reg of regs) {
+      add(nation, reg, ccLower)
+    }
+    if (nCountry > sumReg) {
+      add(nation, null, ccLower)
+    }
+  }
+
+  out.sort((a, b) => {
     const c = a.nation.localeCompare(b.nation, "it", { sensitivity: "base" })
     if (c !== 0) return c
     const ar = a.region ?? ""
@@ -80,50 +85,20 @@ function originsFromSellers(raw: StoreSellerListItem[]): {
     return ar.localeCompare(br, "it", { sensitivity: "base" })
   })
 
-  return origins
+  return out.length > MAX_ORIGINS ? out.slice(0, MAX_ORIGINS) : out
 }
 
 export async function GET(request: NextRequest) {
-  let parentCategoryHandle =
-    request.nextUrl.searchParams.get("parent_category_handle")?.trim() || null
-
-  const fetchHead = (parent: string | null) =>
-    parent
-      ? listStoreSellersForParentCategory({
-          parentCategoryHandle: parent,
-          limit: 1,
-          offset: 0,
-        })
-      : listStoreSellers({ limit: 1, offset: 0 })
-
-  let first = await fetchHead(parentCategoryHandle)
-
-  if (
-    parentCategoryHandle &&
-    (first == null || (first.count ?? 0) === 0)
-  ) {
-    parentCategoryHandle = null
-    first = await fetchHead(null)
-  }
-
-  const count = first?.count ?? 0
-  if (count === 0 || !first) {
+  const parent =
+    request.nextUrl.searchParams.get("parent_category_handle")?.trim() || ""
+  if (!parent || !/^[a-z0-9][a-z0-9-]{0,118}$/i.test(parent)) {
     return NextResponse.json({ origins: [] })
   }
 
-  const maxOff = Math.max(0, count - POOL_LIMIT)
-  const offset = maxOff > 0 ? Math.floor(Math.random() * (maxOff + 1)) : 0
+  const facets = await fetchStoreSellersFacetsForParentCategoryNoStore(parent)
+  if (!facets || (facets.totalSellerCount ?? 0) === 0) {
+    return NextResponse.json({ origins: [] })
+  }
 
-  const page = parentCategoryHandle
-    ? await listStoreSellersForParentCategory({
-        parentCategoryHandle,
-        limit: POOL_LIMIT,
-        offset,
-      })
-    : await listStoreSellers({ limit: POOL_LIMIT, offset })
-
-  const raw = page?.sellers ?? []
-  const origins = originsFromSellers(raw)
-
-  return NextResponse.json({ origins })
+  return NextResponse.json({ origins: originsFromFacets(facets) })
 }

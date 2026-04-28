@@ -8,8 +8,10 @@ import { derivedCityForMedusa } from '@/lib/helpers/checkout-delivery-address';
 import { resolveItalianProvinceCode } from '@/lib/helpers/italian-provinces';
 import medusaError from '@/lib/helpers/medusa-error';
 import { parseVariantIdsFromError } from '@/lib/helpers/parse-variant-error';
+import { getStripeClientSecretFromPaymentSession } from '@/lib/helpers/checkout-stripe-elements';
 
 import { fetchQuery, sdk } from '../config';
+import { MEDUSA_STORE_CART_RETRIEVE_FIELDS } from './medusa-store-cart-fields';
 import { MEDUSA_BACKEND_URL } from '../medusa-backend-url';
 import {
   getAuthHeaders,
@@ -59,10 +61,7 @@ export async function retrieveCart(cartId?: string) {
     .fetch<HttpTypes.StoreCartResponse>(`/store/carts/${id}`, {
       method: 'GET',
       query: {
-        fields:
-          '*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title,' +
-          '*items.thumbnail, +items.product.thumbnail, *items.product.images, *items.metadata, +items.total, *promotions, *shipping_methods,' +
-          '*payment_collection,*payment_collection.payment_sessions, *items.product.seller'
+        fields: MEDUSA_STORE_CART_RETRIEVE_FIELDS
       },
       headers,
       cache: 'no-cache'
@@ -349,6 +348,64 @@ export async function ensureDefaultPaymentSessionForCheckout(
 
   try {
     await initiatePaymentSession(cart, { provider_id: first.id });
+  } catch {
+    return cart;
+  }
+
+  return (await retrieveCart(cart.id)) ?? cart;
+}
+
+/** Solo Tramelle Mercur Stripe Connect card (evita import client `constants.tsx` da server). */
+function isTramelleStripeConnectProvider(providerId?: string) {
+  if (!providerId) return false;
+  return (
+    providerId.startsWith('pp_card_stripe-connect') ||
+    providerId.startsWith('pp_card_stripe_connect')
+  );
+}
+
+/**
+ * Rigenera il PaymentIntent Stripe (card+paypal) nel render server di /checkout.
+ * Sostituisce il re-init lato client + `router.refresh()` (rotellina ~2s e box pagamento vuoto).
+ */
+export async function reissueTramelleStripeConnectIntentIfPresent(
+  cart: HttpTypes.StoreCart | null
+): Promise<HttpTypes.StoreCart | null> {
+  if (!cart?.id) {
+    return cart;
+  }
+
+  const hasShipping = (cart.shipping_methods?.length ?? 0) > 0;
+  if (!hasShipping) {
+    return cart;
+  }
+
+  const withGift = cart as HttpTypes.StoreCart & { gift_cards?: unknown[] };
+  const giftPaid =
+    withGift.gift_cards &&
+    withGift.gift_cards.length > 0 &&
+    (cart.total === 0 || cart.total == null);
+  if (giftPaid) {
+    return cart;
+  }
+
+  const pending = cart.payment_collection?.payment_sessions?.find(
+    s =>
+      s.status === 'pending' &&
+      s.provider_id &&
+      isTramelleStripeConnectProvider(s.provider_id)
+  );
+  if (!pending?.provider_id) {
+    return cart;
+  }
+
+  /** Evita initiate + retrieveCart a ogni hit: rallenta il TTFB e il box Stripe resta su “Caricamento…”. */
+  if (getStripeClientSecretFromPaymentSession(pending)) {
+    return cart;
+  }
+
+  try {
+    await initiatePaymentSession(cart, { provider_id: pending.provider_id });
   } catch {
     return cart;
   }

@@ -1,7 +1,10 @@
+"use client"
+
 import { Button, Card } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
-import Image from "next/image"
 import { resolveLineItemThumbnailSrc } from "@/lib/helpers/get-image-url"
+import Image from "next/image"
+import { useTranslations } from "next-intl"
 
 export const ReturnSummaryTab = ({
   selectedItems,
@@ -20,6 +23,7 @@ export const ReturnSummaryTab = ({
   returnMethod: any
   handleSubmit: () => void
 }) => {
+  const t = useTranslations("Account")
   const selected = items.filter((item) =>
     selectedItems.some((i) => i.line_item_id === item.id)
   )
@@ -74,7 +78,7 @@ export const ReturnSummaryTab = ({
 
       <Card className="p-4">
         <p className="label-md flex justify-between mb-4">
-          Subtotal refund:
+          {t("returnSubtotalRefund")}
           <span className="label-md !font-bold text-primary">
             {convertToLocale({
               amount: subtotal,
@@ -91,11 +95,11 @@ export const ReturnSummaryTab = ({
         >
           {tab === 0
             ? selected.length
-              ? "Continue"
-              : "Select Items"
+              ? t("returnContinue")
+              : t("returnSelectItemsButton")
             : !returnMethod
-            ? "Select return method"
-            : "Request return"}
+            ? t("returnSelectMethodButton")
+            : t("returnRequestButton")}
         </Button>
       </Card>
     </div>

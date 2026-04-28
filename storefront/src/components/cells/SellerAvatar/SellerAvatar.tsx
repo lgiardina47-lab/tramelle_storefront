@@ -1,3 +1,4 @@
+import { cloudflareAvatarOrLogoDeliveryUrl } from "@/lib/helpers/cloudflare-images"
 import Image from "next/image"
 
 export const SellerAvatar = ({
@@ -9,9 +10,12 @@ export const SellerAvatar = ({
   size?: number
   alt?: string
 }) => {
+  const delivery = photo
+    ? cloudflareAvatarOrLogoDeliveryUrl(photo.trim(), size) ?? photo.trim()
+    : ""
   return photo ? (
     <Image
-      src={photo}
+      src={delivery}
       alt={alt}
       width={size}
       height={size}

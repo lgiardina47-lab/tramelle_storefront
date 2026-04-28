@@ -270,6 +270,40 @@ export async function login(formData: FormData) {
   }
 }
 
+/**
+ * Dopo OAuth Google (client): salva JWT Medusa nel cookie httpOnly e collega il carrello.
+ */
+export async function persistCustomerSessionFromOAuth(accessToken: string) {
+  const token = accessToken?.trim();
+  if (!token) {
+    return { success: false as const, message: 'Token di sessione non valido.' };
+  }
+
+  await setAuthToken(token);
+
+  try {
+    await transferCart({ authorization: `Bearer ${token}` });
+  } catch (transferErr: unknown) {
+    const msg =
+      transferErr instanceof Error ? transferErr.message : String(transferErr);
+    console.error('[oauth] transferCart', msg);
+    return {
+      success: false as const,
+      message:
+        msg ||
+        'Accesso effettuato ma il carrello non è stato collegato. Riprova.'
+    };
+  }
+
+  const customerCacheTag = await getCacheTag('customers');
+  revalidateTag(customerCacheTag);
+  revalidatePath('/[locale]/checkout', 'page');
+  revalidatePath('/[locale]/cart', 'page');
+  revalidatePath('/[locale]', 'layout');
+
+  return { success: true as const };
+}
+
 export async function signout() {
   await sdk.auth.logout();
 
